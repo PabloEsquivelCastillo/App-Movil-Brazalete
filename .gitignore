@@ -134,3 +134,13 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# React Native specific
+android/app/build/
+android/build/
+ios/build/
+local.properties
+Pods/
+Podfile.lock
+.expo/
+.expo-shared/
