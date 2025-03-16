@@ -12,7 +12,12 @@ Navegacion
 npm install react-native-screens react-native-safe-area-context react-native-gesture-handler
 
 
+Elementos
+npm install react-native-elements
+
+
+
 Actualizar Versiones 
 npm install react-native-gesture-handler@~2.20.2 react-native-reanimated@~3.16.1 react-native-safe-area-context@4.12.0 react-native-screens@~4.4.0
-
+npm install react-native-safe-area-context@4.12.0
 
