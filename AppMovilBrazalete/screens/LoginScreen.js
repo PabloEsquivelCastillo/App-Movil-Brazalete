@@ -57,7 +57,7 @@ export default function LoginScreen({ navigation }) {
           </View>
 
           {/* Olvidaste tu contraseña */}
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Recuperar")}>
             <Text style={styles.forgotPassword}>¿Olvidaste tu contraseña?</Text>
           </TouchableOpacity>
 
@@ -71,7 +71,7 @@ export default function LoginScreen({ navigation }) {
 
           {/* Link para crear cuenta */}
           <Text style={styles.createAccount}>
-            ¿No tienes cuenta? <Text style={styles.createLink}>Crear ahora</Text>
+            ¿No tienes cuenta? <Text style={styles.createLink} onPress={() => navigation.navigate("Registro")}>Crear ahora</Text>
           </Text>
         </View>
       </KeyboardAvoidingView>
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   createLink: {
-    color: "#4CAF89",
+    color: theme.colors.secondary,
     fontWeight: "bold",
   },
   buttonDisabled: {
