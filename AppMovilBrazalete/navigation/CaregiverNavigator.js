@@ -3,9 +3,12 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { View, StyleSheet, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { AuthContext } from "../context/AuthContext";
-import BrazaleteConfig from "../screens/BrazaleteConfig";
+import BrazaleteConfig from "../screens/caregiver/BrazaleteConfig";
 import theme from "../themes/theme";
-import BrazaleteRegistro from "../screens/BrazaleteRegistro";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import BrazaletesStack from "./stacks/BrazaleteStack";
+import RecordatorioStack from "./stacks/RecordatorioStack";
+
 
 const Tab = createBottomTabNavigator();
 
@@ -30,23 +33,38 @@ const CaregiverNavigator = () => {
                 screenOptions={{
                     headerShown: false,
                     tabBarStyle: styles.tabBar,
-                    tabBarActiveTintColor: "#ffffff",
-                    tabBarInactiveTintColor: "#b0c4b1",
+                    tabBarActiveTintColor: "black", // Color negro para el ícono y la etiqueta activa
+                    tabBarInactiveTintColor: "black", // Color negro para el ícono y la etiqueta inactiva
                     tabBarLabelStyle: styles.tabBarLabel,
                 }}
             >
                 <Tab.Screen
                     name="Inicio"
-                    component={BrazaleteRegistro}
+                    component={BrazaletesStack}
                     options={{
-                        tabBarIcon: ({ color }) => <Feather name="home" size={24} color={color} />,
+                        tabBarIcon: ({ color, focused }) => (
+                            <Ionicons 
+                                name="watch-outline" 
+                                size={24} 
+                                color="black" 
+                                style={focused ? styles.activeIcon : {}}
+                            />
+                        ),
                     }}
                 />
+
                 <Tab.Screen
-                    name="Brazalete Config"
-                    component={BrazaleteConfig}
+                    name="Recordatorio"
+                    component={RecordatorioStack}
                     options={{
-                        tabBarIcon: ({ color }) => <Feather name="settings" size={24} color={color} />,
+                        tabBarIcon: ({ color, focused }) => (
+                            <Ionicons 
+                                name="notifications-outline" 
+                                size={24} 
+                                color="black" 
+                                style={focused ? styles.activeIcon : {}}
+                            />
+                        ),
                     }}
                 />
 
@@ -60,7 +78,14 @@ const CaregiverNavigator = () => {
                         },
                     }}
                     options={{
-                        tabBarIcon: ({ color }) => <Feather name="log-out" size={24} color={color} />,
+                        tabBarIcon: ({ color, focused }) => (
+                            <Feather 
+                                name="log-out" 
+                                size={24} 
+                                color="black" 
+                                style={focused ? styles.activeIcon : {}}
+                            />
+                        ),
                     }}
                 />
             </Tab.Navigator>
@@ -83,9 +108,9 @@ const styles = StyleSheet.create({
         right: 20,
         backgroundColor: theme.colors.secondary, // Color de fondo
         height: 70,
-        borderRadius: 20, // 🔥 Bordes redondeados
-        borderTopWidth: 0, // 🔥 Eliminar línea superior
-        elevation: 5, // 🔥 Sombra en Android
+        borderRadius: 20, // Bordes redondeados
+        borderTopWidth: 0, // Eliminar línea superior
+        elevation: 5, // Sombra en Android
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 5 },
         shadowOpacity: 0.1,
@@ -96,6 +121,26 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: "bold",
     },
+    activeIconContainer: {
+        width: 60, // Tamaño del círculo
+        height: 60, // Tamaño del círculo
+        borderRadius: 60, // Forma circular
+        backgroundColor: 'rgba(0, 0, 0, 0.1)', // Color gris más oscuro con opacidad para el círculo
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: "black", // Color de la sombra
+        shadowOffset: { width: 0, height: 0 }, // Sombra hacia abajo
+        shadowOpacity: 0.5, // Sombra más opaca
+        shadowRadius: 10, // Mayor difusión de la sombra
+        elevation: 8, // Sombra más prominente en Android
+        transform: [{ scale: 1.1 }], // Agregar un pequeño aumento de tamaño para destacar
+        transition: 'all 0.3s ease', // Transición suave en el cambio de tamaño
+    },
+    icon: {
+        color: 'black', // Asegura que el ícono sea negro
+        fontSize: 26, // Tamaño del ícono
+    },
 });
+
 
 export default CaregiverNavigator;

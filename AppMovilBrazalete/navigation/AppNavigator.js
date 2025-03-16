@@ -5,6 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 import LoginScreen from "../screens/LoginScreen";
 import AdminNavigator from "./AdminNavigator";
 import CaregiverNavigator from "./CaregiverNavigator";
+import StackGeneral from "./stacks/StackGeneral";
 
 const Stack = createNativeStackNavigator();
 
@@ -21,7 +22,7 @@ const AppNavigator = () => {
                         <Stack.Screen name="CaregiverStack" component={CaregiverNavigator} />
                     )
                 ) : (
-                    <Stack.Screen name="Login" component={LoginScreen} />
+                    <Stack.Screen name="Login" component={StackGeneral} />
                 )}
             </Stack.Navigator>
         </NavigationContainer>
