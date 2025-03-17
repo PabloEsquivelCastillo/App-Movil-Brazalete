@@ -8,6 +8,9 @@ import theme from "../themes/theme";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import BrazaletesStack from "./stacks/BrazaleteStack";
 import RecordatorioStack from "./stacks/RecordatorioStack";
+import MedicamentoStack from "./stacks/MedicamentoStack";
+import { color } from "react-native-elements/dist/helpers";
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 
 const Tab = createBottomTabNavigator();
@@ -67,6 +70,21 @@ const CaregiverNavigator = () => {
                         ),
                     }}
                 />
+
+
+                <Tab.Screen
+                name="Medicamento"
+                component={MedicamentoStack}
+                options={{
+                    tabBarIcon: ({ color, focused}) => {
+                        <FontAwesome6 
+                        name="prescription-bottle-medical" 
+                        size={24} 
+                        color="black"
+                        style={focused ? styles.activeIcon : {}}
+                         />
+                    }
+                }}/>
 
                 <Tab.Screen
                     name="Cerrar sesión"
