@@ -46,10 +46,10 @@ const CaregiverNavigator = () => {
                     component={BrazaletesStack}
                     options={{
                         tabBarIcon: ({ color, focused }) => (
-                            <Ionicons 
-                                name="watch-outline" 
-                                size={24} 
-                                color="black" 
+                            <Ionicons
+                                name="watch-outline"
+                                size={24}
+                                color="black"
                                 style={focused ? styles.activeIcon : {}}
                             />
                         ),
@@ -61,10 +61,10 @@ const CaregiverNavigator = () => {
                     component={RecordatorioStack}
                     options={{
                         tabBarIcon: ({ color, focused }) => (
-                            <Ionicons 
-                                name="notifications-outline" 
-                                size={24} 
-                                color="black" 
+                            <Ionicons
+                                name="notifications-outline"
+                                size={24}
+                                color="black"
                                 style={focused ? styles.activeIcon : {}}
                             />
                         ),
@@ -73,18 +73,20 @@ const CaregiverNavigator = () => {
 
 
                 <Tab.Screen
-                name="Medicamento"
-                component={MedicamentoStack}
-                options={{
-                    tabBarIcon: ({ color, focused}) => {
-                        <FontAwesome6 
-                        name="prescription-bottle-medical" 
-                        size={24} 
-                        color="black"
-                        style={focused ? styles.activeIcon : {}}
-                         />
-                    }
-                }}/>
+                    name="Medicamento"
+                    component={MedicamentoStack}
+                    options={{
+                        tabBarIcon: ({ color, focused }) => (
+                            <Ionicons
+                                name="medkit-outline"
+                                size={24}
+                                color="black"
+                                style={focused ? styles.activeIcon : {}}
+                            />
+                        )
+                    }}
+                />
+
 
                 <Tab.Screen
                     name="Cerrar sesión"
@@ -97,10 +99,10 @@ const CaregiverNavigator = () => {
                     }}
                     options={{
                         tabBarIcon: ({ color, focused }) => (
-                            <Feather 
-                                name="log-out" 
-                                size={24} 
-                                color="black" 
+                            <Feather
+                                name="log-out"
+                                size={24}
+                                color="black"
                                 style={focused ? styles.activeIcon : {}}
                             />
                         ),
