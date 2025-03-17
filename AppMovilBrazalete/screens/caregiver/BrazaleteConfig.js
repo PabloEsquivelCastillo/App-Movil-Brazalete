@@ -3,6 +3,7 @@ import { SafeAreaView, KeyboardAvoidingView, Platform, StyleSheet, Text, Touchab
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Background from "../../components/Background";
 import theme from "../../themes/theme";
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function BrazaleteConfig({ route, navigation }) {
 
@@ -56,7 +57,7 @@ export default function BrazaleteConfig({ route, navigation }) {
             <Background />
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <AntDesign name="back" size={24} color="black" style={styles.buttonBack} />
+                    <Ionicons name="arrow-back-circle-outline" size={30} color="green" style={styles.buttonBack} />
                 </TouchableOpacity>
                 <Text style={[styles.title, { marginTop: 50 }]}>{title}</Text>
                 <Text style={styles.text}>Aquí podrás modificar el nombre de tu brazalete</Text>
@@ -103,7 +104,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between"
     },
     title: {
-        fontSize: 35,
+        fontSize: 28,
         fontWeight: "bold",
         marginBottom: 30,
         color: "#6DCE9D",

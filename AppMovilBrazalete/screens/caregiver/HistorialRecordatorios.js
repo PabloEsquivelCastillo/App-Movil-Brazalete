@@ -3,10 +3,12 @@ import theme from "../../themes/theme";
 import { SafeAreaView, View, StyleSheet, TouchableOpacity, Text, Modal, FlatList } from "react-native";
 import Background from "../../components/Background";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 
 
-export default function Recordatorios({ navigation }) {
+
+export default function HistorialRecordatorios({ navigation }) {
     const [searchQuery1, setSearchQuery1] = useState('');
     const [searchQuery2, setSearchQuery2] = useState('');
 
@@ -40,17 +42,16 @@ export default function Recordatorios({ navigation }) {
             <SafeAreaView style={styles.SafeAreaView}>
                 <Background />
                 <View style={styles.container}>
-                    <Text style={styles.title}>Recordatorios Activos</Text>
+
+                    {/**Botono para volver */}
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <Ionicons name="arrow-back-circle-outline" size={30} color="green" style={styles.buttonBack} />
+                    </TouchableOpacity>
+                    <Text style={styles.title}>Historial de recordatorios</Text>
                     <Text style={styles.Text}>Aquí puedes consultar los recordatorios ya completados.</Text>
 
-                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Registro")}>
-                        <MaterialIcons name="add-circle-outline" size={24} color="black" style={styles.buttonIcon} />
-                        <Text style={styles.buttonText}>Registrar Recordatorio</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Historial")}>
-                        <MaterialIcons name="manage-history" size={24} color="black"  style={styles.buttonIcon} />
-                        <Text style={styles.buttonText}>Historial</Text>
-                    </TouchableOpacity>
+
+
                 </View>
             </SafeAreaView>
         </>
@@ -70,6 +71,7 @@ const styles = StyleSheet.create({
         justifyContent: "center"
     },
     title: {
+        paddingTop: 20,
         fontFamily: "Poppins",
         color: theme.colors.secondary,
         fontSize: 28,
@@ -105,5 +107,8 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "bold",
     },
-
+    buttonBack: {
+        paddingTop: 30,
+        color: theme.colors.secondary
+    },
 });

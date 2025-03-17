@@ -42,6 +42,7 @@ export default function BrazaleteRegistro({ navigation }) {
                             />
                         </View>
                     </View>
+
                     {conectado ? (
                         <View style={styles.card}>
                             <Image source={brazalete} style={styles.image} />
@@ -64,9 +65,12 @@ export default function BrazaleteRegistro({ navigation }) {
                     ) : (
                         <Text style={styles.warningText}>¡Asegúrate de encender tu bluetooth!</Text>
                     )}
+
                     <View style={styles.container}>
+
                         <Text style={styles.title}>Configuración del Brazalete</Text>
                         <Text style={styles.text}>Aquí podrás modificar la información de tu brazalete</Text>
+
                         <SecondCard
                             title="Brazalete de Juan"
                             onEdit={() =>
@@ -76,6 +80,7 @@ export default function BrazaleteRegistro({ navigation }) {
                                 })
                             }
                         />
+
                         <SecondCard
                             title="Brazalete de Alan"
                             onEdit={() =>
@@ -103,8 +108,8 @@ const styles = StyleSheet.create({
     },
     title: {
         fontFamily: "Poppins",
-        color: "#66CC99",
-        fontSize: 20,
+        color: theme.colors.secondary,
+        fontSize: 28,
         fontWeight: "bold",
     },
     titleContainer: {
