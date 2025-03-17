@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import Background from "../components/Background";
 import { FontAwesome } from "@expo/vector-icons";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
-import AntDesign from '@expo/vector-icons/AntDesign';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import theme from "../themes/theme";
 
-export default function RecoverScreen({navigation}) {
+export default function RecoverScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [isValidEmail, setIsValidEmail] = useState(true); // Estado para validar el correo
   return (
@@ -15,7 +15,7 @@ export default function RecoverScreen({navigation}) {
         <View style={styles.innerContainer}>
           {/* Icono de regreso */}
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.buttonBack}>
-            <AntDesign name="back" size={24} color={theme.colors.secondary} />
+            <Ionicons name="arrow-back-circle-outline" size={30} color="green" style={styles.buttonBack} />
           </TouchableOpacity>
 
           {/* Formulario */}
@@ -60,9 +60,9 @@ const styles = StyleSheet.create({
     position: 'relative', // Necesario para colocar el ícono de vuelta correctamente
   },
   buttonBack: {
-    position: 'absolute',
-    top: 100, // Asegura que el ícono de regreso esté en la parte superior
-    left: 20, // Asegura que esté en el margen izquierdo
+    paddingTop: 30,
+    paddingHorizontal: 10,
+    color: theme.colors.secondary
   },
   formContainer: {
     width: "100%",
@@ -136,5 +136,9 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     backgroundColor: "#ccc",
+  },
+  buttonBack: {
+    paddingTop: 30,
+    color: theme.colors.secondary
   },
 });

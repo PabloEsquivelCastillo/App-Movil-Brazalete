@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import Background from "../components/Background";
-import AntDesign from '@expo/vector-icons/AntDesign';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import theme from "../themes/theme";
 
 
@@ -13,7 +13,7 @@ export default function RegisterScreen({ navigation }) {
     <>
       <Background />
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.buttonBack}>
-        <AntDesign name="back" size={24} color={theme.colors.secondary} />
+        <Ionicons name="arrow-back-circle-outline" size={30} color="green" style={styles.buttonBack} />
       </TouchableOpacity>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   button: {
-    backgroundColor: "#4CAF89",
+    backgroundColor: theme.colors.secondary,
     paddingVertical: 15,
     borderRadius: 10,
     width: "100%",
@@ -173,5 +173,10 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     backgroundColor: "#ccc",
+  },
+  buttonBack: {
+    paddingTop: 30,
+    paddingHorizontal: 10,
+    color: theme.colors.secondary
   },
 });
