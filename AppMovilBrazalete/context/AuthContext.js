@@ -6,7 +6,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   const login = (username, password) => {
-    if (username === "admin@gmail.com" && password === "123") {
+    if (username === "admin" && password === "123") {
       setUser({ role: "admin" });
     } else if (username === "123" && password === "123") {
       setUser({ role: "cuidador" });
