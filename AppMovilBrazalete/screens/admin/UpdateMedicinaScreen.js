@@ -1,9 +1,10 @@
 import React, {useState} from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-import Background from "../background/Background";
+import Background from "../../components/Background";
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import StylesGen from "../../themes/stylesGen";
 
 export default function UpdateProfileScreen() {
   const [email, setEmail] = useState('');
@@ -13,23 +14,22 @@ export default function UpdateProfileScreen() {
     <Background/>
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={StylesGen.container}
     >
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer} 
-        showsVerticalScrollIndicator={false} >
+    <SafeAreaView style={StylesGen.container}>
+    
           <View style={{marginBottom:30}}>
           <View>
-            <Text style={styles.title}>Actualiza el medicamento</Text>
+            <Text style={StylesGen.title}>Actualiza el medicamento</Text>
             <Text style={styles.descrip}>Aqui puedes actualizar la informacion del medicamento.</Text>
           </View>
-                <View style={styles.inputContainer}>
-                    <TextInput placeholder="Nombre" style={styles.input} />
-                    <MaterialCommunityIcons name="pill" size={30} color="gray" style={styles.icon} />
+                <View style={StylesGen.inputContainer}>
+                    <TextInput placeholder="Nombre" style={StylesGen.input} />
+                    <MaterialCommunityIcons name="pill" size={30} color="gray" style={StylesGen.icon} />
                 </View>
-                <View style={styles.inputContainer}>
-                    <TextInput placeholder="Descripcion" style={styles.input} />
-                    <MaterialCommunityIcons name="pill" size={30} color="gray" style={styles.icon} />
+                <View style={StylesGen.inputContainer}>
+                    <TextInput placeholder="Descripcion" style={StylesGen.input} />
+                    <MaterialCommunityIcons name="pill" size={30} color="gray" style={StylesGen.icon} />
                 </View>
                 <View style={{alignItems:"center"}}> 
                 <TouchableOpacity style={[styles.button, !isValidEmail && styles.buttonDisabled]} disabled={!isValidEmail}>
@@ -38,7 +38,6 @@ export default function UpdateProfileScreen() {
                 </View>
                 {/* FALTA REDIGIR AL LoginScreen*/}
           </View>
-      </ScrollView>
     </SafeAreaView>
     </KeyboardAvoidingView>
     </>
@@ -46,56 +45,13 @@ export default function UpdateProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal:35
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: "center",
-    flex:1
-  },
   
-  title: {
-    fontSize: 30,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#4CAF89",
-  },
+ 
   descrip:{
     fontSize: 18,
-    marginBottom: 15,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#4CAF89",
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    height: 60,
     marginBottom: 20,
-    backgroundColor: "#fff",
   },
-  inputContainer2: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "red",
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    height: 60,
-    marginBottom: 5,
-    backgroundColor: "#fff",
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: "#333",
-  },
-  icon: {
-    marginRight:10 ,
-  },
+  
   button: {
     backgroundColor: "#4CAF89",
     paddingVertical: 15,
