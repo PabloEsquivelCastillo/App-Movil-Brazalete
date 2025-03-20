@@ -9,14 +9,14 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
-
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import Background from "../../components/Background";
-import { useNavigation } from "@react-navigation/native";
 import { SearchBar } from "react-native-elements";
+import StylesGen from "../../themes/stylesGen";
 
-export default function MedicamentosScreen() {
+export default function MedicamentosScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (query) => {
@@ -26,117 +26,106 @@ export default function MedicamentosScreen() {
   const contacts = [
     {
       name: "Paracetamol",
-      email:
-        "Alivia dolor de cabeza y también cansancio extremo.",
+      email: "Alivia dolor de cabeza y también cansancio extremo.",
     },
     {
       name: "Ibuprofeno",
-      email:
-        "Alivia dolor de cabeza y también cansancio extremo .",
+      email: "Alivia dolor de cabeza y también cansancio extremo .",
     },
     {
       name: "Loratadina",
-      email:
-        "Alivia dolor de cabeza y también cansancio extremo.",
+      email: "Alivia dolor de cabeza y también cansancio extremo.",
     },
     {
       name: "Paracetamol",
-      email:
-        "Alivia dolor de cabeza y también cansancio extremo.",
+      email: "Alivia dolor de cabeza y también cansancio extremo.",
     },
     {
       name: "Ibuprofeno",
-      email:
-        "Alivia dolor de cabeza y también cansancio extremo.",
+      email: "Alivia dolor de cabeza y también cansancio extremo.",
+    },
+    {
+      name: "Loratadina",
+      email: "Alivia dolor de cabeza y también cansancio extremo.",
+    },
+    {
+      name: "Paracetamol",
+      email: "Alivia dolor de cabeza y también cansancio extremo.",
+    },
+    {
+      name: "Ibuprofeno",
+      email: "Alivia dolor de cabeza y también cansancio extremo.",
     },
   ];
+
+  const handleLogout = () => {
+          Alert.alert(
+              "Eliminar medicamento",
+              "¿Estás seguro de que deseas eliminar el medicamento?",
+              [
+                  { text: "Cancelar", style: "cancel" },
+                  { text: "Sí, salir"},
+              ]
+          );
+      };
 
   return (
     <>
       <Background />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.container}
-      >
-        <SafeAreaView style={styles.container}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={{ marginBottom: 30 }}>
-              <View>
-                <Text style={styles.title}>Medicamentos</Text>
-                <Text style={styles.descrip}>
-                  Aquí se muestran todos los medicamentos disponibles.
-                </Text>
+      <SafeAreaView style={StylesGen.container}>
+        <View style={styles.content}>
+          <View style={styles.textContainer}>
+            <Text style={StylesGen.title}>Medicamentos</Text>
+            <Text style={StylesGen.descrip}>
+              Aquí se muestran todos los medicamentos disponibles.
+            </Text>
+          </View>
+          <View style={styles.iconContainer}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Registro")}
+              style={{ alignItems: "center" }}
+            >
+              <Ionicons name="medkit-outline" size={40} color="gray" />
+              <Text style={styles.iconText}>Agregar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <ScrollView
+          style={StylesGen.scroll}
+          showsVerticalScrollIndicator={true}
+        >
+          {contacts.map((contact, index) => (
+            <View key={index} style={styles.contactItem}>
+              <View style={styles.contactInfo}>
+                <Text style={styles.contactName}>{contact.name}</Text>
+                <Text style={styles.contactEmail}>{contact.email}</Text>
               </View>
-              <SearchBar
-                placeholder="Buscar..."
-                onChangeText={handleSearch}
-                value={searchQuery}
-                platform="ios" // Puedes usar "android" para otro estilo
-                round // Esquinas redondeadas
-                searchIcon={{ name: "search", size: 24 }} // Personaliza el ícono de búsqueda
-                containerStyle={{
-                  backgroundColor: "transparent",
-                  borderTopWidth: 0,
-                  borderBottomWidth: 0,
-                }}
-                inputContainerStyle={{
-                  backgroundColor: "#f0f0f0",
-                  borderRadius: 25,
-                }}
-                inputStyle={{
-                  color: "#333",
-                }}
-              />
+              <View style={styles.buttonContainer}>
+                {/* Botón de Aceptar con ícono de palomita (check) */}
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("ActualizarMed")}
+                  style={{ marginRight: 18 }}
+                >
+                  <FontAwesome name="edit" size={30} color="black" />
+                </TouchableOpacity>
 
-              {contacts.map((contact, index) => (
-                <View key={index} style={styles.contactItem}>
-                  <View style={styles.contactInfo}>
-                    <Text style={styles.contactName}>{contact.name}</Text>
-                    <Text style={styles.contactEmail}>{contact.email}</Text>
-                  </View>
-                  <View style={styles.buttonContainer}>
-                    {/* Botón de Aceptar con ícono de palomita (check) */}
-                    <TouchableOpacity
-                      style={[styles.buttonList, styles.acceptButton]}
-                      onPress={() => handleAccept(contact)}
-                    >
-                      <FontAwesome name="edit" size={30} color="green" />
-                    </TouchableOpacity>
-
-                    {/* Botón de Rechazar con ícono de equis (times) */}
-                    <TouchableOpacity
-                      style={[styles.buttonList, styles.rejectButton]}
-                      onPress={() => handleReject(contact)}
-                    >
-                      <FontAwesome name="times" size={30} color="red" />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ))}
-
-              <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Descargar PDF</Text>
-              </TouchableOpacity>
+                {/* Botón de Rechazar con ícono de equis (times) */}
+                <TouchableOpacity onPress={handleLogout}>
+                  <Ionicons name="trash" size={30} color="red" />
+                </TouchableOpacity>
+              </View>
             </View>
-          </ScrollView>
-        </SafeAreaView>
-      </KeyboardAvoidingView>
+          ))}
+        </ScrollView>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Descargar PDF</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 35,
-    marginTop: 35,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: "bold",
-    marginBottom: 15,
-    color: "#4CAF89",
-  },
   descrip: {
     fontSize: 18,
     marginBottom: 15,
@@ -147,15 +136,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 16,
     padding: 10,
-    backgroundColor: "#E7F7EF",
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#4CAF89",
   },
   contactInfo: {
     flex: 1,
   },
   contactName: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "500",
     marginBottom: 10,
   },
   contactEmail: {
@@ -172,6 +162,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
+    marginBottom: 10,
   },
   buttonText: {
     color: "#fff",
@@ -181,13 +172,25 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   buttonContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
+    margin: 5,
   },
-  buttonList: {
-    padding: 8,
-    borderRadius: 15,
-    marginLeft: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+  content: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  iconContainer: {
+    alignItems: "center",
+    marginTop: 35,
+    marginRight: 1,
+  },
+  iconText: {
+    fontSize: 16,
+    color: "gray",
   },
 });
