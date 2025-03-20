@@ -87,20 +87,21 @@ const styles = StyleSheet.create({
         marginBottom:30
     },
     contactItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 16,
-        padding: 10,
-        backgroundColor: '#f9f9f9',
-        borderRadius: 8,
-      },
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 10,
+      padding: 14,
+      borderRadius: 5,
+      borderWidth: 1,
+      borderColor: "#4CAF89",
+    },
       contactInfo: {
         flex: 1,
       },
       contactName: {
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: '500',
         marginBottom:5
       },
       contactEmail: {
