@@ -4,7 +4,7 @@ export default {
         primary: '#E7F7EF',
         secondary: '#66CC99',
         text: '#333',
-        errorBorder: '#FFA500',
+        errorBorder: 'red',
         errorBackground: '#FFEBCC'
         },
         spacing: {
