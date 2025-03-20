@@ -1,7 +1,8 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
-import MedicamentosDisponibles from "../../screens/caregiver/MedicamentosDisponibles";
-import RegistrarMedicamento from "../../screens/caregiver/RegistroMedicamento";
+import MedicamentosScreen from "../../screens/admin/MedicamentosScreen";
+import UpdateMedicinaScreen from "../../screens/admin/UpdateMedicinaScreen";
+import RegistrarMedicamento from "../../screens/admin/RegistrarMedicamento";
 import { View } from 'react-native';
 
 const Stack = createNativeStackNavigator()
@@ -28,11 +29,9 @@ export default function MedicamentosStack() {
                     },
                     headerShadowVisible: false, // 🔹 **Elimina sombras adicionales en versiones recientes**
                   }} >
-                <Stack.Screen name="Medicamentos" component={MedicamentosDisponibles}/>
-                {/* 
+                <Stack.Screen name="Medicamentos" component={MedicamentosScreen}/>
+                <Stack.Screen name="ActualizarMed" component={UpdateMedicinaScreen}/>
                 <Stack.Screen name="Registro" component={RegistrarMedicamento}/>
-                <Stack.Screen name="Actualizar" component={ActualizarMedicamento}/>
-                */}
             </Stack.Navigator>
         </>
     );
