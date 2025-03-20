@@ -39,6 +39,10 @@ const CaregiverNavigator = () => {
                     tabBarActiveTintColor: "black", // Color negro para el ícono y la etiqueta activa
                     tabBarInactiveTintColor: "black", // Color negro para el ícono y la etiqueta inactiva
                     tabBarLabelStyle: styles.tabBarLabel,
+                    tabBarStyle: {
+                        alignContent:'center',
+                        height: 80, // Aumenta la altura de la barra
+                    },
                 }}
             >
                 <Tab.Screen
