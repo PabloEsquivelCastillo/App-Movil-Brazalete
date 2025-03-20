@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { View, StyleSheet, Alert } from "react-native";
+import { View, StyleSheet, Alert, Text } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 import { AuthContext } from "../context/AuthContext";
@@ -38,13 +38,14 @@ const AdminNavigator = () => {
 
     return (
         <View style={styles.container}>
-            <Tab.Navigator
+            <Tab.Navigator 
                 screenOptions={{
                     headerShown: false,
-                    tabBarStyle: styles.tabBar,
-                    tabBarActiveTintColor: "black", // Color negro para el ícono y la etiqueta activa
-                    tabBarInactiveTintColor: "black", // Color negro para el ícono y la etiqueta inactiva
-                    tabBarLabelStyle: styles.tabBarLabel,
+                    tabBarStyle: {
+                        alignContent:'center',
+                        height: 80, // Aumenta la altura de la barra
+                    },
+                    
                 }}
             >
                 <Tab.Screen
@@ -59,6 +60,9 @@ const AdminNavigator = () => {
                                 style={focused ? styles.activeIcon : {}}
                             />
                         ),
+                        tabBarLabel: ({ focused }) => (
+                            <Text style={focused ? styles.activeIconText :styles.desactIconText }>Recordatorios</Text>
+                        ),
                     }}
                 />
                 <Tab.Screen
@@ -72,7 +76,10 @@ const AdminNavigator = () => {
                                 color="black"
                                 style={focused ? styles.activeIcon : {}}
                             />
-                        )
+                        ),
+                        tabBarLabel: ({ focused }) => (
+                            <Text style={focused ? styles.activeIconText :styles.desactIconText}>Medicamentos</Text>
+                        ),
                     }}
                 />
 
@@ -87,7 +94,10 @@ const AdminNavigator = () => {
                                 color="black"
                                 style={focused ? styles.activeIcon : {}}
                             />
-                        )
+                        ),
+                        tabBarLabel: ({ focused }) => (
+                            <Text style={focused ? styles.activeIconText :styles.desactIconText}>Cuidadores</Text>
+                        ),
                     }}
                 />
 
@@ -110,6 +120,9 @@ const AdminNavigator = () => {
                                 style={focused ? styles.activeIcon : {}}
                             />
                         ),
+                        tabBarLabel: ({ focused }) => (
+                            <Text style={focused ? styles.activeIconText :styles.desactIconText}>Salir</Text>
+                        ),
                     }}
                 />
             </Tab.Navigator>
@@ -123,11 +136,21 @@ const styles = StyleSheet.create({
         backgroundColor: "#f0f0f0", // Color de fondo general
         flexDirection: 0, // Espacio para que la barra no toque el borde inferior
         paddingHorizontal: 0,
-        position: "relative"
+        position: "relative",
     },
     activeIcon: {
         color: 'green', // Asegura que el ícono sea negro
         fontSize: 26, // Tamaño del ícono
+    },
+    activeIconText: {
+        marginTop:5,
+        color: 'green', // Asegura que el ícono sea negro
+        fontSize: 10, // Tamaño del ícono
+    },
+    desactIconText: {
+        marginTop:5,
+        color: 'black', // Asegura que el ícono sea negro
+        fontSize: 10, // Tamaño del ícono
     },
 });
 
