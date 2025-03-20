@@ -3,6 +3,7 @@ import React from "react";
 import HistorialScreen from "../../screens/admin/HistorialScreen";
 import RegistarRecordatorio from "../../screens/caregiver/RegistrarRecordatorio";
 import { View } from 'react-native';
+import HistoricoScreen from "../../screens/admin/HistoricoScreen";
 
  const Stack = createNativeStackNavigator();
 
@@ -27,9 +28,8 @@ import { View } from 'react-native';
                 headerShadowVisible: false, // 🔹 **Elimina sombras adicionales en versiones recientes**
               }} >
             <Stack.Screen name="Historial" component={HistorialScreen}/>
-            {/* 
-            <Stack.Screen name="Registro" component={RegistarRecordatorio}/>
-            */ }
+            <Stack.Screen name="Historico" component={HistoricoScreen}/>
+            
         </Stack.Navigator>
     );
 };
