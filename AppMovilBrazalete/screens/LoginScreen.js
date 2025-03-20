@@ -2,9 +2,9 @@ import React, { useState, useContext } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { AuthContext } from "../context/AuthContext";
-import Background from "../components/Background";
+import BackgroundDos from "../components/BackgroundDos";
 import theme from "../themes/theme";
-
+import StylesGen from "../themes/stylesGen";
 export default function LoginScreen({ navigation }) {
   const { login, user } = useContext(AuthContext);  // 🔥 Importa el contexto
   const [email, setEmail] = useState('');
@@ -20,19 +20,19 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <>
-      <Background />
+      <BackgroundDos/>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
+        style={StylesGen.container}
       >
-        <View style={styles.container}>
-          <Text style={styles.title}>Inicia Sesión</Text>
+        <View style={StylesGen.container}>
+          <Text style={StylesGen.title}>Inicia Sesión</Text>
 
           {/* Input de Correo */}
-          <View style={[styles.inputContainer, !isValidEmail && styles.inputContainer2]}>
+          <View style={[StylesGen.inputContainer, !isValidEmail && StylesGen.inputContainer2]}>
             <TextInput
               placeholder="Correo electrónico"
-              style={styles.input}
+              style={StylesGen.input}
               value={email}
               onChangeText={(text) => {
                 setEmail(text);
@@ -40,20 +40,20 @@ export default function LoginScreen({ navigation }) {
                 setIsValidEmail(emailRegex.test(text));
               }}
             />
-            <FontAwesome name="envelope" size={25} color="gray" style={styles.icon} />
+            <FontAwesome name="envelope" size={25} color="gray" style={StylesGen.icon} />
           </View>
           {!isValidEmail && <Text style={styles.errorText}>Correo electrónico inválido</Text>}
 
           {/* Input de Contraseña */}
-          <View style={[styles.inputContainer, styles.passwordContainer]}>
+          <View style={[StylesGen.inputContainer, StylesGen.passwordContainer]}>
             <TextInput
               placeholder="Contraseña"
-              style={styles.input}
+              style={StylesGen.input}
               secureTextEntry
               value={password}
               onChangeText={setPassword}  // 🔥 Guarda la contraseña
             />
-            <FontAwesome name="lock" size={30} color="gray" style={styles.icon} />
+            <FontAwesome name="lock" size={30} color="gray" style={StylesGen.icon} />
           </View>
 
           {/* Olvidaste tu contraseña */}
@@ -68,11 +68,12 @@ export default function LoginScreen({ navigation }) {
           >
             <Text style={styles.buttonText}>Iniciar sesión</Text>
           </TouchableOpacity>
-
+          <View style={{alignItems:'center'}} >
           {/* Link para crear cuenta */}
           <Text style={styles.createAccount}>
             ¿No tienes cuenta? <Text style={styles.createLink} onPress={() => navigation.navigate("Registro")}>Crear ahora</Text>
           </Text>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </>
@@ -80,45 +81,7 @@ export default function LoginScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: "bold",
-    marginBottom: 30,
-    alignSelf: "flex-start",
-    color: theme.colors.secondary,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 3,
-    borderColor: theme.colors.secondary,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    width: "100%", // El ancho será 100%
-    height: 55,
-    marginBottom: 25,
-    backgroundColor: theme.colors.primary,
-    color: "#665F5D",
-  },
-  inputContainer2: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 3,
-    borderColor: theme.colors.errorBorder,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    width: "100%", // El ancho será 100%
-    height: 55,
-    marginBottom: 5,
-    backgroundColor: theme.colors.errorBackground,
-  },
+  
   errorText: {
     color: theme.colors.errorBorder,
     fontSize: 14,
@@ -129,24 +92,18 @@ const styles = StyleSheet.create({
   passwordContainer: {
     borderColor: "#4CAF89",
   },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: "#333",
-  },
-  icon: {
-    marginRight: 10,
-  },
   forgotPassword: {
     color: theme.colors.secondary,
     fontWeight: "bold",
     textAlign: "right",
+    marginTop:10,
     marginBottom: 30,
     marginLeft: 100
   },
   button: {
     backgroundColor: theme.colors.secondary,
-    marginTop: 20,
+    marginTop: 10,
+    marginBottom:10,
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: "center",
@@ -165,6 +122,7 @@ const styles = StyleSheet.create({
   createAccount: {
     marginTop: 20,
     color: "#666",
+    alignItems: 'center'
   },
   createLink: {
     color: theme.colors.secondary,
