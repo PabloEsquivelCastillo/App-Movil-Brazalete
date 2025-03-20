@@ -12,10 +12,9 @@ import {
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import Background from "../../components/Background";
-import { useNavigation } from "@react-navigation/native";
-import { SearchBar } from "react-native-elements";
+import StylesGen from "../../themes/stylesGen";
 
-export default function UpdateProfileScreen() {
+export default function UpdateProfileScreen({navigation}) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (query) => {
@@ -23,124 +22,158 @@ export default function UpdateProfileScreen() {
     console.log("Buscando:", query);
   };
   const contacts = [
-    { name: 'Paracetamol', email: 'Juan Perez' },
-    { name: 'Ibuprofeno', email: 'Alan Barrera' },
-    { name: 'Loratadina', email: 'Paco Pulido' },
-    { name: 'Paracetamol', email: 'Juan Perez' },
-    { name: 'Ibuprofeno', email: 'Alan Barrera' },
+    {
+      name: "Juan Perez",
+      nameMedic: "Paracetamol",
+      namePac: "Alan Barrera",
+      inicio: "05/03/2025",
+      fin: "08/03/2025",
+      estado: "Finalizado",
+    },
+    {
+      name: "Pulido Cereth",
+      nameMedic: "Ibuprofeno",
+      namePac: "Paco Alarcon",
+      inicio: "01/03/2025",
+      fin: "05/03/2025",
+      estado: "Finalizado",
+    },
+    {
+      name: "Freddy Julian",
+      nameMedic: "Loratadina",
+      namePac: "Cereth Mondragon",
+      inicio: "02/03/2025",
+      fin: "03/03/2025",
+      estado: "Finalizado",
+    },
+    {
+      name: "Pablo Pasita",
+      nameMedic: "Ambroxol",
+      namePac: "Jonathan Bar",
+      inicio: "03/03/2025",
+      fin: "05/03/2025",
+      estado: "Finalizado",
+    },
+    {
+      name: "Paquinno",
+      nameMedic: "Naproxeno",
+      namePac: "Leo Sanchez",
+      inicio: "01/03/2025",
+      fin: "05/03/2025",
+      estado: "Finalizado",
+    },
+    {
+      name: "Salem roman",
+      nameMedic: "Paracetamol",
+      namePac: "Oscar Montes",
+      inicio: "04/03/2025",
+      fin: "08/03/2025",
+      estado: "Finalizado",
+    },
   ];
 
   return (
     <>
       <Background />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.container}
-      >
-        <SafeAreaView style={styles.container}>
-          <ScrollView
-            contentContainerStyle={styles.scrollContainer}
-            showsVerticalScrollIndicator={false}
-          >
-            <View style={{ marginBottom: 30 }}>
-              <View>
-                <Text style={styles.title}>Historial de recordatorios</Text>
-                <Text style={styles.descrip}>
-                  Aquí puedes consultar los recordatorios ya completados.
+      <SafeAreaView style={StylesGen.container}>
+        <View>
+          <Text style={StylesGen.title}>Historial de recordatorios</Text>
+          <Text style={styles.descrip}>
+            Aquí puedes consultar los recordatorios ya completados. Para ver su historial haz clic en un registro.
+          </Text>
+        </View>
+        <ScrollView
+          style={StylesGen.scroll}
+          showsVerticalScrollIndicator={true}
+        >
+          {contacts.map((contact, index) => (
+            <TouchableOpacity onPress={() => navigation.navigate("Historico")}>
+              <View key={index} style={styles.contactItem}>
+              <View style={styles.contactInfo}>
+                <Text style={styles.nameCui}>{contact.name}</Text>
+                <Text style={styles.nameMed}>{contact.nameMedic}</Text>
+                <Text style={styles.namePac}>
+                  Paciente: {contact.namePac}
                 </Text>
-              </View>
-              <SearchBar
-                placeholder="Buscar..."
-                onChangeText={handleSearch}
-                value={searchQuery}
-                platform="ios" // Puedes usar "android" para otro estilo
-                round // Esquinas redondeadas
-                searchIcon={{ name: "search", size: 24 }} // Personaliza el ícono de búsqueda
-                containerStyle={{
-                  backgroundColor: "transparent",
-                  borderTopWidth: 0,
-                  borderBottomWidth: 0,
-                }}
-                inputContainerStyle={{
-                  backgroundColor: "#f0f0f0",
-                  borderRadius: 25,
-                }}
-                inputStyle={{
-                  color: "#333",
-                }}
-              />
-              <ScrollView>
-              {contacts.map((contact, index) => (
-                
-                  <View key={index} style={styles.contactItem}>
-                  <View style={styles.contactInfo}>
-                    <Text style={styles.contactName}>{contact.name}</Text>
-                    <Text style={styles.contactEmail}>{contact.email}</Text>
-                  </View>
-                  <View style={styles.buttonContainer}>
-                    {/* Botón de Aceptar con ícono de palomita (check) */}
-                    <TouchableOpacity
-                      
-                    >
-                      <Text>Información</Text>
-                    </TouchableOpacity>
-                  </View>
+                <View style={styles.fechas}>
+                  <Text style={styles.contactEmail}>
+                    Inicio: {contact.inicio}
+                  </Text>
+                  <Text style={styles.contactEmail}>Fin:     {contact.fin}</Text>
                 </View>
-                
-              ))}
-              </ScrollView>
-              <TouchableOpacity style={styles.button}>
-                  <Text style={styles.buttonText}>Descargar PDF</Text>
-              </TouchableOpacity>
+                <View style={styles.estado}>
+                  <Text
+                    style={[
+                      styles.estado,
+                      contact.estado === "Finalizado"
+                        ? styles.estadoFinalizado
+                        : styles.estadoPendiente,
+                    ]}
+                  >
+                    Estado: {contact.estado}
+                  </Text>
+                </View>
+              </View>
             </View>
-          </ScrollView>
-        </SafeAreaView>
-      </KeyboardAvoidingView>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Descargar PDF</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 35,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    marginTop:30,
-    flex: 1,
-  },
-
-  title: {
-    fontSize: 30,
-    fontWeight: "bold",
-    marginBottom: 15,
-    color: "#4CAF89",
-  },
   descrip: {
     fontSize: 18,
     marginBottom: 15,
   },
   contactItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
     padding: 10,
-    backgroundColor: '#E7F7EF',
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#4CAF89",
+    width: "100%",
   },
   contactInfo: {
     flex: 1,
   },
-  contactName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom:5
+  nameCui: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#000",
   },
-  contactEmail: {
+  nameMed: {
+    fontSize: 18,
+    fontWeight: '1000',
+    color: "#000",
+  },
+  namePac: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#4CAF89", // Verde para destacar
+  },
+  fechas: {
+    marginTop: 15,
     fontSize: 14,
-    color: 'gray',
+  },
+  estado: {
+    alignItems:'flex-end',
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  estadoFinalizado: {
+    color: "#4CAF89", // Verde
+  },
+  estadoPendiente: {
+    color: "red", // Rojo
   },
   button: {
     backgroundColor: "#4CAF89",
@@ -152,12 +185,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
+    marginBottom:10
   },
   buttonText: {
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
-    marginLeft:10,
-    marginRight:10
+    marginLeft: 10,
+    marginRight: 10,
   },
 });
