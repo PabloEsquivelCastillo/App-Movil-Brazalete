@@ -1,221 +1,214 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Switch, Image } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Switch,
+  Image,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import brazalete from '../../assets/Images/brazalete.png';
-import { Ionicons } from 'react-native-vector-icons';
+import brazalete from "../../assets/Images/brazalete.png";
+import { Ionicons } from "react-native-vector-icons";
 import Background from "../../components/Background";
 import theme from "../../themes/theme";
-
+import StylesGen from "../../themes/stylesGen";
+import { FontAwesome } from "@expo/vector-icons";
 
 export default function BrazaleteRegistro({ navigation }) {
-    const [isEnabled, setEnable] = useState(false);
-    const conectado = isEnabled;
+  const [isEnabled, setEnable] = useState(false);
+  const conectado = isEnabled;
 
-    const toggleSwitch = () => setEnable(previousState => !previousState);
+  // Altura de cada elemento (ajusta según tu diseño)
+  const itemHeight = 100; // Altura aproximada de cada elemento
+  const maxHeight = itemHeight * 5; // Altura máxima para 5 elementos
 
-    const SecondCard = ({ title, onEdit }) => (
-        <View style={styles.secondCard}>
-            <Text style={styles.secondCardTitle}>{title}</Text>
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.editButton} onPress={onEdit}>
-                    <Text style={styles.editText}>Editar</Text>
-                </TouchableOpacity>
+  const contacts = [
+    {
+      name: "Juan Perez",
+      topico: "juan",
+      estado: "Activo",
+    },
+    {
+      name: "Pulido Cereth",
+      topico: "pulido",
+      estado: "Activo",
+    },
+    {
+      name: "Freddy Julian",
+      topico: "freddy",
+      estado: "Activo",
+    },
+    {
+      name: "Juan Perez",
+      topico: "juanp",
+      estado: "Activo",
+    },
+    {
+      name: "Pulido Cereth",
+      topico: "cerect",
+      estado: "Desactivado",
+    },
+    {
+      name: "Pulido Cereth",
+      topico: "pulidocereth",
+      estado: "Desactivado",
+    },
+    {
+      name: "Pulido Cereth",
+      topico: "pcereth",
+      estado: "Desactivado",
+    },
+    {
+      name: "Pulido Cereth",
+      topico: "cerpulido",
+      estado: "Desactivado",
+    },
+  ];
+
+  return (
+    <>
+      <Background />
+      <SafeAreaView style={StylesGen.container}>
+        <View>
+          <Text style={StylesGen.title}>Brazaletes</Text>
+          <Text style={StylesGen.descrip}>
+            Aquí podrás visualizar los brazaletes registrados.
+          </Text>
+          {contacts.length === 0 ? ( // Verifica si no hay contactos
+            <View style={styles.noContactsContainer}>
+              <Text style={styles.noContactsText}>
+                No hay brazaletes registrados
+              </Text>
             </View>
+          ) : (
+            <View style={{ overflow: "hidden", height: maxHeight, marginBottom:15 }}>
+              <ScrollView
+                style={StylesGen.scroll}
+                showsVerticalScrollIndicator={true}
+              >
+                {contacts.map((contact, index) => (
+                  <View key={index} style={styles.contactItem}>
+                    <View style={styles.contactInfo}>
+                      <View style={styles.edit}>
+                        <Text style={styles.nameCui}>{contact.name}</Text>
+                        {contact.estado === "Desactivado" ? (
+                          ""
+                        ) : (
+                          <View>
+                            <TouchableOpacity
+                              onPress={() =>
+                                navigation.navigate("Brazalete Config", {
+                                  mode: "edit", // Parámetro "edit"
+                                  contact: contact, // Datos del contacto
+                                })
+                              }
+                            >
+                              <FontAwesome
+                                name="edit"
+                                size={24}
+                                color="black"
+                              />
+                            </TouchableOpacity>
+                          </View>
+                        )}
+                      </View>
+                      <Text>Topico: {contact.topico}</Text>
+                      <View style={styles.estado}>
+                        <Text
+                          style={[
+                            styles.estado,
+                            contact.estado === "Activo"
+                              ? styles.estadoFinalizado
+                              : styles.estadoPendiente,
+                          ]}
+                        >
+                          Estado: {contact.estado}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate("Brazalete Config")}
+          >
+            <Text style={styles.buttonText}>Agregar</Text>
+          </TouchableOpacity>
         </View>
-    );
-
-    return (
-        <>
-            <Background />
-            <SafeAreaView style={styles.safeArea}>
-                <ScrollView style={styles.scrollView}>
-                    <View style={styles.titleContainer}>
-                        <Text style={styles.title}>Menú de Brazalete</Text>
-                        <Text style={styles.text}>Aquí podrás agregar tus brazaletes de recordatorios.</Text>
-                        <View style={styles.switchContainer}>
-                            <Text style={styles.label}>Bluetooth</Text>
-                            <Switch
-                                trackColor={{ false: "#ccc", true: "#66CC99" }}
-                                thumbColor={isEnabled ? theme.colors.primary : theme.colors.primary}
-                                onValueChange={toggleSwitch}
-                                value={isEnabled}
-                            />
-                        </View>
-                    </View>
-
-                    {conectado ? (
-                        <View style={styles.card}>
-                            <Image source={brazalete} style={styles.image} />
-                            <View style={styles.textContainer}>
-                                <Text style={styles.cardTitle}>Brazalete Bluetooth</Text>
-                                <TouchableOpacity
-                                    style={styles.connectButton}
-                                    onPress={() =>
-                                        navigation.navigate("Brazalete Config", {
-                                            mode: 'register',
-                                            brazaleteName: "Brazalete de Juan", // Aquí puedes usar el nombre dinámico
-                                        })
-                                    }
-                                >
-                                    <Text style={styles.connectText}>Conectar</Text>
-                                    <Ionicons name="add" size={20} color="#000" />
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    ) : (
-                        <Text style={styles.warningText}>¡Asegúrate de encender tu bluetooth!</Text>
-                    )}
-
-                    <View style={styles.container}>
-
-                        <Text style={styles.title}>Configuración del Brazalete</Text>
-                        <Text style={styles.text}>Aquí podrás modificar la información de tu brazalete</Text>
-
-                        <SecondCard
-                            title="Brazalete de Juan"
-                            onEdit={() =>
-                                navigation.navigate("Brazalete Config", {
-                                    mode: 'edit',
-                                    brazaleteName: "Brazalete de Juan", // Pasamos el nombre del brazalete
-                                })
-                            }
-                        />
-
-                        <SecondCard
-                            title="Brazalete de Alan"
-                            onEdit={() =>
-                                navigation.navigate("Brazalete Config", {
-                                    mode: 'edit',
-                                    brazaleteName: "Brazalete de Alan", // Pasamos el nombre del brazalete
-                                })
-                            }
-                        />
-                    </View>
-                </ScrollView>
-            </SafeAreaView>
-        </>
-    );
+      </SafeAreaView>
+    </>
+  );
 }
 
 const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1, // Asegura que SafeAreaView ocupe todo el espacio
-    },
-    scrollView: {
-        flexGrow: 1, // Hace que el ScrollView se expanda para ajustarse al contenido
-        paddingHorizontal: 20, // Evita que el contenido se oculte detrás de la barra de navegación
-        marginBottom: 100,
-    },
-    title: {
-        fontFamily: "Poppins",
-        color: theme.colors.secondary,
-        fontSize: 28,
-        fontWeight: "bold",
-    },
-    titleContainer: {
-        marginTop: 40,
-        width: '100%',
-    },
-    text: {
-        fontSize: 12,
-        alignSelf: 'flex-start',
-        fontWeight: "400",
-    },
-    switchContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#F2F2F2",
-        borderRadius: 20,
-        width: 190,
-        justifyContent: "space-evenly",
-        marginTop: 20,
-    },
-    label: {
-        fontSize: 14,
-        fontWeight: "bold",
-        color: "#333",
-    },
-    warningText: {
-        fontSize: 24,
-        color: "#377F5B",
-        fontWeight: "bold",
-        marginTop: "30%",
-        textAlign: "center",
-    },
-    card: {
-        backgroundColor: 'white',
-        borderRadius: 8,
-        shadowColor: "#000", // Color de la sombra
-        shadowOffset: { width: 0, height: 4 }, // Dirección de la sombra
-        shadowOpacity: 0.2, // Opacidad de la sombra
-        shadowRadius: 4, // Radio de difuminado
-        elevation: 5, // Sombra en Android
-        marginTop: "20%",
-        overflow: 'hidden',
-        marginHorizontal: "auto",
-        width: "80%"
-    },
-    image: {
-        width: '100%',
-        marginTop: 40,
-        height: 200,
-        resizeMode: "contain",
-    },
-    textContainer: {
-        padding: 15,
-        marginTop: 20
-    },
-    cardTitle: {
-        fontSize: 21,
-        fontWeight: '700',
-        textAlign: "center",
-        color: "#66CC99",
-        marginBottom: 10,
-    },
-    connectButton: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#F2F2F2",
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 20,
-        alignSelf: "center",
-        marginTop: 10,
-    },
-    connectText: {
-        fontSize: 12,
-        fontWeight: "bold",
-        color: "#000",
-        marginRight: 5,
-    },
-    container: {
-        marginTop: "20%",
-        marginBottom: "20%"
-    },
-    secondCard: {
-        backgroundColor: theme.colors.primary,
-        borderRadius: 10,
-        padding: 15,
-        marginTop: "10%",
-        flexDirection: "row",
-        alignItems: "center", // Alineación vertical
-        justifyContent: "space-evenly", // Espaciado entre elementos
-        shadowColor: "#000", // Color de la sombra
-        shadowOffset: { width: 0, height: 4 }, // Dirección de la sombra
-        shadowOpacity: 0.2, // Opacidad de la sombra
-        shadowRadius: 4, // Radio de difuminado
-        elevation: 5, // Sombra en Android
-    },
-    buttonContainer: {
-        marginLeft: 10,
-    },
-    secondCardTitle: {
-        fontSize: 16,
-        fontWeight: "400",
-    },
-    editText: {
-        color: "#66CC99",
-        fontWeight: "bold",
-    }
+  contactItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#4CAF89",
+    width: "100%",
+  },
+  contactInfo: {
+    flex: 1,
+  },
+  nameCui: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#000",
+    marginBottom: 7,
+  },
+  estado: {
+    alignItems: "flex-end",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  estadoFinalizado: {
+    color: "#4CAF89", // Verde
+  },
+  estadoPendiente: {
+    color: "gray", // Rojo
+  },
+  edit: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 6,
+  },
+  button: {
+    backgroundColor: "#4CAF89",
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+    marginBottom: 10,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  noContactsContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    height: 100, // Altura del contenedor del mensaje
+  },
+  noContactsText: {
+    fontSize: 18,
+    color: "gray",
+    textAlign: "center",
+  },
 });
-
