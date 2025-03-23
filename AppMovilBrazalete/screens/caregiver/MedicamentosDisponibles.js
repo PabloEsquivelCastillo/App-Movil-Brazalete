@@ -1,106 +1,201 @@
 import React, { useState } from "react";
-import theme from "../../themes/theme";
-import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+} from "react-native";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import Background from "../../components/Background";
-import AntDesign from '@expo/vector-icons/AntDesign';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import { SearchBar } from 'react-native-elements';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-
+import { SearchBar } from "react-native-elements";
+import StylesGen from "../../themes/stylesGen";
 
 export default function MedicamentosDisponibles({ navigation }) {
+  const [searchQuery, setSearchQuery] = useState("");
 
-    const [searchQuery1, setSearchQuery1] = useState('');
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    console.log("Buscando:", query);
+  };
+   // Altura de cada elemento (ajusta según tu diseño)
+   const itemHeight = 100; // Altura aproximada de cada elemento
+   const maxHeight = itemHeight * 5; // Altura máxima para 5 elementos
+  const contacts = [
+    {
+      name: "Paracetamol",
+      email: "Alivia dolor de cabeza y también cansancio extremo.",
+    },
+    {
+      name: "Ibuprofeno",
+      email: "Alivia dolor de cabeza y también cansancio extremo .",
+    },
+    {
+      name: "Loratadina",
+      email: "Alivia dolor de cabeza y también cansancio extremo.",
+    },
+    {
+      name: "Paracetamol",
+      email: "Alivia dolor de cabeza y también cansancio extremo.",
+    },
+    {
+      name: "Ibuprofeno",
+      email: "Alivia dolor de cabeza y también cansancio extremo.",
+    },
+    {
+      name: "Loratadina",
+      email: "Alivia dolor de cabeza y también cansancio extremo.",
+    },
+    {
+      name: "Paracetamol",
+      email: "Alivia dolor de cabeza y también cansancio extremo.",
+    },
+    {
+      name: "Ibuprofeno",
+      email: "Alivia dolor de cabeza y también cansancio extremo.",
+    },
+  ];
 
+  const handleLogout = () => {
+          Alert.alert(
+              "Eliminar medicamento",
+              "¿Estás seguro de que deseas eliminar el medicamento?",
+              [
+                  { text: "Cancelar", style: "cancel" },
+                  { text: "Sí, salir"},
+              ]
+          );
+      };
 
-    const data1 = [
-        { id: '1', name: 'Paracetamol', dosage: 'Medicamento realizado para.., con ... y con ....' },
-        { id: '2', name: 'Ibuprofeno', dosage: 'Medicamento realizado para.., con ... y con ....' },
-        { id: '3', name: 'Loratadina', dosage: 'Medicamento realizado para.., con ... y con ....' },
-        { id: '5', name: 'Paracetamol', dosage: '1Medicamento realizado para.., con ... y con ....' },
-        { id: '6', name: 'Ibuprofeno', dosage: 'Medicamento realizado para.., con ... y con ....' },
-        { id: '7', name: 'Loratadina', dosage: 'Medicamento realizado para.., con ... y con ....' }
-    ];
-
-
-    const handleSearch1 = (query) => {
-        setSearchQuery1(query);
-    };
-
-
-
-
-    const renderSecondHeader = () => (
-        <View style={[styles.containerTitle, { marginBlock: 10 }]} >
-            <Text style={styles.title}>Medicamentos disponibles</Text>
-            <Text>Aquí puedes consultar los recordatorios ya completados.</Text>
+  return (
+    <>
+      <Background />
+      <SafeAreaView style={StylesGen.container}>
+        <View style={styles.content}>
+          <View style={styles.textContainer}>
+            <Text style={StylesGen.title}>Medicamentos</Text>
+            <Text style={StylesGen.descrip}>
+              Aquí se muestran todos los medicamentos disponibles.
+            </Text>
+          </View>
+          <View style={styles.iconContainer}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Registro")}
+              style={{ alignItems: "center" }}
+            >
+              <Ionicons name="medkit-outline" size={40} color="gray" />
+              <Text style={styles.iconText}>Agregar</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-    );
-    return (
-        <>
-            <Background />
-            <SafeAreaView style={styles.containerMain}>
-
-                {renderSecondHeader()}
-                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Registro")}>
-                <MaterialIcons name="add-circle-outline" size={24} color="black" style={styles.buttonIcon} />
-                    <Text style={styles.buttonText}>Registrar Medicamento</Text>
+        <View style={{ overflow: "hidden", height: maxHeight, marginBottom:15 }}>
+        <ScrollView
+          style={StylesGen.scroll}
+          showsVerticalScrollIndicator={true}
+        >
+          {contacts.map((contact, index) => (
+            <View key={index} style={styles.contactItem}>
+              <View style={styles.contactInfo}>
+                <Text style={styles.contactName}>{contact.name}</Text>
+                <Text style={styles.contactEmail}>{contact.email}</Text>
+              </View>
+              <View style={styles.buttonContainer}>
+                {/* Botón de Aceptar con ícono de palomita (check) */}
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("ActualizarMed")}
+                  style={{ marginRight: 18 }}
+                >
+                  <FontAwesome name="edit" size={30} color="black" />
                 </TouchableOpacity>
-            </SafeAreaView>
-        </>
-    )
+
+                {/* Botón de Rechazar con ícono de equis (times) */}
+                <TouchableOpacity onPress={handleLogout}>
+                  <Ionicons name="trash" size={30} color="red" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+        </ScrollView>
+        </View>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Descargar PDF</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    </>
+  );
 }
 
-
 const styles = StyleSheet.create({
-    containerMain: {
-        flex: 1,
-        width: "90%",
-        alignSelf: "center",
-
-    },
-    title: {
-        color: theme.colors.secondary,
-        fontSize: 25,
-        fontWeight: "bold",
-        marginTop: "20%"
-    },
-    inputContainer: {
-        borderWidth: 1,
-        borderColor: theme.colors.secondary,
-        backgroundColor: theme.colors.primary,
-        borderRadius: 10,
-        paddingHorizontal: 10,
-        marginTop: 20,
-    },
-    input: {
-        fontSize: 16,
-        color: "#333",
-        height: 50,
-    },
-    button: {
-        flexDirection: "row", // Alinea los elementos horizontalmente
-        alignItems: "center", // Centra verticalmente los elementos
-        backgroundColor: theme.colors.secondary,
-        paddingVertical: 15,
-        borderRadius: 10,
-        justifyContent: "center",
-        alignSelf: "center",
-        width: "80%",
-        marginTop: 10,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3,
-        elevation: 3,
-    },
-    buttonIcon: {
-        marginRight: 8, // Espacio entre el ícono y el texto
-        color: "white"
-    },
-    buttonText: {
-        color: "#fff",
-        fontSize: 16,
-        fontWeight: "bold",
-    },
-})
+  descrip: {
+    fontSize: 18,
+    marginBottom: 15,
+  },
+  contactItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#4CAF89",
+  },
+  contactInfo: {
+    flex: 1,
+  },
+  contactName: {
+    fontSize: 18,
+    fontWeight: "500",
+    marginBottom: 10,
+  },
+  contactEmail: {
+    fontSize: 14,
+    color: "gray",
+  },
+  button: {
+    backgroundColor: "#4CAF89",
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+    marginBottom: 10,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    margin: 5,
+  },
+  content: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  iconContainer: {
+    alignItems: "center",
+    marginTop: 35,
+    marginRight: 1,
+  },
+  iconText: {
+    fontSize: 16,
+    color: "gray",
+  },
+});
