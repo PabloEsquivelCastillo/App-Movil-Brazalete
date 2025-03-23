@@ -14,7 +14,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import Background from "../../components/Background";
 import StylesGen from "../../themes/stylesGen";
 
-export default function UpdateProfileScreen({navigation}) {
+export default function HistorialScreen({navigation}) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (query) => {
