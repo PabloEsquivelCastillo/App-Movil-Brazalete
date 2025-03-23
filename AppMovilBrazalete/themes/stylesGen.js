@@ -5,9 +5,11 @@ const StylesGen = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     marginHorizontal:25,
+    marginTop:8
   },
   scroll: {
     paddingRight: 10, // Agrega padding alrededor del contenido
+    marginTop:10
   },
   title: {
     fontSize: 30,
