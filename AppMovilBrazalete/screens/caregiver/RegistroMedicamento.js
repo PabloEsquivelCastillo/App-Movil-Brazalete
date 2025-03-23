@@ -1,109 +1,93 @@
-import React from "react";
+import React, {useState} from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
 import Background from "../../components/Background";
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, FlatList, TextInput, TouchableOpacity,  StyleSheet } from "react-native";
-import theme from "../../themes/theme";
+import { useNavigation } from '@react-navigation/native';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import StylesGen from "../../themes/stylesGen";
 
-
-
-
-export default function RegistrarMedicamento({navigation}) {
-
-    const renderHeader = () => (
-        <View style={styles.containerTitle}>
-            <Text style={styles.title}>Registro de medicamento</Text>
-            <Text>Aquí podrás registrar medicamentos</Text>
-        </View>
-    );
-
-    return (
-        <>
-            <Background />
-            <SafeAreaView style={styles.containerMain}>
-                {/**Botono para volver */}
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Ionicons name="arrow-back-circle-outline" size={30} color="green" style={styles.buttonBack} />
-                </TouchableOpacity>
-
-                {renderHeader()}
-
-
-                <View style={styles.inputContainer}>
-                    <TextInput
-                        placeholder="Nombre del medicamento"
-                        style={styles.input}
-                    />
+export default function RegistroMedicamento() {
+  const [email, setEmail] = useState('');
+  const [isValidEmail, setIsValidEmail] = useState(true); // Estado para validar el correo
+  return (
+    <>
+    <Background/>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={StylesGen.container}
+    >
+    <SafeAreaView style={StylesGen.container}>
+    
+          <View style={{marginBottom:30}}>
+          <View>
+            <Text style={StylesGen.title}>Registrar medicamento</Text>
+            <Text style={styles.descrip}>Aqui puedes registrar medicamentos.</Text>
+          </View>
+                <View style={StylesGen.inputContainer}>
+                    <TextInput placeholder="Nombre" style={StylesGen.input} />
+                    <MaterialCommunityIcons name="pill" size={30} color="gray" style={StylesGen.icon} />
                 </View>
-                <View style={styles.inputContainer}>
-                    <TextInput
-                        placeholder="Descripcion del medicamento"
-                        style={styles.input}
-                    />
+                <View style={StylesGen.inputContainer}>
+                    <TextInput placeholder="Descripcion" style={StylesGen.input} />
+                    <MaterialCommunityIcons name="pill" size={30} color="gray" style={StylesGen.icon} />
                 </View>
-
-                <TouchableOpacity
-                    style={styles.button} // Desactiva el botón solo si el nombre no es válido
-                >
-                    <Text style={styles.buttonText}>Registrar medicamento</Text>
+                <View style={{alignItems:"center"}}> 
+                <TouchableOpacity style={[styles.button, !isValidEmail && styles.buttonDisabled]} disabled={!isValidEmail}>
+                  <Text style={styles.buttonText}>Guardar</Text>
                 </TouchableOpacity>
-            </SafeAreaView>
-        </>
-    );
+                </View>
+          </View>
+    </SafeAreaView>
+    </KeyboardAvoidingView>
+    </>
+  );
 }
 
-const styles = StyleSheet.create(
-    {
-        containerMain: {
-            flex: 1,
-            width: "90%",
-            alignSelf: "center",
-    
-        },
-        title: {
-            color: theme.colors.secondary,
-            fontSize: 25,
-            fontWeight: "bold",
-            marginTop: "20%"
-        },
-        inputContainer: {
-            borderWidth: 1,
-            borderColor: theme.colors.secondary,
-            backgroundColor: theme.colors.primary,
-            borderRadius: 10,
-            paddingHorizontal: 10,
-            marginTop: 20,
-        },
-        input: {
-            fontSize: 16,
-            color: "#333",
-            height: 50,
-        },
-        button: {
-            backgroundColor: theme.colors.secondary,
-            paddingVertical: 15,
-            borderRadius: 10,
-            width: "100%", // Mismo ancho que el input y el dropdown
-            alignItems: "center",
-            shadowColor: "#000",
-            alignSelf: "center",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.2,
-            shadowRadius: 3,
-            elevation: 3,
-            marginTop: 20
-        },
-    
-        buttonText: {
-            color: "#fff",
-            fontSize: 18,
-            fontWeight: "bold",
-            marginLeft: 10,
-            marginRight: 10,
-        },
-        buttonBack: {
-            paddingTop: 30,
-            color: theme.colors.secondary
-        },
-    }
-)  
+const styles = StyleSheet.create({
+  
+ 
+  descrip:{
+    fontSize: 18,
+    marginBottom: 20,
+  },
+  
+  button: {
+    backgroundColor: "#4CAF89",
+    paddingVertical: 15,
+    borderRadius: 10,
+    width: "100%",
+    alignItems: "center",
+    marginTop: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+    width:300,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  createAccount: {
+    marginTop: 20,
+    color: "#666",
+  },
+  createLink: {
+    color: "#4CAF89",
+    fontWeight: "bold",
+    marginTop: 25,
+    textDecorationLine: 'underline',
+  },
+  errorText: {
+    color: "red",
+    fontSize: 14,
+    marginBottom: 10,
+    textAlign: "left", // Alinea el texto a la izquierda
+    alignSelf: "flex-start", // Asegura que el texto no esté centrado en el contenedor
+  },
+  buttonDisabled: {
+    backgroundColor: "#ccc",
+  },
+});

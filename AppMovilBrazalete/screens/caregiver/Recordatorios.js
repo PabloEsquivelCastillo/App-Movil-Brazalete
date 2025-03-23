@@ -1,109 +1,214 @@
 import React, { useState } from "react";
-import theme from "../../themes/theme";
-import { SafeAreaView, View, StyleSheet, TouchableOpacity, Text, Modal, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
 import Background from "../../components/Background";
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import StylesGen from "../../themes/stylesGen";
 
+export default function Recordatorios({navigation}) {
+  const [searchQuery, setSearchQuery] = useState("");
 
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    console.log("Buscando:", query);
+   
+  
+  };
+   // Altura de cada elemento (ajusta según tu diseño)
+  const itemHeight = 90; // Altura aproximada de cada elemento
+  const maxHeight = itemHeight * 5; // Altura máxima para 5 elementos
+  const contacts = [
+    {
+      name: "Juan Perez",
+      nameMedic: "Paracetamol",
+      namePac: "Alan Barrera",
+      inicio: "05/03/2025",
+      fin: "08/03/2025",
+      estado: "Finalizado",
+    },
+    {
+      name: "Pulido Cereth",
+      nameMedic: "Ibuprofeno",
+      namePac: "Paco Alarcon",
+      inicio: "01/03/2025",
+      fin: "05/03/2025",
+      estado: "Finalizado",
+    },
+    {
+      name: "Freddy Julian",
+      nameMedic: "Loratadina",
+      namePac: "Cereth Mondragon",
+      inicio: "02/03/2025",
+      fin: "03/03/2025",
+      estado: "Finalizado",
+    },
+    {
+      name: "Pablo Pasita",
+      nameMedic: "Ambroxol",
+      namePac: "Jonathan Bar",
+      inicio: "03/03/2025",
+      fin: "05/03/2025",
+      estado: "Finalizado",
+    },
+    {
+      name: "Paquinno",
+      nameMedic: "Naproxeno",
+      namePac: "Leo Sanchez",
+      inicio: "01/03/2025",
+      fin: "05/03/2025",
+      estado: "Finalizado",
+    },
+    {
+      name: "Salem roman",
+      nameMedic: "Paracetamol",
+      namePac: "Oscar Montes",
+      inicio: "04/03/2025",
+      fin: "08/03/2025",
+      estado: "Finalizado",
+    },
+  ];
 
-export default function Recordatorios({ navigation }) {
-    const [searchQuery1, setSearchQuery1] = useState('');
-    const [searchQuery2, setSearchQuery2] = useState('');
-
-    const data1 = [
-        { id: '1', name: 'Paracetamol', dosage: '1 Tableta cada 8 horas' },
-        { id: '2', name: 'Ibuprofeno', dosage: '1 Tableta cada 6 horas' },
-        { id: '3', name: 'Loratadina', dosage: '1 Tableta cada 24 horas' },
-        { id: '4', name: 'Paracetamol', dosage: '1 Tableta cada 8 horas' },
-
-    ];
-
-
-    const [modalVisible, setModalVisible] = useState(false);
-    const [selectedItem, setSelectedItem] = useState(null);
-
-    const handlePress = (item) => {
-        setSelectedItem(item);
-        setModalVisible(true);
-    };
-
-    const handleSearch1 = (query) => {
-        setSearchQuery1(query);
-    };
-
-
-
-
-
-    return (
-        <>
-            <SafeAreaView style={styles.SafeAreaView}>
-                <Background />
-                <View style={styles.container}>
-                    <Text style={styles.title}>Recordatorios Activos</Text>
-                    <Text style={styles.Text}>Aquí puedes consultar los recordatorios ya completados.</Text>
-
-                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Registro")}>
-                        <MaterialIcons name="add-circle-outline" size={24} color="black" style={styles.buttonIcon} />
-                        <Text style={styles.buttonText}>Registrar Recordatorio</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Historial")}>
-                        <MaterialIcons name="manage-history" size={24} color="black"  style={styles.buttonIcon} />
-                        <Text style={styles.buttonText}>Historial</Text>
-                    </TouchableOpacity>
+  return (
+    <>
+      <Background />
+      <SafeAreaView style={StylesGen.container}>
+        <View>
+          <Text style={StylesGen.title}>Historial de recordatorios</Text>
+          <Text style={styles.descrip}>
+            Aquí puedes consultar los recordatorios ya completados. Para ver su historial haz clic en un registro.
+          </Text>
+        </View>
+        <View style={{ overflow: "hidden", height: maxHeight, marginBottom:15}}>
+        <ScrollView
+          style={StylesGen.scroll}
+          showsVerticalScrollIndicator={true}
+        >
+          {contacts.map((contact, index) => (
+            <TouchableOpacity onPress={() => navigation.navigate("Historial")} >
+              <View key={index} style={[styles.contactItem, styles.card]}>
+              <View style={styles.contactInfo}>
+                <Text style={styles.nameCui}>{contact.name}</Text>
+                <Text style={styles.nameMed}>{contact.nameMedic}</Text>
+                <Text style={styles.namePac}>
+                  Paciente: {contact.namePac}
+                </Text>
+                <View style={styles.fechas}>
+                  <Text style={styles.contactEmail}>
+                    Inicio: {contact.inicio}
+                  </Text>
+                  <Text style={styles.contactEmail}>Fin:     {contact.fin}</Text>
                 </View>
-            </SafeAreaView>
-        </>
-    );
+                <View style={styles.estado}>
+                  <Text
+                    style={[
+                      styles.estado,
+                      contact.estado === "Finalizado"
+                        ? styles.estadoFinalizado
+                        : styles.estadoPendiente,
+                    ]}
+                  >
+                    Estado: {contact.estado}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        </View>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Descargar PDF</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    </>
+  );
 }
 
 const styles = StyleSheet.create({
-    SafeAreaView: {
-        flex: 1,
-    },
-    container: {
-        height: "50%",
-        width: "100%",
-        alignSelf: "center",
-        paddingHorizontal: 20,
-        paddingVertical: 20,
-        justifyContent: "center"
-    },
-    title: {
-        fontFamily: "Poppins",
-        color: theme.colors.secondary,
-        fontSize: 28,
-        fontWeight: "bold",
-    },
-    text: {
-        fontSize: 12,
-        alignSelf: 'flex-start',
-        fontWeight: "400",
-    },
-    button: {
-        flexDirection: "row", // Alinea los elementos horizontalmente
-        alignItems: "center", // Centra verticalmente los elementos
-        backgroundColor: theme.colors.secondary,
-        paddingVertical: 15,
-        borderRadius: 10,
-        justifyContent: "center",
-        alignSelf: "center",
-        width: "80%",
-        marginTop: 10,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3,
-        elevation: 3,
-    },
-    buttonIcon: {
-        marginRight: 8, // Espacio entre el ícono y el texto
-        color: "white"
-    },
-    buttonText: {
-        color: "#fff",
-        fontSize: 16,
-        fontWeight: "bold",
-    },
-
+  descrip: {
+    fontSize: 18,
+    marginBottom: 15,
+  },
+  contactItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#4CAF89",
+    width: "100%",
+  },
+  contactInfo: {
+    flex: 1,
+  },
+  nameCui: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#000",
+  },
+  nameMed: {
+    fontSize: 18,
+    fontWeight: '1000',
+    color: "#000",
+  },
+  namePac: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#4CAF89", // Verde para destacar
+  },
+  fechas: {
+    marginTop: 15,
+    fontSize: 14,
+  },
+  estado: {
+    alignItems:'flex-end',
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  estadoFinalizado: {
+    color: "#4CAF89", // Verde
+  },
+  estadoPendiente: {
+    color: "red", // Rojo
+  },
+  button: {
+    backgroundColor: "#4CAF89",
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+    marginBottom:10
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  card:{
+    backgroundColor: "white",
+    borderRadius: 8,
+    shadowColor: "#66CC99", // Color de la sombra
+    shadowOffset: { width: 2, height: 2 }, // Dirección de la sombra
+    shadowOpacity: 0.6, // Opacidad de la sombra
+    shadowRadius: 5, // Radio de difuminado
+    elevation: 5, // Sombra en Android
+    marginTop:5
+  }
 });
