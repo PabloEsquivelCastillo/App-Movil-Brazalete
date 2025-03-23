@@ -123,46 +123,21 @@ const styles = StyleSheet.create({
         backgroundColor: "#f0f0f0", // Color de fondo general
         flexDirection: 0, // Espacio para que la barra no toque el borde inferior
         paddingHorizontal: 0,
-        position: "relative"
+        position: "relative",
     },
-    tabBar: {
-        position: "absolute",
-        bottom: 20, // Espaciado desde el borde inferior
-        left: 20,
-        right: 20,
-        backgroundColor: theme.colors.secondary, // Color de fondo
-        height: 70,
-        borderRadius: 20, // Bordes redondeados
-        borderTopWidth: 0, // Eliminar línea superior
-        elevation: 5, // Sombra en Android
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 5 },
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        marginHorizontal: 20
-    },
-    tabBarLabel: {
-        fontSize: 12,
-        fontWeight: "bold",
-    },
-    activeIconContainer: {
-        width: 60, // Tamaño del círculo
-        height: 60, // Tamaño del círculo
-        borderRadius: 60, // Forma circular
-        backgroundColor: 'rgba(0, 0, 0, 0.1)', // Color gris más oscuro con opacidad para el círculo
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: "black", // Color de la sombra
-        shadowOffset: { width: 0, height: 0 }, // Sombra hacia abajo
-        shadowOpacity: 0.5, // Sombra más opaca
-        shadowRadius: 10, // Mayor difusión de la sombra
-        elevation: 8, // Sombra más prominente en Android
-        transform: [{ scale: 1.1 }], // Agregar un pequeño aumento de tamaño para destacar
-        transition: 'all 0.3s ease', // Transición suave en el cambio de tamaño
-    },
-    icon: {
-        color: 'black', // Asegura que el ícono sea negro
+    activeIcon: {
+        color: 'green', // Asegura que el ícono sea negro
         fontSize: 26, // Tamaño del ícono
+    },
+    activeIconText: {
+        marginTop:5,
+        color: 'green', // Asegura que el ícono sea negro
+        fontSize: 10, // Tamaño del ícono
+    },
+    desactIconText: {
+        marginTop:5,
+        color: 'black', // Asegura que el ícono sea negro
+        fontSize: 10, // Tamaño del ícono
     },
 });
 
