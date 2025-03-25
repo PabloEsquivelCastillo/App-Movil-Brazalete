@@ -21,3 +21,10 @@ Actualizar Versiones
 npm install react-native-gesture-handler@~2.20.2 react-native-reanimated@~3.16.1 react-native-safe-area-context@4.12.0 react-native-screens@~4.4.0
 npm install react-native-safe-area-context@4.12.0
 
+PARA DESENCRIPTAR TOKEN
+npm install jwt-decode
+npm install @react-native-async-storage/async-storage@1.23.1
+
+
+ENV
+npm install react-native-dotenv
