@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Scro
 import { FontAwesome } from "@expo/vector-icons";
 import Background from "../background/Background";
 import { useNavigation } from '@react-navigation/native';
-
+import { API_BASE_URL } from '@env';
 export default function UpdateProfileScreen() {
   const [email, setEmail] = useState('');
   const [isValidEmail, setIsValidEmail] = useState(true); // Estado para validar el correo

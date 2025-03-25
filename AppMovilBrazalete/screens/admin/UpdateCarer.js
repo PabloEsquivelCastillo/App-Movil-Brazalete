@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-
+import { API_BASE_URL } from '@env';
 import Background from "../../components/Background";
 import { useNavigation } from '@react-navigation/native';
 

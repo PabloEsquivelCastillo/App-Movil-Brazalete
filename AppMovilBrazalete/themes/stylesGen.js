@@ -3,6 +3,12 @@ import { StyleSheet } from 'react-native';
 const StylesGen = StyleSheet.create({
   container: {
     flex: 1,
+    
+    marginHorizontal:25,
+    marginTop:8
+  },
+  container2: {
+    flex: 1,
     justifyContent: 'center',
     marginHorizontal:25,
     marginTop:8
