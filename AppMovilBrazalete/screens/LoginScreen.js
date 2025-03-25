@@ -5,8 +5,9 @@ import { AuthContext } from "../context/AuthContext";
 import BackgroundDos from "../components/BackgroundDos";
 import theme from "../themes/theme";
 import StylesGen from "../themes/stylesGen";
+
 export default function LoginScreen({ navigation }) {
-  const { login, user } = useContext(AuthContext);  // 🔥 Importa el contexto
+  const { login, user } = useContext(AuthContext);  //  Importa el contexto
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isValidEmail, setIsValidEmail] = useState(true); // Estado para validar el correo
@@ -23,9 +24,9 @@ export default function LoginScreen({ navigation }) {
       <BackgroundDos/>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={StylesGen.container}
+        style={StylesGen.container2}
       >
-        <View style={StylesGen.container}>
+        <View style={StylesGen.container2}>
           <Text style={StylesGen.title}>Inicia Sesión</Text>
 
           {/* Input de Correo */}
