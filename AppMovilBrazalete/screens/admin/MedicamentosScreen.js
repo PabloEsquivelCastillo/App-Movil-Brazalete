@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { API_BASE_URL } from '@env';
 import {
   View,
   Text,
@@ -15,49 +16,42 @@ import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import Background from "../../components/Background";
 import { SearchBar } from "react-native-elements";
 import StylesGen from "../../themes/stylesGen";
+import { AuthContext } from "../../context/AuthContext";
+import axios from "axios";
 
 export default function MedicamentosScreen({ navigation }) {
+   const { token } = useContext(AuthContext); // Obtener el token del contexto
+    const [medicamentos, setMedicamentos] = useState([]); // Estado para los cuidadores
+    useEffect(() => {
+      if (token) {
+        getMedicamentos(); 
+      }
+    }, [token]);
+  
+    const getMedicamentos = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/medication`, {
+          headers: {
+            Authorization: `Bearer ${token}`, // Enviar el token en los headers
+          },
+        });
+  
+        setMedicamentos(response.data); // Guardar la respuesta en el estado
+      } catch (error) {
+        console.error("Error obteniendo medicamentos:", error);
+        setMedicamentos("No hay solicitudes")
+      }
+    };
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (query) => {
     setSearchQuery(query);
     console.log("Buscando:", query);
   };
-  const contacts = [
-    {
-      name: "Paracetamol",
-      email: "Alivia dolor de cabeza y también cansancio extremo.",
-    },
-    {
-      name: "Ibuprofeno",
-      email: "Alivia dolor de cabeza y también cansancio extremo .",
-    },
-    {
-      name: "Loratadina",
-      email: "Alivia dolor de cabeza y también cansancio extremo.",
-    },
-    {
-      name: "Paracetamol",
-      email: "Alivia dolor de cabeza y también cansancio extremo.",
-    },
-    {
-      name: "Ibuprofeno",
-      email: "Alivia dolor de cabeza y también cansancio extremo.",
-    },
-    {
-      name: "Loratadina",
-      email: "Alivia dolor de cabeza y también cansancio extremo.",
-    },
-    {
-      name: "Paracetamol",
-      email: "Alivia dolor de cabeza y también cansancio extremo.",
-    },
-    {
-      name: "Ibuprofeno",
-      email: "Alivia dolor de cabeza y también cansancio extremo.",
-    },
-  ];
-
+  const itemHeight = 95; // Altura aproximada de cada elemento
+  const maxHeight = itemHeight * 5; // Altura máxima para 5 elementos
+  
   const handleLogout = () => {
           Alert.alert(
               "Eliminar medicamento",
@@ -90,11 +84,19 @@ export default function MedicamentosScreen({ navigation }) {
             </TouchableOpacity>
           </View>
         </View>
+
+        {!Array.isArray(medicamentos) || medicamentos.length === 0 ? (
+           <View>
+            <Text style={StylesGen.descrip}>No hay medicamentos registrados.</Text>
+          </View>
+        ) : (
+          <View>
+            <View style={{ overflow: "hidden", height: maxHeight, marginBottom:15}}>
         <ScrollView
           style={StylesGen.scroll}
           showsVerticalScrollIndicator={true}
         >
-          {contacts.map((contact, index) => (
+          {medicamentos.map((contact, index) => (
             <View key={index} style={styles.contactItem}>
               <View style={styles.contactInfo}>
                 <Text style={styles.contactName}>{contact.name}</Text>
@@ -117,9 +119,14 @@ export default function MedicamentosScreen({ navigation }) {
             </View>
           ))}
         </ScrollView>
+        </View>
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Descargar PDF</Text>
         </TouchableOpacity>
+          </View>
+        )}
+
+        
       </SafeAreaView>
     </>
   );

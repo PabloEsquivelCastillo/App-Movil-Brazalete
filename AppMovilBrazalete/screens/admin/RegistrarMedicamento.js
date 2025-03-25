@@ -1,56 +1,109 @@
-import React, {useState} from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import Background from "../../components/Background";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import StylesGen from "../../themes/stylesGen";
+import { API_BASE_URL } from "@env";
+import axios from "axios";
 
-export default function RegistrarMedicamento() {
-  const [email, setEmail] = useState('');
-  const [isValidEmail, setIsValidEmail] = useState(true); // Estado para validar el correo
+export default function RegistrarMedicamento({}) {
+  const [name, setName] = useState("");
+  const [descrip, setDescrip] = useState("");
+  const [loading, setLoading] = useState(false);
+  const handleRegister = async () => {
+    if (!name || !descrip) {
+      Alert.alert("Error", "Todos los campos son obligatorios");
+      return;
+    }
+    setLoading(true); // Inicia el estado de carga
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/reminder`, {
+        name,
+        descrip,
+      });
+      setName("");
+      setDescrip("");
+
+      Alert.alert("Éxito", "Medicamento registrado correctamente.");
+    } catch (error) {
+      console.error("Error en el registro:", error);
+      Alert.alert("Error", "No se pudo crear la cuenta");
+    } finally {
+      setLoading(false); // Finaliza el estado de carga
+    }
+  };
   return (
     <>
-    <Background/>
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={StylesGen.container}
-    >
-    <SafeAreaView style={StylesGen.container}>
-    
-          <View style={{marginBottom:30}}>
-          <View>
-            <Text style={StylesGen.title}>Registrar medicamento</Text>
-            <Text style={styles.descrip}>Aqui puedes registrar medicamentos.</Text>
-          </View>
-                <View style={StylesGen.inputContainer}>
-                    <TextInput placeholder="Nombre" style={StylesGen.input} />
-                    <MaterialCommunityIcons name="pill" size={30} color="gray" style={StylesGen.icon} />
-                </View>
-                <View style={StylesGen.inputContainer}>
-                    <TextInput placeholder="Descripcion" style={StylesGen.input} />
-                    <MaterialCommunityIcons name="pill" size={30} color="gray" style={StylesGen.icon} />
-                </View>
-                <View style={{alignItems:"center"}}> 
-                <TouchableOpacity style={[styles.button, !isValidEmail && styles.buttonDisabled]} disabled={!isValidEmail}>
-                  <Text style={styles.buttonText}>Guardar</Text>
+      <Background />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={StylesGen.container}
+      >
+        <SafeAreaView style={StylesGen.container}>
+          <View style={{ marginBottom: 30 }}>
+            <View>
+              <Text style={StylesGen.title}>Registrar medicamento</Text>
+              <Text style={styles.descrip}>
+                Aqui puedes registrar medicamentos.
+              </Text>
+            </View>
+            <View style={StylesGen.inputContainer}>
+              <TextInput placeholder="Nombre" style={StylesGen.input} onChangeText={setName}/>
+              <MaterialCommunityIcons
+                name="pill"
+                size={30}
+                color="gray"
+                style={StylesGen.icon}
+              />
+            </View>
+            <View style={StylesGen.inputContainer}>
+              <TextInput placeholder="Descripcion" style={StylesGen.input} onChangeText={setDescrip} />
+              <MaterialCommunityIcons
+                name="pill"
+                size={30}
+                color="gray"
+                style={StylesGen.icon}
+              />
+            </View>
+            <View style={{ alignItems: "center" }}>
+                <TouchableOpacity
+                  style={[
+                    StylesGen.button,
+                    (!isValidEmail || loading) && styles.buttonDisabled,
+                  ]}
+                  disabled={!isValidEmail || loading}
+                  onPress={handleRegister}
+                >
+                  <Text style={StylesGen.buttonText}>
+                    {loading ? "Guardando..." : "Guardar"}
+                  </Text>
                 </TouchableOpacity>
-                </View>
+            </View>
           </View>
-    </SafeAreaView>
-    </KeyboardAvoidingView>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  
- 
-  descrip:{
+  descrip: {
     fontSize: 18,
     marginBottom: 20,
   },
-  
+
   button: {
     backgroundColor: "#4CAF89",
     paddingVertical: 15,
@@ -63,7 +116,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
-    width:300,
+    width: 300,
   },
   buttonText: {
     color: "#fff",
@@ -78,7 +131,7 @@ const styles = StyleSheet.create({
     color: "#4CAF89",
     fontWeight: "bold",
     marginTop: 25,
-    textDecorationLine: 'underline',
+    textDecorationLine: "underline",
   },
   errorText: {
     color: "red",
