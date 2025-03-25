@@ -11,12 +11,12 @@ const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
     const { user } = useContext(AuthContext);
-
+    console.log("USER RECIBIDO: ", user);
     return (
         <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
                 {user ? (
-                    user.role === "admin" ? (
+                    user.payload.rol === "admin" ? (
                         <Stack.Screen name="AdminStack" component={AdminNavigator} />
                     ) : (
                         <Stack.Screen name="CaregiverStack" component={CaregiverNavigator} />
