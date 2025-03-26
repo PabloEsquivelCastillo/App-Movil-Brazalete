@@ -28,7 +28,7 @@ export default function HistorialScreen({ navigation }) {
 
   const getSolicitudes = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/reminder`, {
+      const response = await axios.get(`${API_BASE_URL}/api/reminders`, {
         headers: {
           Authorization: `Bearer ${token}`, // Enviar el token en los headers
         },
@@ -48,6 +48,20 @@ export default function HistorialScreen({ navigation }) {
   // Altura de cada elemento (ajusta según tu diseño)
   const itemHeight = 90; // Altura aproximada de cada elemento
   const maxHeight = itemHeight * 5; // Altura máxima para 5 elementos
+
+
+  // Función para formatear la fecha
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
 
   return (
     <>
@@ -86,17 +100,18 @@ export default function HistorialScreen({ navigation }) {
                   >
                     <View key={index} style={styles.contactItem}>
                       <View style={styles.contactInfo}>
-                        <Text style={styles.nameCui}>{contact.name}</Text>
-                        <Text style={styles.nameMed}>{contact.nameMedic}</Text>
+                        <Text style={styles.nameCui}>{contact.usuario.name}</Text>
+                        <Text style={styles.nameMed}>{contact.medicamentos.nombre}</Text>
                         <Text style={styles.namePac}>
-                          Paciente: {contact.namePac}
+                          Paciente: {contact.nombre_paciente}
                         </Text>
+                        {contact.cronico && <Text>Cronico</Text>}
                         <View style={styles.fechas}>
                           <Text style={styles.contactEmail}>
-                            Inicio: {contact.inicio}
+                            Inicio: {formatDate(contact.inicio)}
                           </Text>
                           <Text style={styles.contactEmail}>
-                            Fin: {contact.fin}
+                            Fin: {formatDate(contact.fin)}
                           </Text>
                         </View>
                         <View style={styles.estado}>

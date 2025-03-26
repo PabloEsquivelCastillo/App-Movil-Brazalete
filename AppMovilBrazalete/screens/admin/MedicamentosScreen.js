@@ -19,9 +19,13 @@ import StylesGen from "../../themes/stylesGen";
 import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
 
+
+
 export default function MedicamentosScreen({ navigation }) {
    const { token } = useContext(AuthContext); // Obtener el token del contexto
     const [medicamentos, setMedicamentos] = useState([]); // Estado para los cuidadores
+    
+    
     useEffect(() => {
       if (token) {
         getMedicamentos(); 
@@ -96,11 +100,11 @@ export default function MedicamentosScreen({ navigation }) {
           style={StylesGen.scroll}
           showsVerticalScrollIndicator={true}
         >
-          {medicamentos.map((contact, index) => (
+          {medicamentos.map((medicamento, index) => (
             <View key={index} style={styles.contactItem}>
               <View style={styles.contactInfo}>
-                <Text style={styles.contactName}>{contact.name}</Text>
-                <Text style={styles.contactEmail}>{contact.email}</Text>
+                <Text style={styles.contactName}>{medicamento.nombre}</Text>
+                <Text style={styles.contactEmail}>{medicamento.description}</Text>
               </View>
               <View style={styles.buttonContainer}>
                 {/* Botón de Aceptar con ícono de palomita (check) */}
