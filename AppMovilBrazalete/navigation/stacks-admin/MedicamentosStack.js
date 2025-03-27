@@ -27,6 +27,7 @@ export default function MedicamentosStack() {
                       fontSize: 20, // Tamaño del texto
                       fontWeight: "bold",
                     },
+                    headerBackTitle: "Volver",
                     headerShadowVisible: false, // 🔹 **Elimina sombras adicionales en versiones recientes**
                   }} >
                 <Stack.Screen name="Medicamentos" component={MedicamentosScreen}/>

@@ -25,6 +25,7 @@ import HistoricoScreen from "../../screens/admin/HistoricoScreen";
                   fontSize: 20, // Tamaño del texto
                   fontWeight: "bold",
                 },
+                headerBackTitle: "Volver",
                 headerShadowVisible: false, // 🔹 **Elimina sombras adicionales en versiones recientes**
               }} >
             <Stack.Screen name="Historial" component={HistorialScreen}/>
