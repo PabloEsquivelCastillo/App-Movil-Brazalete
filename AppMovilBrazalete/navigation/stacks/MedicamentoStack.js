@@ -3,6 +3,7 @@ import React from "react";
 import MedicamentosDisponibles from "../../screens/caregiver/MedicamentosDisponibles";
 import RegistrarMedicamento from "../../screens/caregiver/RegistroMedicamento";
 import { View } from 'react-native';
+import ActualizarMedicamento from "../../screens/caregiver/ActualizarMedicamento";
 
 
 const Stack = createNativeStackNavigator()
@@ -31,6 +32,7 @@ export default function MedicamentoStack() {
                   }}>
                 <Stack.Screen name="Medicamentos" component={MedicamentosDisponibles}/>
                 <Stack.Screen name="Registro" component={RegistrarMedicamento}/>
+                <Stack.Screen name="Actualizar" component={ActualizarMedicamento}/>
             </Stack.Navigator>
         </>
     );
