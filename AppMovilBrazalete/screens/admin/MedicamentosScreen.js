@@ -23,17 +23,20 @@ import { useCallback } from "react";
 
 export default function MedicamentosScreen({ navigation }) {
   const { token } = useContext(AuthContext); // Obtener el token del contexto
-  const [medicamentos, setMedicamentos] = useState([]); // Estado para los cuidadores
+  const [medicamentos, setMedicamentos] = useState([]); // Estado para lista de medicamentos
+  const [medicamentosDesac, setMedicamentosDesac] = useState([]); //estado para lita de medicamentos desactivados
 
   useEffect(() => {
     if (token) {
       getMedicamentos();
+      getMedicamentosDesactivados();
     }
   }, []);
   //recargar al regresar de otra pantalla
   useFocusEffect(
     useCallback(() => {
       getMedicamentos();
+      getMedicamentosDesactivados();
     }, [])
   );
 
@@ -52,6 +55,21 @@ export default function MedicamentosScreen({ navigation }) {
     }
   };
 
+  const getMedicamentosDesactivados = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/medications/deactivated`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Enviar el token en los headers
+        },
+      });
+
+      setMedicamentosDesac(response.data); // Guardar la respuesta en el estado
+    } catch (error) {
+      console.error("Error obteniendo medicamentos:", error);
+      setMedicamentosDesac("No hay solicitudes");
+    }
+  };
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (query) => {
@@ -59,7 +77,7 @@ export default function MedicamentosScreen({ navigation }) {
     console.log("Buscando:", query);
   };
   const itemHeight = 95; // Altura aproximada de cada elemento
-  const maxHeight = itemHeight * 5; // Altura máxima para 5 elementos
+  const maxHeight = itemHeight * 4; // Altura máxima para 5 elementos
 
   const handleDelete = (id) => {
     Alert.alert(
@@ -91,6 +109,7 @@ export default function MedicamentosScreen({ navigation }) {
               );
 
               getMedicamentos(); // Recargar la lista
+              getMedicamentosDesactivados();
               Alert.alert(
                 "Éxito",
                 "El medicamento ha sido eliminado correctamente"
@@ -105,86 +124,161 @@ export default function MedicamentosScreen({ navigation }) {
     );
   };
 
+  const  handleActivar = async (id) => {
+    try {
+      // Verificar token
+      if (!token) {
+        Alert.alert("Error", "No hay token de autenticación");
+        return;
+      }
+     
+      const response = await axios.get(
+        `${API_BASE_URL}/api/medication/activate/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      getMedicamentos();
+      getMedicamentosDesactivados(); // Recargar la lista
+      Alert.alert(
+        "Éxito",
+        "El medicamento ha sido activado correctamente"
+      );
+    } catch (error) {
+      console.error("Error completo:", error);
+      Alert.alert("Error", "Error al activar el medicamento");
+    }
+  }
+
   return (
     <>
       <Background />
       <SafeAreaView style={StylesGen.container}>
-        <View style={styles.content}>
-          <View style={styles.textContainer}>
-            <Text style={StylesGen.title}>Medicamentos</Text>
-            <Text style={StylesGen.descrip}>
-              Aquí se muestran todos los medicamentos disponibles.
-            </Text>
-          </View>
-          <View style={styles.iconContainer}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Registro")}
-              style={{ alignItems: "center" }}
-            >
-              <Ionicons name="medkit-outline" size={40} color="gray" />
-              <Text style={styles.iconText}>Agregar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {!Array.isArray(medicamentos) || medicamentos.length === 0 ? (
-          <View>
-            <Text style={StylesGen.descrip}>
-              No hay medicamentos registrados.
-            </Text>
-          </View>
-        ) : (
-          <View>
-            <View
-              style={{
-                overflow: "hidden",
-                height: maxHeight,
-                marginBottom: 15,
-              }}
-            >
-              <ScrollView
-                style={StylesGen.scroll}
-                showsVerticalScrollIndicator={true}
-              >
-                {medicamentos.map((medicamento, index) => (
-                  <View key={index} style={styles.contactItem}>
-                    <View style={styles.contactInfo}>
-                      <Text style={styles.contactName}>
-                        {medicamento.nombre}
-                      </Text>
-                      <Text style={styles.contactEmail}>
-                        {medicamento.description}
-                      </Text>
-                    </View>
-                    <View style={styles.buttonContainer}>
-                      {/* Botón de Aceptar con ícono de palomita (check) */}
-                      <TouchableOpacity
-                        onPress={() =>
-                          navigation.navigate("ActualizarMed", {
-                            id: medicamento._id,
-                          })
-                        } //envio de id
-                        style={{ marginRight: 18 }}
-                      >
-                        <FontAwesome name="edit" size={30} color="black" />
-                      </TouchableOpacity>
-
-                      {/* Botón de Rechazar con ícono de equis (times) */}
-                      <TouchableOpacity
-                        onPress={() => handleDelete(medicamento._id)}
-                      >
-                        <Ionicons name="trash" size={30} color="red" />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                ))}
-              </ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.content}>
+            <View style={styles.textContainer}>
+              <Text style={StylesGen.title}>Medicamentos</Text>
+              <Text style={StylesGen.descrip}>
+                Aquí se muestran todos los medicamentos disponibles.
+              </Text>
             </View>
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>Descargar PDF</Text>
-            </TouchableOpacity>
+            <View style={styles.iconContainer}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("Registro")}
+                style={{ alignItems: "center" }}
+              >
+                <Ionicons name="medkit-outline" size={40} color="gray" />
+                <Text style={styles.iconText}>Agregar</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        )}
+
+          {!Array.isArray(medicamentos) || medicamentos.length === 0 ? (
+            <View>
+              <Text style={StylesGen.descrip}>
+                No hay medicamentos registrados.
+              </Text>
+            </View>
+          ) : (
+            <View>
+              <View
+                style={{
+                  overflow: "hidden",
+                  maxHeight: maxHeight,
+                  marginBottom: 15,
+                }}
+              >
+                <ScrollView
+                  style={StylesGen.scroll}
+                  showsVerticalScrollIndicator={true}
+                >
+                  {medicamentos.map((medicamento, index) => (
+                    <View key={index} style={styles.contactItem}>
+                      <View style={styles.contactInfo}>
+                        <Text style={styles.contactName}>
+                          {medicamento.nombre}
+                        </Text>
+                        <Text style={styles.contactEmail}>
+                          {medicamento.description}
+                        </Text>
+                      </View>
+                      <View style={styles.buttonContainer}>
+                        {/* Botón de Aceptar con ícono de palomita (check) */}
+                        <TouchableOpacity
+                          onPress={() =>
+                            navigation.navigate("ActualizarMed", {
+                              id: medicamento._id,
+                            })
+                          } //envio de id
+                          style={{ marginRight: 18 }}
+                        >
+                          <FontAwesome name="edit" size={30} color="black" />
+                        </TouchableOpacity>
+
+                        {/* Botón de Rechazar con ícono de equis (times) */}
+                        <TouchableOpacity
+                          onPress={() => handleDelete(medicamento._id)}
+                        >
+                          <Ionicons name="trash" size={30} color="red" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  ))}
+                </ScrollView>
+              </View>
+              <TouchableOpacity style={styles.button}>
+                <Text style={styles.buttonText}>Descargar PDF</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          <View style={styles.textContainer2}>
+            <Text style={StylesGen.title}>Medicamentos desactivados</Text>
+            <Text style={StylesGen.descrip}>
+              Aquí se muestran todos los medicamentos desactivados.
+            </Text>
+          </View>
+          {!Array.isArray(medicamentosDesac) || medicamentosDesac.length === 0 ? (
+            <View>
+              <Text style={StylesGen.descrip}>
+                No hay medicamentos desactivados.
+              </Text>
+            </View>
+          ) : (
+            <View>
+              <View
+                style={{
+                  overflow: "hidden",
+                  maxHeight: maxHeight,
+                  marginBottom: 15,
+                }}
+              >
+                <ScrollView
+                  style={StylesGen.scroll}
+                  showsVerticalScrollIndicator={true}
+                >
+                  {medicamentosDesac.map((medicamento, index) => (
+                    <View key={index} style={styles.contactItem}>
+                      <View style={styles.contactInfo}>
+                        <Text style={styles.contactName}>
+                          {medicamento.nombre}
+                        </Text>
+                        <Text style={styles.contactEmail}>
+                          {medicamento.description}
+                        </Text>
+                      </View>
+                      <View style={styles.buttonContainer}>
+                        <Text style={{color:'green', fontWeight: "500", marginLeft:10}}onPress={() => handleActivar(medicamento._id) }>Activar</Text>
+                      </View>
+                    </View>
+                  ))}
+                </ScrollView>
+              </View>
+            </View>
+          )}
+        </ScrollView>
       </SafeAreaView>
     </>
   );
@@ -248,6 +342,11 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
+    marginTop:35
+  },
+  textContainer2: {
+    flex: 1,
+    marginTop: 30,
   },
   iconContainer: {
     alignItems: "center",
