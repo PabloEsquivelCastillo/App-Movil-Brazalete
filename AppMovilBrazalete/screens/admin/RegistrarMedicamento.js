@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Alert,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -17,29 +18,42 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import StylesGen from "../../themes/stylesGen";
 import { API_BASE_URL } from "@env";
 import axios from "axios";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function RegistrarMedicamento({}) {
-  const [name, setName] = useState("");
-  const [descrip, setDescrip] = useState("");
+  const { token } = useContext(AuthContext); //Obtenemos el token
+  const [nombre, setNombre] = useState("");
+  const [description, setDescripcion] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigation = useNavigation();
+  
   const handleRegister = async () => {
-    if (!name || !descrip) {
+    if (!nombre || !description) {
       Alert.alert("Error", "Todos los campos son obligatorios");
       return;
     }
     setLoading(true); // Inicia el estado de carga
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/reminder`, {
-        name,
-        descrip,
+      const response = await axios.post(`${API_BASE_URL}/api/medication`, {
+        nombre: nombre,
+        description: description,
+      },  {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
-      setName("");
-      setDescrip("");
+      setNombre("");
+      setDescripcion("");
 
-      Alert.alert("Éxito", "Medicamento registrado correctamente.");
+      Alert.alert("Éxito", "Medicamento registrado", [
+        { 
+          text: "OK", 
+          onPress: () => navigation.goBack() // Opción recomendada para flujo simple
+        }
+      ])
     } catch (error) {
       console.error("Error en el registro:", error);
-      Alert.alert("Error", "No se pudo crear la cuenta");
+      Alert.alert("Error", "Algo fallo en el registro del medicamento");
     } finally {
       setLoading(false); // Finaliza el estado de carga
     }
@@ -60,7 +74,7 @@ export default function RegistrarMedicamento({}) {
               </Text>
             </View>
             <View style={StylesGen.inputContainer}>
-              <TextInput placeholder="Nombre" style={StylesGen.input} onChangeText={setName}/>
+              <TextInput placeholder="Nombre" style={StylesGen.input} value={nombre} onChangeText={setNombre}/>
               <MaterialCommunityIcons
                 name="pill"
                 size={30}
@@ -69,7 +83,7 @@ export default function RegistrarMedicamento({}) {
               />
             </View>
             <View style={StylesGen.inputContainer}>
-              <TextInput placeholder="Descripcion" style={StylesGen.input} onChangeText={setDescrip} />
+              <TextInput placeholder="Descripcion" style={StylesGen.input} value={description} onChangeText={setDescripcion} />
               <MaterialCommunityIcons
                 name="pill"
                 size={30}
@@ -79,11 +93,7 @@ export default function RegistrarMedicamento({}) {
             </View>
             <View style={{ alignItems: "center" }}>
                 <TouchableOpacity
-                  style={[
-                    StylesGen.button,
-                    (!isValidEmail || loading) && styles.buttonDisabled,
-                  ]}
-                  disabled={!isValidEmail || loading}
+                  style={[ StylesGen.button,]}
                   onPress={handleRegister}
                 >
                   <Text style={StylesGen.buttonText}>
