@@ -3,7 +3,6 @@ import { StyleSheet } from 'react-native';
 const StylesGen = StyleSheet.create({
   container: {
     flex: 1,
-    
     marginHorizontal:25,
     marginTop:8
   },
