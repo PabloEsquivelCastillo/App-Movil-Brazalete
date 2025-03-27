@@ -1,34 +1,59 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import Background from "../../components/Background";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import StylesGen from "../../themes/stylesGen";
 import { AuthContext } from "../../context/AuthContext";
 import { API_BASE_URL } from "@env";
 import axios from "axios";
 
-export default function RegistroMedicamento() {
-  const { token } = useContext(AuthContext); //Obtenemos el token
+export default function ActualizarMedicamento() {
+  const { token } = useContext(AuthContext);
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(true); // Nuevo estado para carga inicial
   const navigation = useNavigation();
+  const route = useRoute();
+  const { id } = route.params; //Pasamos el id 
 
+  // Cargamos  datos del medicamento renderizar
+  useEffect(() => {
+    const fetchMedicamento = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/medication/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        setNombre(response.data.nombre); //Set al nombre y descripcion
+        setDescripcion(response.data.description);
+      } catch (error) {
+        console.error("Error al cargar medicamento:", error);
+        Alert.alert("Error", "No se pudo cargar el medicamento");
+      } finally {
+        setLoadingData(false);
+      }
+    };
 
+    if (id) {
+      fetchMedicamento();
+    }
+  }, [id, token]);
 
   
+ //Actualizar medicamento
   const handleRegister = async () => {
-    if (!nombre || !descripcion) { //Validamos lo campos
+    if (!nombre || !descripcion) {
       Alert.alert("Error", "Completa todos los campos");
       return;
     }
-    setLoading(true) //Inicia el estado de carga
+    setLoading(true);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/medication`, {
-        //aqui debe ir el nombnre de mis campos o como los espera la api?
+      const response = await axios.put(`${API_BASE_URL}/api/medication/${id}`, {
         nombre: nombre,
         description: descripcion
       }, {
@@ -36,27 +61,29 @@ export default function RegistroMedicamento() {
           Authorization: `Bearer ${token}`
         }
       });
-      Alert.alert("Éxito", "Medicamento registrado",
+      Alert.alert("Éxito", "Medicamento actualizado",
         [{ text: "OK", onPress: () => navigation.navigate("Medicamentos") }]
-      )
-
+      );
     } catch (error) {
-      console.error("Error al registrar:", error);
-      Alert.alert("Error", "Algo fallo en el registro del medicamento",
-        [{ text: "OK" }]
-      )
-
+      console.error("Error al actualizar:", error);
+      Alert.alert("Error", "Algo falló al actualizar el medicamento");
     } finally {
       setLoading(false);
     }
+  };
 
+
+  //Estado de deep
+  if (loadingData) {
+    return (
+      <Background>
+        <SafeAreaView style={[StylesGen.container, { justifyContent: 'center', alignItems: 'center' }]}>
+          <ActivityIndicator size="large" color="#4CAF89" />
+          <Text style={{ marginTop: 10 }}>Cargando medicamento...</Text>
+        </SafeAreaView>
+      </Background>
+    );
   }
-
-
-
-
-
-
 
   return (
     <>
@@ -66,18 +93,28 @@ export default function RegistroMedicamento() {
         style={StylesGen.container}
       >
         <SafeAreaView style={StylesGen.container}>
-
           <View style={{ marginBottom: 30 }}>
             <View>
-              <Text style={StylesGen.title}>Registrar medicamento</Text>
-              <Text style={styles.descrip}>Aqui puedes registrar medicamentos.</Text>
+              <Text style={StylesGen.title}>Actualizar medicamento</Text>
+              <Text style={styles.descrip}>Aquí puedes actualizar los medicamentos.</Text>
             </View>
             <View style={StylesGen.inputContainer}>
-              <TextInput placeholder="Nombre" style={StylesGen.input} value={nombre} onChangeText={setNombre} />
+              <TextInput 
+                placeholder="Nombre" 
+                style={StylesGen.input} 
+                value={nombre} 
+                onChangeText={setNombre} 
+              />
               <MaterialCommunityIcons name="pill" size={30} color="gray" style={StylesGen.icon} />
             </View>
             <View style={StylesGen.inputContainer}>
-              <TextInput placeholder="Descripcion" style={StylesGen.input} value={descripcion} onChangeText={setDescripcion} />
+              <TextInput 
+                placeholder="Descripción" 
+                style={StylesGen.input} 
+                value={descripcion} 
+                onChangeText={setDescripcion} 
+                multiline
+              />
               <MaterialCommunityIcons name="pill" size={30} color="gray" style={StylesGen.icon} />
             </View>
             <View style={{ alignItems: "center" }}>
@@ -89,7 +126,7 @@ export default function RegistroMedicamento() {
                 {loading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.buttonText}>Guardar</Text>
+                  <Text style={styles.buttonText}>Guardar cambios</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -101,13 +138,10 @@ export default function RegistroMedicamento() {
 }
 
 const styles = StyleSheet.create({
-
-
   descrip: {
     fontSize: 18,
     marginBottom: 20,
   },
-
   button: {
     backgroundColor: "#4CAF89",
     paddingVertical: 15,
@@ -126,25 +160,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
-  },
-  createAccount: {
-    marginTop: 20,
-    color: "#666",
-  },
-  createLink: {
-    color: "#4CAF89",
-    fontWeight: "bold",
-    marginTop: 25,
-    textDecorationLine: 'underline',
-  },
-  errorText: {
-    color: "red",
-    fontSize: 14,
-    marginBottom: 10,
-    textAlign: "left", // Alinea el texto a la izquierda
-    alignSelf: "flex-start", // Asegura que el texto no esté centrado en el contenedor
-  },
-  buttonDisabled: {
-    backgroundColor: "#ccc",
   },
 });
