@@ -30,7 +30,7 @@ export default function MedicamentosStack() {
                     headerBackTitle: "Volver",
                     headerShadowVisible: false, // 🔹 **Elimina sombras adicionales en versiones recientes**
                   }} >
-                <Stack.Screen name="Medicamentos" component={MedicamentosScreen}/>
+                <Stack.Screen options={{ headerShown: false }}  name="Medicamentos" component={MedicamentosScreen}/>
                 <Stack.Screen name="ActualizarMed" component={UpdateMedicinaScreen}/>
                 <Stack.Screen name="Registro" component={RegistrarMedicamento}/>
             </Stack.Navigator>
