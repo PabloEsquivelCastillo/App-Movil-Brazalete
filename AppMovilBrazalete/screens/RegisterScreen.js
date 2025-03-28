@@ -16,7 +16,7 @@ import BackgroundDos from "../components/BackgroundDos";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import StylesGen from "../themes/stylesGen";
-
+import { API_BASE_URL } from "@env";
 export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -42,7 +42,7 @@ export default function RegisterScreen({ navigation }) {
 
     try {
       const response = await axios.post(
-        "http://192.168.108.68:3000/api/users",
+        `${API_BASE_URL}/api/users`,
         {
           name,
           email,
