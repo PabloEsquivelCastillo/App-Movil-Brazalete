@@ -1,8 +1,20 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import Background from "../../components/Background";
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import StylesGen from "../../themes/stylesGen";
 import { AuthContext } from "../../context/AuthContext";
@@ -17,19 +29,23 @@ export default function ActualizarMedicamento() {
   const [loadingData, setLoadingData] = useState(true); // Nuevo estado para carga inicial
   const navigation = useNavigation();
   const route = useRoute();
-  const { id } = route.params; //Pasamos el id 
+  const { id } = route.params; //Pasamos el id
 
   // Cargamos  datos del medicamento renderizar
   useEffect(() => {
     const fetchMedicamento = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/medication/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
+        const response = await axios.get(
+          `${API_BASE_URL}/api/medication/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
-        });
+        );
         setNombre(response.data.nombre); //Set al nombre y descripcion
         setDescripcion(response.data.description);
+        
       } catch (error) {
         console.error("Error al cargar medicamento:", error);
         Alert.alert("Error", "No se pudo cargar el medicamento");
@@ -43,8 +59,7 @@ export default function ActualizarMedicamento() {
     }
   }, [id, token]);
 
-  
- //Actualizar medicamento
+  //Actualizar medicamento
   const handleRegister = async () => {
     if (!nombre || !descripcion) {
       Alert.alert("Error", "Completa todos los campos");
@@ -53,17 +68,24 @@ export default function ActualizarMedicamento() {
     setLoading(true);
 
     try {
-      const response = await axios.put(`${API_BASE_URL}/api/medication/${id}`, {
-        nombre: nombre,
-        description: descripcion
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      const response = await axios.put(
+        `${API_BASE_URL}/api/medication/${id}`,
+        {
+          nombre: nombre,
+          description: descripcion,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
-      Alert.alert("Éxito", "Medicamento actualizado",
-        [{ text: "OK", onPress: () => navigation.navigate("Medicamentos") }]
       );
+      Alert.alert("Éxito", "Medicamento registrado", [
+        {
+          text: "OK",
+          onPress: () => navigation.goBack(), // Opción recomendada para flujo simple
+        },
+      ]);
     } catch (error) {
       console.error("Error al actualizar:", error);
       Alert.alert("Error", "Algo falló al actualizar el medicamento");
@@ -72,12 +94,16 @@ export default function ActualizarMedicamento() {
     }
   };
 
-
   //Estado de deep
   if (loadingData) {
     return (
       <Background>
-        <SafeAreaView style={[StylesGen.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <SafeAreaView
+          style={[
+            StylesGen.container,
+            { justifyContent: "center", alignItems: "center" },
+          ]}
+        >
           <ActivityIndicator size="large" color="#4CAF89" />
           <Text style={{ marginTop: 10 }}>Cargando medicamento...</Text>
         </SafeAreaView>
@@ -89,32 +115,46 @@ export default function ActualizarMedicamento() {
     <>
       <Background />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={StylesGen.container}
       >
         <SafeAreaView style={StylesGen.container}>
           <View style={{ marginBottom: 30 }}>
             <View>
               <Text style={StylesGen.title}>Actualizar medicamento</Text>
-              <Text style={styles.descrip}>Aquí puedes actualizar los medicamentos.</Text>
+              <Text style={styles.descrip}>
+                Aquí puedes actualizar los medicamentos.
+              </Text>
             </View>
             <View style={StylesGen.inputContainer}>
-              <TextInput 
-                placeholder="Nombre" 
-                style={StylesGen.input} 
-                value={nombre} 
-                onChangeText={setNombre} 
+              <TextInput
+                placeholder="Nombre"
+                style={StylesGen.input}
+                value={nombre}
+                onChangeText={setNombre}
               />
-              <MaterialCommunityIcons name="pill" size={30} color="gray" style={StylesGen.icon} />
+              <MaterialCommunityIcons
+                name="pill"
+                size={30}
+                color="gray"
+                style={StylesGen.icon}
+              />
             </View>
             <View style={StylesGen.inputContainer}>
+
               <TextInput 
                 placeholder="Descripción" 
                 style={StylesGen.input} 
                 value={descripcion} 
                 onChangeText={setDescripcion} 
+
               />
-              <MaterialCommunityIcons name="pill" size={30} color="gray" style={StylesGen.icon} />
+              <MaterialCommunityIcons
+                name="pill"
+                size={30}
+                color="gray"
+                style={StylesGen.icon}
+              />
             </View>
             <View style={{ alignItems: "center" }}>
               <TouchableOpacity

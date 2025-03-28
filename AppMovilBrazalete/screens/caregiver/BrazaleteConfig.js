@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext, useEffect, } from "react";
 import {
   SafeAreaView,
   KeyboardAvoidingView,
@@ -12,6 +12,7 @@ import {
   Switch,
   Image,
   ScrollView,
+ ActivityIndicator
 } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import brazalete from "../../assets/Images/brazalete.png";
@@ -21,7 +22,15 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import StylesGen from "../../themes/stylesGen";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-export default function BrazaleteConfig({ route, navigation }) {
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { AuthContext } from "../../context/AuthContext";
+import axios from "axios";
+import { API_BASE_URL } from "@env";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
+
+
+export default function BrazaleteConfig({ route }) {
   const [isEnabled, setEnable] = useState(false);
   const [cont, setCont] = useState({
     nombre: '',
@@ -31,49 +40,120 @@ export default function BrazaleteConfig({ route, navigation }) {
 
   const { mode, brazalete, contact } = route.params || {};
   const toggleSwitch = () => setEnable((previousState) => !previousState);
-
-  // Llenar formulario si estamos en modo edición
+  const { token, user } = useContext(AuthContext); //Obtenemos el token
+  const [nombre, setNombre] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(true); // Nuevo estado para carga inicial
+  const { mode, contact } = route.params || {}; // 'mode' puede ser 'edit' o 'register'
+  const [desactivar, setDesactivar] = useState(false); // null, true o false
+  const navigation = useNavigation();
   useEffect(() => {
-    if (mode === "edit") {
-      const datosBrazalete = brazalete || contact;
-      if (datosBrazalete) {
-        setCont({
-          nombre: datosBrazalete.nombre || '',
-          topico: datosBrazalete.topico || '',
-          estado: datosBrazalete.estado || 'false'
+    const fecthBrazalete = async () => {
+      try {
+        
+        const response = await axios.get(`${API_BASE_URL}/api/brazalet/${contact}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
+        setNombre(response.data.nombre); 
+      } catch (error) {
+        console.error("Error al cargar usuario:", error);
+        Alert.alert("Error", "No se pudo cargar el usuario");
+      } finally {
+        setLoadingData(false);
       }
+    };
+
+    if (contact) {
+      fecthBrazalete();
     }
-  }, [mode, brazalete, contact]);
+  }, [contact, token]);
 
-  const handleChange = (name, value) => {
-    setCont(prev => ({...prev, [name]: value}));
-  };
-
-  const handleSubmit = () => {
-    if (!cont.nombre || !cont.topico) {
-      Alert.alert("Error", "Por favor complete todos los campos");
+  const handleRegister = async () => {
+    if (!nombre) {
+      Alert.alert("Error", "Todos los campos son obligatorios");
       return;
     }
-    
-    // Aquí iría la lógica para guardar/actualizar
-    console.log("Datos a guardar:", cont);
-    
-    if (mode === "edit") {
-      // Lógica para actualizar
-      Alert.alert("Éxito", "Brazalete actualizado correctamente");
-    } else {
-      // Lógica para crear nuevo
-      Alert.alert("Éxito", "Brazalete registrado correctamente");
+    setLoading(true); // Inicia el estado de carga
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/brazalet`, {
+        nombre: nombre,
+        id_user:user.payload.id,
+        edo: true
+        },  {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setNombre("");
+
+      Alert.alert("Éxito", "Medicamento registrado", [
+        { 
+          text: "OK", 
+          onPress: () => navigation.goBack()// Opción recomendada para flujo simple
+        }
+      ])
+    } catch (error) {
+      console.error("Error en el registro:", error);
+      Alert.alert("Error", "Algo fallo en el registro del brazalete");
+    } finally {
+      setLoading(false); // Finaliza el estado de carga
     }
-    
-    navigation.goBack();
   };
 
-  const title = mode === "edit" ? "Actualizar brazalete" : "Registrar brazalete";
-  const desc = mode === "edit" 
-    ? "Aquí podrás actualizar la información del brazalete." 
-    : "Aquí podrás registrar un nuevo brazalete.";
+  const handleUpdate = async () => {
+    if (!nombre) {
+      Alert.alert("Error", "Todos los campos son obligatorios");
+      return;
+    }
+    setLoading(true); // Inicia el estado de carga
+    if(desactivar === true){
+      console.log("BRAZ A ELIMINAR: ", contact)
+      const response = await axios.get(`${API_BASE_URL}/api/brazalet/desativate/${contact}`,  {
+        
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+    }
+    try {
+      const response = await axios.put(`${API_BASE_URL}/api/brazalet/update/${contact}`, {
+        nombre: nombre,
+        },  {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      Alert.alert("Éxito", "Medicamento actualizado", [
+        { 
+          text: "OK", 
+          onPress: () => navigation.goBack()// Opción recomendada para flujo simple
+        }
+      ])
+    } catch (error) {
+      console.error("Error en el registro:", error);
+      Alert.alert("Error", "Algo fallo en el registro del brazalete");
+    } finally {
+      setLoading(false); // Finaliza el estado de carga
+    }
+  };
+
+
+
+
+
+  // Obtenemos el parámetro desde la navegación
+  
+
+  const title =
+    mode === "edit" ? "Actualizar brazalete" : "Registrar brazalete";
+  const desc =
+    mode === "edit"
+      ? "Aqui podrás actualizar la información del brazalete."
+      : "Aqui podrás registrar un nuevo brazalete.";
+
 
   return (
     <>
@@ -85,53 +165,107 @@ export default function BrazaleteConfig({ route, navigation }) {
             <Text style={StylesGen.descrip}>{desc}</Text>
           </View>
 
-          {mode === "edit" || isEnabled ? (
-            <View style={styles.formu}>
-              <View style={StylesGen.inputContainer}>
-                <TextInput 
-                  placeholder="Nombre"
-                  value={cont.nombre}
-                  onChangeText={(text) => handleChange('nombre', text)}
-                  style={StylesGen.input}
-                />
-                <MaterialCommunityIcons
-                  name="card-account-details"
-                  size={30}
-                  color="gray"
-                  style={StylesGen.icon}
-                />
-              </View>
-              
-              <View style={StylesGen.inputContainer}>
-                <TextInput 
-                  placeholder="Topico"
-                  value={cont.topico}
-                  onChangeText={(text) => handleChange('topico', text)}
-                  style={StylesGen.input}
-                />
-                <MaterialCommunityIcons
-                  name="tag"
-                  size={30}
-                  color="gray"
-                  style={StylesGen.icon}
-                />
-              </View>
-              
-              <View style={{ alignItems: "center" }}>
-                <TouchableOpacity 
-                  style={styles.button}
-                  onPress={handleSubmit}
-                >
-                  <Text style={styles.buttonText}>
-                    {mode === "edit" ? "Actualizar" : "Guardar"}
-                  </Text>
-                </TouchableOpacity>
+              <View style={styles.formu}>
+                <View style={StylesGen.inputContainer}>
+                  <TextInput value={nombre} onChangeText={setNombre} style={StylesGen.input} />
+                  <MaterialCommunityIcons
+                    name="pill"
+                    size={30}
+                    color="gray"
+                    style={StylesGen.icon}
+                  />
+                </View>
+                {/* Selector de Desactivar */}
+      <View style={styles.selectorContainer}>
+        <Text style={styles.selectorLabel}>¿Desactivar brazalete?</Text>
+        <View style={styles.selectorOptions}>
+          <TouchableOpacity 
+            style={[
+              styles.selectorButton, 
+              desactivar === true && styles.selectorButtonSelected
+            ]}
+            onPress={() => setDesactivar(true)}
+          >
+            <Text style={desactivar === true ? styles.selectorTextSelected : styles.selectorText}>
+              Sí
+            </Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[
+              styles.selectorButton, 
+              desactivar === false && styles.selectorButtonSelected
+            ]}
+            onPress={() => setDesactivar(false)}
+          >
+            <Text style={desactivar === false ? styles.selectorTextSelected : styles.selectorText}>
+              No
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+                <View style={{ alignItems: "center" }}>
+                  <TouchableOpacity style={styles.button} onPress={handleUpdate}>
+                    <Text style={styles.buttonText}>Guardar</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           ) : (
-            <Text style={styles.warningText}>
-              ¡Asegúrate de encender tu bluetooth!
-            </Text>
+            <View>
+              <View>
+                <Text style={StylesGen.title}>{title}</Text>
+                <Text style={StylesGen.descrip}>{desc}</Text>
+                <View style={styles.switchContainer}>
+                  <Text style={styles.label}>Bluetooth</Text>
+                  <Switch
+                    trackColor={{ false: "#ccc", true: "#66CC99" }}
+                    thumbColor={
+                      isEnabled ? theme.colors.primary : theme.colors.primary
+                    }
+                    onValueChange={toggleSwitch}
+                    value={isEnabled}
+                  />
+                </View>
+              </View>
+              {conectado ? (
+                <View>
+                  <View style={styles.card}>
+                    <Image source={brazalete} style={styles.image} />
+                    <View style={styles.textContainer}>
+                      <Text style={styles.cardTitle}>Brazalete Bluetooth</Text>
+                      <TouchableOpacity
+                        style={styles.connectButton}
+                        onPress={() => navigation.navigate("Dispositivos")}
+                      >
+                        <Text style={styles.connectText}>Conectar</Text>
+                        <Ionicons name="add" size={20} color="#000" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                  <View style={styles.formu}>
+                    <View style={StylesGen.inputContainer}>
+                      <TextInput placeholder="Nombre" style={StylesGen.input}  value={nombre} onChangeText={setNombre}/>
+                      <MaterialCommunityIcons
+                        name="pill"
+                        size={30}
+                        color="gray"
+                        style={StylesGen.icon}
+                      />
+                    </View>
+                    <View style={{ alignItems: "center" }}>
+                      <TouchableOpacity style={styles.button} onPress={handleRegister}>
+                        <Text style={styles.buttonText}>Guardar</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              ) : (
+                <Text style={styles.warningText}>
+                  ¡Asegúrate de encender tu bluetooth!
+                </Text>
+              )}
+            </View>
           )}
         </ScrollView>
       </SafeAreaView>
@@ -229,5 +363,31 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  selectorLabel: {
+    fontSize: 16,
+    marginBottom: 8,
+    color: '#333',
+  },
+  selectorOptions: {
+    flexDirection: 'row',
+    marginVertical:10
+  },
+  selectorButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginHorizontal: 5,
+    borderWidth: 1,
+    borderColor: '#4CAF89',
+    borderRadius: 5,
+  },
+  selectorButtonSelected: {
+    backgroundColor: '#4CAF89',
+  },
+  selectorText: {
+    color: '#4CAF89',
+  },
+  selectorTextSelected: {
+    color: 'white',
   },
 });

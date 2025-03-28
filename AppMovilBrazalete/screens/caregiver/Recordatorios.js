@@ -132,9 +132,13 @@ export default function recordatorios({ navigation }) {
   return (
     <>
       <Background />
-      <SafeAreaView style={[StylesGen.container]}>
-        <View>
-          <Text style={[StylesGen.title]}>Recordatorios</Text>
+      <SafeAreaView style={StylesGen.container}>
+        <View style={styles.textContainer}>
+          <Text style={StylesGen.title}>Historial de recordatorios</Text>
+          <Text style={styles.descrip}>
+            Aquí puedes consultar los recordatorios ya completados. Para ver su historial haz clic en un registro.
+          </Text>
+
         </View>
         {!Array.isArray(recordatorios) || recordatorios.length === 0 ? (
           <View>
@@ -288,4 +292,20 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
   },
+
+  textContainer: {
+    flex: 1,
+    marginTop:35
+  },
+  card:{
+    backgroundColor: "white",
+    borderRadius: 8,
+    shadowColor: "#66CC99", // Color de la sombra
+    shadowOffset: { width: 2, height: 2 }, // Dirección de la sombra
+    shadowOpacity: 0.6, // Opacidad de la sombra
+    shadowRadius: 5, // Radio de difuminado
+    elevation: 5, // Sombra en Android
+    marginTop:5
+  }
+
 });

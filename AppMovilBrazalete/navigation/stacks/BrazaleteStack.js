@@ -25,7 +25,7 @@ const BrazaletesStack = () => {
             },
             headerShadowVisible: false, // 🔹 **Elimina sombras adicionales en versiones recientes**
           }}>
-      <Stack.Screen name="Brazalete Registro" component={BrazaleteRegistro} />
+      <Stack.Screen  options={{ headerShown: false }}  name="Brazalete Registro" component={BrazaleteRegistro} />
       <Stack.Screen name="Brazalete Config" component={BrazaleteConfig} />
       <Stack.Screen name="Dispositivos" component={DispostivosScreen}/>
       {/* Agregar otras pantallas de brazaletes aquí */}

@@ -27,7 +27,7 @@ import { View } from 'react-native';
                 },
                 headerShadowVisible: false, // 🔹 **Elimina sombras adicionales en versiones recientes**
               }}>
-            <Stack.Screen name="Recordatorios" component={Recordatorios}/>
+            <Stack.Screen options={{ headerShown: false }}  name="Recordatorios" component={Recordatorios}/>
             <Stack.Screen name="Historial" component={HistorialRecordatorios}/>
             <Stack.Screen name="Registro" component={RegistarRecordatorio}/>
         </Stack.Navigator>

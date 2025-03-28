@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useState,useContext, useEffect, } from "react";
 import {
   View,
   Text,
@@ -8,92 +8,91 @@ import {
   Switch,
   Image,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import brazalete from "../../assets/Images/brazalete.png";
-import { Ionicons } from "react-native-vector-icons";
-import Background from "../../components/Background";
-import theme from "../../themes/theme";
-import StylesGen from "../../themes/stylesGen";
-import { FontAwesome } from "@expo/vector-icons";
 import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
+import { Alert } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Background from "../../components/Background";
+import StylesGen from "../../themes/stylesGen";
+import { FontAwesome } from "@expo/vector-icons";
 import { API_BASE_URL } from "@env";
 import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 
 export default function BrazaleteRegistro({ navigation }) {
-  const [brazaletes, setBrazaletes] = useState([]); //Estado para los brazaletes
-  const { user, token } = useContext(AuthContext); //Obtenemos el token
+  const { token, user } = useContext(AuthContext); // Obtener el token del contexto
+
   const [isEnabled, setEnable] = useState(false);
-
-  const cuidadorId = user?.payload?.id;
-  console.log("User ID:", cuidadorId);
-
-  useEffect(() => {
-    if (token) {
-      getBrazaletes(cuidadorId);
-    }
-  }, [token])
-
-  useFocusEffect(
-    useCallback(() => {
-      getBrazaletes(cuidadorId)
-    }, [])
-  );
-
-
-  const getBrazaletes = async (id) => {
-    try {
-    const response = await axios.get(`${API_BASE_URL}/api/brazalet/user/${id}`, {
-      headers : {
-         Authorization: `Bearer ${token}`, 
-      },
-    });
-
-    setBrazaletes(response.data)
-    } catch (error) {
-      console.error("Error al cargar los brazaletes:", error);
-      setBrazaletes("No")
-      
-    }
-  }
-
-
-
   const conectado = isEnabled;
+  const [brazaletes, setBrazaletes]=useState([])
 
   // Altura de cada elemento (ajusta según tu diseño)
-  const itemHeight = 100; // Altura aproximada de cada elemento
+  const itemHeight = 90; // Altura aproximada de cada elemento
   const maxHeight = itemHeight * 5; // Altura máxima para 5 elementos
 
 
+  const getBrazaletes = async () => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/api/brazalet/user/${user.payload.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Enviar el token en los headers
+          },
+        }
+      );
+
+      setBrazaletes(response.data); // Guardar la respuesta en el estado
+    } catch (error) {
+      console.error("Error obteniendo cuidadores:", error);
+      setBrazaletes("No hay cuidadores");
+    }
+  };
+
+  
+  useEffect(() => {
+    if (token) {
+     getBrazaletes();
+    }
+  }, []);
+
+  //recargar al regresar de otra pantalla
+  useFocusEffect(
+    useCallback(() => {
+      getBrazaletes();
+    }, [])
+  );
+
+  
 
   return (
     <>
       <Background />
       <SafeAreaView style={StylesGen.container}>
-        <View>
+        <View style={styles.textContainer}>
           <Text style={StylesGen.title}>Brazaletes</Text>
           <Text style={StylesGen.descrip}>
             Aquí podrás visualizar los brazaletes registrados.
           </Text>
-          {brazalete.length === 0 ? ( // Verifica si no hay brazaleteos
-            <View style={styles.nobrazaletesContainer}>
-              <Text style={styles.nobrazaletesText}>
+          { brazaletes.length === 0 ? ( // Verifica si no hay contactos
+            <View style={styles.noContactsContainer}>
+              <Text style={styles.noContactsText}>
                 No hay brazaletes registrados
               </Text>
             </View>
           ) : (
-            <View style={{ overflow: "hidden", height: maxHeight, marginBottom: -20 }}>
+            <View style={{ overflow: "hidden", maxHeight: maxHeight, marginBottom:15 }}>
               <ScrollView
                 style={StylesGen.scroll}
                 showsVerticalScrollIndicator={true}
               >
-                {brazaletes.map((brazalete) => (
-                  <View key={brazalete._id} style={styles.brazaleteItem}>
-                    <View style={styles.brazaleteInfo}>
+                {brazaletes.map((contact, index) => (
+                  <View key={index} style={styles.contactItem}>
+                    <View style={styles.contactInfo}>
                       <View style={styles.edit}>
-                        <Text style={styles.nameCui}>{brazalete.nombre}</Text>
-                        {brazalete.estado === "false" ? (
+                        <Text style={styles.nameCui}>{contact.nombre}</Text>
+                        {console.log("ESTADO: ", contact.edo)}
+                        {contact.edo === "False" ? (
                           ""
                         ) : (
                           <View>
@@ -101,8 +100,7 @@ export default function BrazaleteRegistro({ navigation }) {
                               onPress={() =>
                                 navigation.navigate("Brazalete Config", {
                                   mode: "edit", // Parámetro "edit"
-                                  brazalete: brazalete, // Pasa el objeto completo, no solo el nombre
-                                  contact: brazalete // Mantén esto para compatibilidad
+                                  contact: contact._id, // Datos del contacto
                                 })
                               }
                             >
@@ -115,17 +113,16 @@ export default function BrazaleteRegistro({ navigation }) {
                           </View>
                         )}
                       </View>
-                      <Text>Topico: {brazalete.topico}</Text>
                       <View style={styles.estado}>
                         <Text
                           style={[
                             styles.estado,
-                            brazalete.estado === "Activo"
+                            contact.edo === true
                               ? styles.estadoFinalizado
                               : styles.estadoPendiente,
                           ]}
                         >
-                          Estado: {brazalete.estado}
+                          Estado: {contact.edo ? "Activo" : "Desactivado"}
                         </Text>
                       </View>
                     </View>
@@ -182,6 +179,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 6,
+  },
+  textContainer: {
+    flex: 1,
+    marginTop:35
   },
   button: {
     backgroundColor: "#4CAF89",
