@@ -26,7 +26,7 @@ const CuidadoresStack = () => {
         headerBackTitle: "Volver",
         headerShadowVisible: false, // 🔹 **Elimina sombras adicionales en versiones recientes**
       }}>
-      <Stack.Screen name="Lista" component={UsersScreen} />
+      <Stack.Screen name="Lista" options={{ headerShown: false }} component={UsersScreen} />
       <Stack.Screen name="Cuidador update" component={UpdateCarer} />
       <Stack.Screen name="Solicitudes" component={RequestsScreen} />
       {/* Agregar otras pantallas de brazaletes aquí */}
