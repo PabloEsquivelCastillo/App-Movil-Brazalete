@@ -21,30 +21,36 @@ import { shareAsync } from "expo-sharing";
 import { printToFileAsync } from "expo-print";
 
 
-export default function recordatoriosScreen({ navigation }) {
+export default function recordatorios({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
-  const { token } = useContext(AuthContext); // Obtener el token del contexto
+  const { user,  token } = useContext(AuthContext); // Obtener el token del contexto
   const [recordatorios, setRecordatorios] = useState([]); // Estado para los cuidadores
 
   const [pdfUri, setPdfUri] = useState(null);
 
+
+  const cuidadorId =  user?.payload?.id ;
+  console.log("User ID:", cuidadorId);
+
   useEffect(() => {
     if (token) {
-      getRecordatorios();
+    
+
+      getRecordatorios(cuidadorId);
     }
   }, [token]);
 
   //recargar al regresar de otra pantalla
   useFocusEffect(
     useCallback(() => {
-      getRecordatorios();
+      getRecordatorios(cuidadorId);
     }, [])
   );
 
 
-  const getRecordatorios = async () => {
+  const getRecordatorios = async (userId) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/reminders`, {
+      const response = await axios.get(`${API_BASE_URL}/api/reminders/user/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`, // Enviar el token en los headers
         },
