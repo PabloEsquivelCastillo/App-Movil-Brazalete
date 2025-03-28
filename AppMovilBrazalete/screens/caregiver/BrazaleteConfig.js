@@ -20,130 +20,118 @@ import theme from "../../themes/theme";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import StylesGen from "../../themes/stylesGen";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+
 export default function BrazaleteConfig({ route, navigation }) {
   const [isEnabled, setEnable] = useState(false);
-  const conectado = isEnabled;
-  const [cont, setCont] = useState({});
+  const [cont, setCont] = useState({
+    nombre: '',
+    topico: '',
+    estado: 'false'
+  });
+
+  const { mode, brazalete, contact } = route.params || {};
   const toggleSwitch = () => setEnable((previousState) => !previousState);
-  // Si estamos en modo edición, llenamos el nombre del brazalete
+
+  // Llenar formulario si estamos en modo edición
   useEffect(() => {
     if (mode === "edit") {
-      setCont(contact); // Llenamos el nombre del brazalete si estamos en edición
+      const datosBrazalete = brazalete || contact;
+      if (datosBrazalete) {
+        setCont({
+          nombre: datosBrazalete.nombre || '',
+          topico: datosBrazalete.topico || '',
+          estado: datosBrazalete.estado || 'false'
+        });
+      }
     }
-  }, [mode, contact]);
+  }, [mode, brazalete, contact]);
 
-  // Obtenemos el parámetro desde la navegación
-  const { mode, contact } = route.params || {}; // 'mode' puede ser 'edit' o 'register'
+  const handleChange = (name, value) => {
+    setCont(prev => ({...prev, [name]: value}));
+  };
 
-  const title =
-    mode === "edit" ? "Actualizar brazalete" : "Registrar brazalete";
-  const desc =
-    mode === "edit"
-      ? "Aqui podrás actualizar la información del brazalete."
-      : "Aqui podrás registrar un nuevo brazalete.";
+  const handleSubmit = () => {
+    if (!cont.nombre || !cont.topico) {
+      Alert.alert("Error", "Por favor complete todos los campos");
+      return;
+    }
+    
+    // Aquí iría la lógica para guardar/actualizar
+    console.log("Datos a guardar:", cont);
+    
+    if (mode === "edit") {
+      // Lógica para actualizar
+      Alert.alert("Éxito", "Brazalete actualizado correctamente");
+    } else {
+      // Lógica para crear nuevo
+      Alert.alert("Éxito", "Brazalete registrado correctamente");
+    }
+    
+    navigation.goBack();
+  };
+
+  const title = mode === "edit" ? "Actualizar brazalete" : "Registrar brazalete";
+  const desc = mode === "edit" 
+    ? "Aquí podrás actualizar la información del brazalete." 
+    : "Aquí podrás registrar un nuevo brazalete.";
 
   return (
     <>
       <Background />
       <SafeAreaView style={StylesGen.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          {mode === "edit" ? (
-            <View>
-              <View>
-                <Text style={StylesGen.title}>{title}</Text>
-                <Text style={StylesGen.descrip}>{desc}</Text>
-              </View>
+          <View>
+            <Text style={StylesGen.title}>{title}</Text>
+            <Text style={StylesGen.descrip}>{desc}</Text>
+          </View>
 
-              <View style={styles.formu}>
-                <View style={StylesGen.inputContainer}>
-                  <TextInput value={cont.name} style={StylesGen.input} />
-                  <MaterialCommunityIcons
-                    name="pill"
-                    size={30}
-                    color="gray"
-                    style={StylesGen.icon}
-                  />
-                </View>
-                <View style={StylesGen.inputContainer}>
-                  <TextInput value={cont.topico} style={StylesGen.input} />
-                  <MaterialCommunityIcons
-                    name="pill"
-                    size={30}
-                    color="gray"
-                    style={StylesGen.icon}
-                  />
-                </View>
-                <View style={{ alignItems: "center" }}>
-                  <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Guardar</Text>
-                  </TouchableOpacity>
-                </View>
+          {mode === "edit" || isEnabled ? (
+            <View style={styles.formu}>
+              <View style={StylesGen.inputContainer}>
+                <TextInput 
+                  placeholder="Nombre"
+                  value={cont.nombre}
+                  onChangeText={(text) => handleChange('nombre', text)}
+                  style={StylesGen.input}
+                />
+                <MaterialCommunityIcons
+                  name="card-account-details"
+                  size={30}
+                  color="gray"
+                  style={StylesGen.icon}
+                />
+              </View>
+              
+              <View style={StylesGen.inputContainer}>
+                <TextInput 
+                  placeholder="Topico"
+                  value={cont.topico}
+                  onChangeText={(text) => handleChange('topico', text)}
+                  style={StylesGen.input}
+                />
+                <MaterialCommunityIcons
+                  name="tag"
+                  size={30}
+                  color="gray"
+                  style={StylesGen.icon}
+                />
+              </View>
+              
+              <View style={{ alignItems: "center" }}>
+                <TouchableOpacity 
+                  style={styles.button}
+                  onPress={handleSubmit}
+                >
+                  <Text style={styles.buttonText}>
+                    {mode === "edit" ? "Actualizar" : "Guardar"}
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
           ) : (
-            <View>
-              <View>
-                <Text style={StylesGen.title}>{title}</Text>
-                <Text style={StylesGen.descrip}>{desc}</Text>
-                <View style={styles.switchContainer}>
-                  <Text style={styles.label}>Bluetooth</Text>
-                  <Switch
-                    trackColor={{ false: "#ccc", true: "#66CC99" }}
-                    thumbColor={
-                      isEnabled ? theme.colors.primary : theme.colors.primary
-                    }
-                    onValueChange={toggleSwitch}
-                    value={isEnabled}
-                  />
-                </View>
-              </View>
-              {conectado ? (
-                <View>
-                  <View style={styles.card}>
-                    <Image source={brazalete} style={styles.image} />
-                    <View style={styles.textContainer}>
-                      <Text style={styles.cardTitle}>Brazalete Bluetooth</Text>
-                      <TouchableOpacity
-                        style={styles.connectButton}
-                        onPress={() => navigation.navigate("Dispositivos")}
-                      >
-                        <Text style={styles.connectText}>Conectar</Text>
-                        <Ionicons name="add" size={20} color="#000" />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                  <View style={styles.formu}>
-                    <View style={StylesGen.inputContainer}>
-                      <TextInput placeholder="Nombre" style={StylesGen.input} />
-                      <MaterialCommunityIcons
-                        name="pill"
-                        size={30}
-                        color="gray"
-                        style={StylesGen.icon}
-                      />
-                    </View>
-                    <View style={StylesGen.inputContainer}>
-                      <TextInput placeholder="Topico" style={StylesGen.input} />
-                      <MaterialCommunityIcons
-                        name="pill"
-                        size={30}
-                        color="gray"
-                        style={StylesGen.icon}
-                      />
-                    </View>
-                    <View style={{ alignItems: "center" }}>
-                      <TouchableOpacity style={styles.button}>
-                        <Text style={styles.buttonText}>Guardar</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
-              ) : (
-                <Text style={styles.warningText}>
-                  ¡Asegúrate de encender tu bluetooth!
-                </Text>
-              )}
-            </View>
+            <Text style={styles.warningText}>
+              ¡Asegúrate de encender tu bluetooth!
+            </Text>
           )}
         </ScrollView>
       </SafeAreaView>

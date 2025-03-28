@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -15,57 +15,57 @@ import Background from "../../components/Background";
 import theme from "../../themes/theme";
 import StylesGen from "../../themes/stylesGen";
 import { FontAwesome } from "@expo/vector-icons";
+import { AuthContext } from "../../context/AuthContext";
+import axios from "axios";
+import { API_BASE_URL } from "@env";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function BrazaleteRegistro({ navigation }) {
+  const [brazaletes, setBrazaletes] = useState([]); //Estado para los brazaletes
+  const { user, token } = useContext(AuthContext); //Obtenemos el token
   const [isEnabled, setEnable] = useState(false);
+
+  const cuidadorId = user?.payload?.id;
+  console.log("User ID:", cuidadorId);
+
+  useEffect(() => {
+    if (token) {
+      getBrazaletes(cuidadorId);
+    }
+  }, [token])
+
+  useFocusEffect(
+    useCallback(() => {
+      getBrazaletes(cuidadorId)
+    }, [])
+  );
+
+
+  const getBrazaletes = async (id) => {
+    try {
+    const response = await axios.get(`${API_BASE_URL}/api/brazalet/user/${id}`, {
+      headers : {
+         Authorization: `Bearer ${token}`, 
+      },
+    });
+
+    setBrazaletes(response.data)
+    } catch (error) {
+      console.error("Error al cargar los brazaletes:", error);
+      setBrazaletes("No")
+      
+    }
+  }
+
+
+
   const conectado = isEnabled;
 
   // Altura de cada elemento (ajusta según tu diseño)
   const itemHeight = 100; // Altura aproximada de cada elemento
   const maxHeight = itemHeight * 5; // Altura máxima para 5 elementos
 
-  const contacts = [
-    {
-      name: "Juan Perez",
-      topico: "juan",
-      estado: "Activo",
-    },
-    {
-      name: "Pulido Cereth",
-      topico: "pulido",
-      estado: "Activo",
-    },
-    {
-      name: "Freddy Julian",
-      topico: "freddy",
-      estado: "Activo",
-    },
-    {
-      name: "Juan Perez",
-      topico: "juanp",
-      estado: "Activo",
-    },
-    {
-      name: "Pulido Cereth",
-      topico: "cerect",
-      estado: "Desactivado",
-    },
-    {
-      name: "Pulido Cereth",
-      topico: "pulidocereth",
-      estado: "Desactivado",
-    },
-    {
-      name: "Pulido Cereth",
-      topico: "pcereth",
-      estado: "Desactivado",
-    },
-    {
-      name: "Pulido Cereth",
-      topico: "cerpulido",
-      estado: "Desactivado",
-    },
-  ];
+
 
   return (
     <>
@@ -76,24 +76,24 @@ export default function BrazaleteRegistro({ navigation }) {
           <Text style={StylesGen.descrip}>
             Aquí podrás visualizar los brazaletes registrados.
           </Text>
-          {contacts.length === 0 ? ( // Verifica si no hay contactos
-            <View style={styles.noContactsContainer}>
-              <Text style={styles.noContactsText}>
+          {brazalete.length === 0 ? ( // Verifica si no hay brazaleteos
+            <View style={styles.nobrazaletesContainer}>
+              <Text style={styles.nobrazaletesText}>
                 No hay brazaletes registrados
               </Text>
             </View>
           ) : (
-            <View style={{ overflow: "hidden", height: maxHeight, marginBottom:15 }}>
+            <View style={{ overflow: "hidden", height: maxHeight, marginBottom: -20 }}>
               <ScrollView
                 style={StylesGen.scroll}
                 showsVerticalScrollIndicator={true}
               >
-                {contacts.map((contact, index) => (
-                  <View key={index} style={styles.contactItem}>
-                    <View style={styles.contactInfo}>
+                {brazaletes.map((brazalete) => (
+                  <View key={brazalete._id} style={styles.brazaleteItem}>
+                    <View style={styles.brazaleteInfo}>
                       <View style={styles.edit}>
-                        <Text style={styles.nameCui}>{contact.name}</Text>
-                        {contact.estado === "Desactivado" ? (
+                        <Text style={styles.nameCui}>{brazalete.nombre}</Text>
+                        {brazalete.estado === "false" ? (
                           ""
                         ) : (
                           <View>
@@ -101,7 +101,8 @@ export default function BrazaleteRegistro({ navigation }) {
                               onPress={() =>
                                 navigation.navigate("Brazalete Config", {
                                   mode: "edit", // Parámetro "edit"
-                                  contact: contact, // Datos del contacto
+                                  brazalete: brazalete, // Pasa el objeto completo, no solo el nombre
+                                  contact: brazalete // Mantén esto para compatibilidad
                                 })
                               }
                             >
@@ -114,17 +115,17 @@ export default function BrazaleteRegistro({ navigation }) {
                           </View>
                         )}
                       </View>
-                      <Text>Topico: {contact.topico}</Text>
+                      <Text>Topico: {brazalete.topico}</Text>
                       <View style={styles.estado}>
                         <Text
                           style={[
                             styles.estado,
-                            contact.estado === "Activo"
+                            brazalete.estado === "Activo"
                               ? styles.estadoFinalizado
                               : styles.estadoPendiente,
                           ]}
                         >
-                          Estado: {contact.estado}
+                          Estado: {brazalete.estado}
                         </Text>
                       </View>
                     </View>
@@ -146,7 +147,7 @@ export default function BrazaleteRegistro({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  contactItem: {
+  brazaleteItem: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -157,7 +158,7 @@ const styles = StyleSheet.create({
     borderColor: "#4CAF89",
     width: "100%",
   },
-  contactInfo: {
+  brazaleteInfo: {
     flex: 1,
   },
   nameCui: {
@@ -192,7 +193,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
-    marginBottom: 10,
+    marginBottom: 20,
   },
   buttonText: {
     color: "#fff",
@@ -201,12 +202,12 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
   },
-  noContactsContainer: {
+  nobrazaletesContainer: {
     justifyContent: "center",
     alignItems: "center",
     height: 100, // Altura del contenedor del mensaje
   },
-  noContactsText: {
+  nobrazaletesText: {
     fontSize: 18,
     color: "gray",
     textAlign: "center",
