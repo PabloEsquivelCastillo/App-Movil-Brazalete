@@ -215,7 +215,12 @@ export default function UsersScreen({ navigation }) {
               style={StylesGen.scroll}
               showsVerticalScrollIndicator={true}
             >
-              {desactivados.map((contact, index) => (
+              {desactivados.length === 0 ? (
+                <Text style={StylesGen.descrip}>
+                  No hay cuidadores desactivados.
+                </Text>
+              ) : (
+                  desactivados.map((contact, index) => (
                 <View key={index} style={styles.contactItem}>
                   <View style={styles.contactInfo}>
                     <Text style={styles.contactName}>{contact.name}</Text>
@@ -225,7 +230,8 @@ export default function UsersScreen({ navigation }) {
                         <Text style={{color:'green', fontWeight: "500", marginLeft:10}}onPress={() => handleActivar(contact._id) }>Activar</Text>
                       </View>
                 </View>
-              ))}
+              ))
+            )}
             </ScrollView>
           </View>
         </ScrollView>
