@@ -28,3 +28,9 @@ npm install @react-native-async-storage/async-storage@1.23.1
 
 ENV
 npm install react-native-dotenv
+
+
+GENERACION DE PDF
+npm install react-native-pdf react-native-html-to-pdf
+npx expo install expo-sharing
+npx expo install expo-print
