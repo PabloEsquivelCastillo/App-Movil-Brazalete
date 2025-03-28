@@ -113,7 +113,6 @@ export default function ActualizarMedicamento() {
                 style={StylesGen.input} 
                 value={descripcion} 
                 onChangeText={setDescripcion} 
-                multiline
               />
               <MaterialCommunityIcons name="pill" size={30} color="gray" style={StylesGen.icon} />
             </View>

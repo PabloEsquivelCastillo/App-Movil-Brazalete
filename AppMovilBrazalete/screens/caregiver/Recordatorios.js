@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,124 +10,197 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
 import Background from "../../components/Background";
 import StylesGen from "../../themes/stylesGen";
+import { API_BASE_URL } from "@env";
+import { AuthContext } from "../../context/AuthContext";
+import axios from "axios";
+import { useFocusEffect } from "@react-navigation/native";//Renderizado extra
+import { useCallback } from "react"; //Renderizado extra
+import { shareAsync } from "expo-sharing";
+import { printToFileAsync } from "expo-print";
 
-export default function Recordatorios({navigation}) {
+
+export default function recordatoriosScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
+  const { token } = useContext(AuthContext); // Obtener el token del contexto
+  const [recordatorios, setRecordatorios] = useState([]); // Estado para los cuidadores
 
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-    console.log("Buscando:", query);
-   
-  
+  const [pdfUri, setPdfUri] = useState(null);
+
+  useEffect(() => {
+    if (token) {
+      getRecordatorios();
+    }
+  }, [token]);
+
+  //recargar al regresar de otra pantalla
+  useFocusEffect(
+    useCallback(() => {
+      getRecordatorios();
+    }, [])
+  );
+
+
+  const getRecordatorios = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/reminders`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Enviar el token en los headers
+        },
+      });
+
+      setRecordatorios(response.data); // Guardar la respuesta en el estado
+    } catch (error) {
+      console.error("Error obteniendo cuidadores:", error);
+      setRecordatorios("No hay solicitudes");
+    }
   };
-   // Altura de cada elemento (ajusta según tu diseño)
+
+  // Altura de cada elemento (ajusta según tu diseño)
   const itemHeight = 90; // Altura aproximada de cada elemento
   const maxHeight = itemHeight * 5; // Altura máxima para 5 elementos
-  const contacts = [
-    {
-      name: "Juan Perez",
-      nameMedic: "Paracetamol",
-      namePac: "Alan Barrera",
-      inicio: "05/03/2025",
-      fin: "08/03/2025",
-      estado: "Finalizado",
-    },
-    {
-      name: "Pulido Cereth",
-      nameMedic: "Ibuprofeno",
-      namePac: "Paco Alarcon",
-      inicio: "01/03/2025",
-      fin: "05/03/2025",
-      estado: "Finalizado",
-    },
-    {
-      name: "Freddy Julian",
-      nameMedic: "Loratadina",
-      namePac: "Cereth Mondragon",
-      inicio: "02/03/2025",
-      fin: "03/03/2025",
-      estado: "Finalizado",
-    },
-    {
-      name: "Pablo Pasita",
-      nameMedic: "Ambroxol",
-      namePac: "Jonathan Bar",
-      inicio: "03/03/2025",
-      fin: "05/03/2025",
-      estado: "Finalizado",
-    },
-    {
-      name: "Paquinno",
-      nameMedic: "Naproxeno",
-      namePac: "Leo Sanchez",
-      inicio: "01/03/2025",
-      fin: "05/03/2025",
-      estado: "Finalizado",
-    },
-    {
-      name: "Salem roman",
-      nameMedic: "Paracetamol",
-      namePac: "Oscar Montes",
-      inicio: "04/03/2025",
-      fin: "08/03/2025",
-      estado: "Finalizado",
-    },
-  ];
+
+
+  const formatFecha = () => {
+    const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+    const fecha = new Date();
+    //para la fecha en el documento
+    return `Fecha de creación: ${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
+  };
+
+
+  const generarPDF = async () => {
+    try {
+      // Generar tabla de recordatorios dinámicamente
+      const tablarecordatorios = recordatorios.map((rec) => `
+          <tr>
+            <td style="border: 1px solid #000; padding: 8px;">${rec.usuario.name}</td>
+            <td style="border: 1px solid #000; padding: 8px;">${rec.medicamentos.nombre}</td>
+            <td style="border: 1px solid #000; padding: 8px;">${rec.nombre_paciente}</td>
+            <td style="border: 1px solid #000; padding: 8px;">${rec.inicio}</td>
+            <td style="border: 1px solid #000; padding: 8px;">${rec.fin}</td>
+          </tr>
+        `).join("");
+
+      const html = `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h1 style="text-align: center;">recordatorios disponibles</h1>
+          <p style="text-align: right; font-size: 12px; color: #555;">${formatFecha()}</p>
+          
+          <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <tr>
+              <th style="border: 1px solid #000; padding: 10px; background-color: #4CAF89; color: white; font-size: 15px;">Cuidador</th>
+              <th style="border: 1px solid #000; padding: 10px; background-color: #4CAF89; color: white; font-size: 15px;">Medicamento</th>
+              <th style="border: 1px solid #000; padding: 10px; background-color: #4CAF89; color: white; font-size: 15px;">Paciente</th>
+              <th style="border: 1px solid #000; padding: 10px; background-color: #4CAF89; color: white; font-size: 15px;">Inicio</th>
+              <th style="border: 1px solid #000; padding: 10px; background-color: #4CAF89; color: white; font-size: 15px;">Fin</th>
+            </tr>
+            ${tablarecordatorios}
+          </table>
+        </div>
+      `;
+      const file = await printToFileAsync({ html, base64: false });
+      setPdfUri(file.uri);
+      await shareAsync(file.uri);
+    } catch (error) {
+      console.error("Error generando PDF:", error);
+      Alert.alert("Error", "Hubo un problema al generar el PDF");
+    }
+  };
+
+  // Función para formatear la fecha
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+
+
+
 
   return (
     <>
       <Background />
-      <SafeAreaView style={StylesGen.container}>
+      <SafeAreaView style={[StylesGen.container, {marginBottom: 10}]}>
         <View>
-          <Text style={StylesGen.title}>Historial de recordatorios</Text>
-          <Text style={styles.descrip}>
-            Aquí puedes consultar los recordatorios ya completados. Para ver su historial haz clic en un registro.
-          </Text>
+          <Text style={StylesGen.title}>recordatorios de recordatorios</Text>
         </View>
-        <View style={{ overflow: "hidden", height: maxHeight, marginBottom:15}}>
-        <ScrollView
-          style={StylesGen.scroll}
-          showsVerticalScrollIndicator={true}
-        >
-          {contacts.map((contact, index) => (
-            <TouchableOpacity onPress={() => navigation.navigate("Historial")} >
-              <View key={index} style={[styles.contactItem, styles.card]}>
-              <View style={styles.contactInfo}>
-                <Text style={styles.nameCui}>{contact.name}</Text>
-                <Text style={styles.nameMed}>{contact.nameMedic}</Text>
-                <Text style={styles.namePac}>
-                  Paciente: {contact.namePac}
-                </Text>
-                <View style={styles.fechas}>
-                  <Text style={styles.contactEmail}>
-                    Inicio: {contact.inicio}
-                  </Text>
-                  <Text style={styles.contactEmail}>Fin:     {contact.fin}</Text>
-                </View>
-                <View style={styles.estado}>
-                  <Text
-                    style={[
-                      styles.estado,
-                      contact.estado === "Finalizado"
-                        ? styles.estadoFinalizado
-                        : styles.estadoPendiente,
-                    ]}
+        {!Array.isArray(recordatorios) || recordatorios.length === 0 ? (
+          <View>
+            <Text style={StylesGen.descrip}>
+              No hay recordatorios registrados.
+            </Text>
+          </View>
+        ) : (
+          <View>
+            <Text style={styles.descrip}>
+              Aquí puedes consultar los recordatorios ya completados. Para ver
+              su recordatorios haz clic en un registro.
+            </Text>
+            <View
+              style={{
+                overflow: "hidden",
+                height: maxHeight,
+                marginBottom: 15,
+              }}
+            >
+              <ScrollView
+                style={[StylesGen.scroll,]}
+                showsVerticalScrollIndicator={true}
+              >
+                {recordatorios.map((recordatorio, index) => (
+                  <TouchableOpacity
+                    key={recordatorio._id}
                   >
-                    Estado: {contact.estado}
-                  </Text>
-                </View>
-              </View>
+                    <View key={index} style={styles.recordatorioItem}>
+                      <View style={styles.recordatorioInfo}>
+                        <Text style={styles.nameCui}>{recordatorio.usuario.name}</Text>
+                        <Text style={styles.nameMed}>{recordatorio.medicamentos.nombre}</Text>
+                        <Text style={styles.namePac}>
+                          Paciente: {recordatorio.nombre_paciente}
+                        </Text>
+                        {recordatorio.cronico && <Text>Cronico</Text>}
+                        <View style={styles.fechas}>
+                          <Text style={styles.recordatorioEmail}>
+                            Inicio: {formatDate(recordatorio.inicio)}
+                          </Text>
+                          <Text style={styles.recordatorioEmail}>
+                            Fin:     {formatDate(recordatorio.fin)}
+                          </Text>
+                        </View>
+                        <View style={styles.estado}>
+                          <Text
+                            style={[
+                              styles.estado,
+                              recordatorio.estado === "Finalizado"
+                                ? styles.estadoFinalizado
+                                : styles.estadoPendiente,
+                            ]}
+                          >
+                            Estado: {recordatorio.estado}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
             </View>
+            <TouchableOpacity style={styles.button} onPress={generarPDF}>
+              <Text style={styles.buttonText}>Descargar PDF</Text>
             </TouchableOpacity>
-          ))}
-        </ScrollView>
-        </View>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Descargar PDF</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.button}>
+              <Text style={styles.buttonText}>Nuevo recordatorio</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </SafeAreaView>
     </>
   );
@@ -138,7 +211,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 15,
   },
-  contactItem: {
+  recordatorioItem: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -149,7 +222,7 @@ const styles = StyleSheet.create({
     borderColor: "#4CAF89",
     width: "100%",
   },
-  contactInfo: {
+  recordatorioInfo: {
     flex: 1,
   },
   nameCui: {
@@ -159,7 +232,7 @@ const styles = StyleSheet.create({
   },
   nameMed: {
     fontSize: 18,
-    fontWeight: '1000',
+    fontWeight: "1000",
     color: "#000",
   },
   namePac: {
@@ -172,7 +245,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   estado: {
-    alignItems:'flex-end',
+    alignItems: "flex-end",
     fontSize: 14,
     fontWeight: "bold",
   },
@@ -192,7 +265,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
-    marginBottom:10
+    marginBottom: 10,
   },
   buttonText: {
     color: "#fff",
@@ -201,14 +274,4 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
   },
-  card:{
-    backgroundColor: "white",
-    borderRadius: 8,
-    shadowColor: "#66CC99", // Color de la sombra
-    shadowOffset: { width: 2, height: 2 }, // Dirección de la sombra
-    shadowOpacity: 0.6, // Opacidad de la sombra
-    shadowRadius: 5, // Radio de difuminado
-    elevation: 5, // Sombra en Android
-    marginTop:5
-  }
 });
