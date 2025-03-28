@@ -141,12 +141,13 @@ export default function ActualizarMedicamento() {
               />
             </View>
             <View style={StylesGen.inputContainer}>
-              <TextInput
-                placeholder="Descripción"
-                style={StylesGen.input}
-                value={descripcion}
-                onChangeText={setDescripcion}
-                multiline
+
+              <TextInput 
+                placeholder="Descripción" 
+                style={StylesGen.input} 
+                value={descripcion} 
+                onChangeText={setDescripcion} 
+
               />
               <MaterialCommunityIcons
                 name="pill"
