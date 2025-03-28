@@ -153,6 +153,10 @@ export default function BrazaleteConfig({ route }) {
   return (
     <>
       <Background />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={StylesGen.container}
+      >
       <SafeAreaView style={StylesGen.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           {mode === "edit" ? (
@@ -266,6 +270,7 @@ export default function BrazaleteConfig({ route }) {
           )}
         </ScrollView>
       </SafeAreaView>
+      </KeyboardAvoidingView>
     </>
   );
 }
