@@ -15,6 +15,9 @@ import StylesGen from "../../themes/stylesGen";
 import { API_BASE_URL } from "@env";
 import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
+import { shareAsync } from "expo-sharing";
+import { printToFileAsync } from "expo-print";
+
 
 export default function HistorialScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -49,7 +52,6 @@ export default function HistorialScreen({ navigation }) {
   const itemHeight = 90; // Altura aproximada de cada elemento
   const maxHeight = itemHeight * 5; // Altura máxima para 5 elementos
 
-
   // Función para formatear la fecha
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -61,6 +63,55 @@ export default function HistorialScreen({ navigation }) {
       minute: '2-digit'
     });
   };
+  const [pdfUri, setPdfUri] = useState(null);
+  const formatFecha = () => {
+      const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+      const fecha = new Date();
+      //para la fecha en el documento
+      return `Fecha de creación: ${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
+    };
+  
+  
+    const generarPDF = async () => {
+      try {
+        // Generar tabla de recordatorios dinámicamente
+        const tablarecordatorios = historial.map((rec) => `
+            <tr style="page-break-inside: avoid; break-inside: avoid;">
+              <td style="border: 1px solid #000; padding: 8px;">${rec.usuario.name}</td>
+              <td style="border: 1px solid #000; padding: 8px;">${rec.medicamentos.nombre}</td>
+              <td style="border: 1px solid #000; padding: 8px;">${rec.nombre_paciente}</td>
+              <td style="border: 1px solid #000; padding: 8px;">${formatDate(rec.inicio)}</td>
+              <td style="border: 1px solid #000; padding: 8px;">${formatDate(rec.fin)}</td>
+            </tr>
+          `).join("");
+  
+        const html = `
+          <div style="font-family: Arial, sans-serif; padding: 20px;">
+            <h1 style="text-align: center;">Recordatorios activos</h1>
+            <p style="text-align: right; font-size: 14px; color: #555;">${formatFecha()}</p>
+            
+            <table style="width: 100%; border-collapse: collapse; -webkit-print-color-adjust: exact;">
+              <tr style="page-break-inside: avoid; break-inside: avoid;">
+                <th style="border: 1px solid #000; padding: 10px; background-color: #66CC99; color: white;">Cuidador</th>
+                <th style="border: 1px solid #000; padding: 10px; background-color: #66CC99; color: white;">Medicamento</th>
+                <th style="border: 1px solid #000; padding: 10px; background-color: #66CC99; color: white;"">Paciente</th>
+                <th style="border: 1px solid #000; padding: 10px; background-color: #66CC99; color: white;">Inicio</th>
+                <th style="border: 1px solid #000; padding: 10px; background-color: #66CC99; color: white;">Fin</th>
+              </tr>
+              ${tablarecordatorios}
+            </table>
+          </div>
+        `;
+        const file = await printToFileAsync({ html, base64: false });
+        setPdfUri(file.uri);
+        await shareAsync(file.uri);
+      } catch (error) {
+        console.error("Error generando PDF:", error);
+        Alert.alert("Error", "Hubo un problema al generar el PDF");
+      }
+    };
+
+  
 
 
   return (
@@ -96,7 +147,9 @@ export default function HistorialScreen({ navigation }) {
                 {historial.map((contact, index) => (
                   <TouchableOpacity
                     key={contact._id}
-                    onPress={() => navigation.navigate("Historico")}
+                    onPress={() => navigation.navigate("Historico",  {
+                      id: contact._id,
+                    })}
                   >
                     <View key={index} style={styles.contactItem}>
                       <View style={styles.contactInfo}>
@@ -105,26 +158,18 @@ export default function HistorialScreen({ navigation }) {
                         <Text style={styles.namePac}>
                           Paciente: {contact.nombre_paciente}
                         </Text>
-                        {contact.cronico && <Text>Cronico</Text>}
+                        {contact.cronico && <Text style={{color:'blue'}}>Cronico</Text>}
+                        
+                        <View style={styles.estado}>
                         <View style={styles.fechas}>
                           <Text style={styles.contactEmail}>
                             Inicio: {formatDate(contact.inicio)}
                           </Text>
                           <Text style={styles.contactEmail}>
-                            Fin: {formatDate(contact.fin)}
+                            Fin:     {formatDate(contact.fin)}
                           </Text>
                         </View>
-                        <View style={styles.estado}>
-                          <Text
-                            style={[
-                              styles.estado,
-                              contact.estado === "Finalizado"
-                                ? styles.estadoFinalizado
-                                : styles.estadoPendiente,
-                            ]}
-                          >
-                            Estado: {contact.estado}
-                          </Text>
+                          
                         </View>
                       </View>
                     </View>
@@ -132,7 +177,7 @@ export default function HistorialScreen({ navigation }) {
                 ))}
               </ScrollView>
             </View>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={generarPDF}>
               <Text style={styles.buttonText}>Descargar PDF</Text>
             </TouchableOpacity>
           </View>
