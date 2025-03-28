@@ -14,16 +14,27 @@ import {
 } from "react-native";
 import StylesGen from "../../themes/stylesGen";
 import { API_BASE_URL } from "@env";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 
 export default function UsersScreen({ navigation }) {
   const { token } = useContext(AuthContext); // Obtener el token del contexto
   const [contacts, setContacts] = useState([]); // Estado para los cuidadores
-
+  const [desactivados, setDesactivados] = useState([]);
   useEffect(() => {
     if (token) {
       getCuidadores();
+      getCuidadoresDesactivados();
     }
   }, []);
+
+  //recargar al regresar de otra pantalla
+  useFocusEffect(
+    useCallback(() => {
+      getCuidadores();
+      getCuidadoresDesactivados();
+    }, [])
+  );
 
   const getCuidadores = async () => {
     try {
@@ -43,81 +54,181 @@ export default function UsersScreen({ navigation }) {
     }
   };
 
+  const getCuidadoresDesactivados = async () => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/api/users/disabled`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Enviar el token en los headers
+          },
+        }
+      );
+
+      setDesactivados(response.data); // Guardar la respuesta en el estado
+    } catch (error) {
+      console.error("Error obteniendo cuidadores:", error);
+      setDesactivados("No hay cuidadores");
+    }
+  };
 
   const handleReject = async (id) => {
     try {
       console.log("ID A ELIMINAR: ", id);
       // Enviar el id y la acción de rechazar a la API
-      const response = await axios.put(`${API_BASE_URL}/api/users/deactivate/${id}`,
-      {}, // Body vacío si no necesitas enviar datos
-      { // Configuración como TERCER parámetro
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      
-      });
+      const response = await axios.put(
+        `${API_BASE_URL}/api/users/deactivate/${id}`,
+        {}, // Body vacío si no necesitas enviar datos
+        {
+          // Configuración como TERCER parámetro
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (response.status === 200) {
         Alert.alert("Éxito", "Usuario eliminado correctamente.");
         getCuidadores(); // Refresca la lista de solicitudes
+        getCuidadoresDesactivados();
       } else {
-        Alert.alert("Error", "No se pudo rechazar la solicitud.");
+        Alert.alert("Error", "No se pudo eliminar.");
       }
     } catch (error) {
-      console.error("Error rechazando la solicitud:", error);
-      Alert.alert("Error", "Hubo un problema al rechazar la solicitud.");
+      console.error("Error eliminando al cuidador:", error);
+      Alert.alert("Error", "Hubo un problema al eliminar el cuidador.");
     }
   };
 
-  const itemHeight = 110; // Altura aproximada de cada elemento
+  const itemHeight = 90; // Altura aproximada de cada elemento
   const maxHeight = itemHeight * 5; // Altura máxima para 5 elementos
+
+  const  handleActivar = async (id) => {
+    try {
+      // Verificar token
+      if (!token) {
+        Alert.alert("Error", "No hay token de autenticación");
+        return;
+      }
+     
+      const response = await axios.get(
+        `${API_BASE_URL}/api/users/reactivate/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      getCuidadores();
+      getCuidadoresDesactivados(); // Recargar la lista
+      Alert.alert(
+        "Éxito",
+        "El cuidador ha sido activado correctamente"
+      );
+    } catch (error) {
+      console.error("Error completo:", error);
+      Alert.alert("Error", "Error al activar el cuidador");
+    }
+  }
   return (
     <>
       <Background />
       <SafeAreaView style={StylesGen.container}>
-        <View style={styles.content}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.content}>
+            <View style={styles.textContainer}>
+              <Text style={StylesGen.title}>Cuidadores</Text>
+              <Text style={StylesGen.descrip}>
+                Aquí se muestran todos los{"\n"}cuidadores registrados
+              </Text>
+            </View>
+            <View style={styles.iconContainer}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("Solicitudes")}
+                style={{ alignItems: "center" }}
+              >
+                <Ionicons name="person-add-outline" size={40} color="gray" />
+                <Text style={styles.iconText}>Solicitudes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View
+            style={{
+              overflow: "hidden",
+              maxHeight: maxHeight,
+              marginBottom: 15,
+            }}
+          >
+            <ScrollView
+              style={StylesGen.scroll}
+              showsVerticalScrollIndicator={true}
+            >
+              {/* Cuidadores activos */}
+              {contacts.length === 0 ? (
+                <Text style={{ textAlign: "center", color: "gray" }}>
+                  No hay cuidadores registrados
+                </Text>
+              ) : (
+                contacts.map((contact, index) => (
+                  <View key={index} style={styles.contactItem}>
+                    <View style={styles.contactInfo}>
+                      <Text style={styles.contactName}>{contact.name}</Text>
+                      <Text style={styles.contactEmail}>{contact.email}</Text>
+                    </View>
+                    <View style={styles.buttonContainer}>
+                      <TouchableOpacity
+                        style={{ marginRight: 15 }}
+                        onPress={() => {
+                          navigation.navigate("Cuidador update", {
+                            id: contact._id,
+                          });
+                        }}
+                      >
+                        <FontAwesome name="edit" size={30} color="black" />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => handleReject(contact._id)}
+                      >
+                        <Ionicons name="trash" size={30} color="red" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ))
+              )}
+            </ScrollView>
+          </View>
           <View style={styles.textContainer}>
-            <Text style={StylesGen.title}>Cuidadores</Text>
+            <Text style={StylesGen.title}>Cuidadores desactivados</Text>
             <Text style={StylesGen.descrip}>
-              Aquí se muestran todos los{"\n"}cuidadores registrados
+              Aquí se muestran todos los{"\n"}cuidadores que fueron
+              desactivados.
             </Text>
           </View>
-          <View style={styles.iconContainer}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Solicitudes")}
-              style={{ alignItems: "center" }}
-            >
-              <Ionicons name="person-add-outline" size={40} color="gray" />
-              <Text style={styles.iconText}>Solicitudes</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        <View
-          style={{ overflow: "hidden", height: maxHeight, marginBottom: 15 }}
-        >
-          <ScrollView
-            style={StylesGen.scroll}
-            showsVerticalScrollIndicator={true}
+          <View
+            style={{
+              overflow: "hidden",
+              maxHeight: maxHeight,
+              marginBottom: 15,
+            }}
           >
-            {contacts.map((contact, index) => (
-              <View key={index} style={styles.contactItem}>
-                <View style={styles.contactInfo}>
-                  <Text style={styles.contactName}>{contact.name}</Text>
-                  <Text style={styles.contactEmail}>{contact.email}</Text>
+            <ScrollView
+              style={StylesGen.scroll}
+              showsVerticalScrollIndicator={true}
+            >
+              {desactivados.map((contact, index) => (
+                <View key={index} style={styles.contactItem}>
+                  <View style={styles.contactInfo}>
+                    <Text style={styles.contactName}>{contact.name}</Text>
+                    <Text style={styles.contactEmail}>{contact.email}</Text>
+                  </View>
+                  <View style={styles.buttonContainer}>
+                        <Text style={{color:'green', fontWeight: "500", marginLeft:10}}onPress={() => handleActivar(contact._id) }>Activar</Text>
+                      </View>
                 </View>
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity style={{ marginRight: 15 }}>
-                    <FontAwesome name="edit" size={30} color="black" />
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    onPress={() => handleReject(contact._id)}
-                  >
-                    <Ionicons name="trash" size={30} color="red" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
+              ))}
+            </ScrollView>
+          </View>
+        </ScrollView>
       </SafeAreaView>
     </>
   );
@@ -168,6 +279,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
+    marginTop: 35,
   },
   iconContainer: {
     alignItems: "center",
