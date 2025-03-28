@@ -81,7 +81,7 @@ export default function Recordatorios({navigation}) {
     <>
       <Background />
       <SafeAreaView style={StylesGen.container}>
-        <View>
+        <View style={styles.textContainer}>
           <Text style={StylesGen.title}>Historial de recordatorios</Text>
           <Text style={styles.descrip}>
             Aquí puedes consultar los recordatorios ya completados. Para ver su historial haz clic en un registro.
@@ -200,6 +200,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginLeft: 10,
     marginRight: 10,
+  },
+  textContainer: {
+    flex: 1,
+    marginTop:35
   },
   card:{
     backgroundColor: "white",

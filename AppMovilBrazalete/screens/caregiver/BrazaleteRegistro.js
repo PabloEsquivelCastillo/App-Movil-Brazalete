@@ -69,7 +69,7 @@ export default function BrazaleteRegistro({ navigation }) {
     <>
       <Background />
       <SafeAreaView style={StylesGen.container}>
-        <View>
+        <View style={styles.textContainer}>
           <Text style={StylesGen.title}>Brazaletes</Text>
           <Text style={StylesGen.descrip}>
             Aquí podrás visualizar los brazaletes registrados.
@@ -179,6 +179,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 6,
+  },
+  textContainer: {
+    flex: 1,
+    marginTop:35
   },
   button: {
     backgroundColor: "#4CAF89",
