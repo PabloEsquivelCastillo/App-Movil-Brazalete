@@ -20,11 +20,15 @@ import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
+import { shareAsync } from "expo-sharing";
+import { printToFileAsync } from "expo-print";
 
 export default function MedicamentosScreen({ navigation }) {
   const { token } = useContext(AuthContext); // Obtener el token del contexto
   const [medicamentos, setMedicamentos] = useState([]); // Estado para lista de medicamentos
   const [medicamentosDesac, setMedicamentosDesac] = useState([]); //estado para lita de medicamentos desactivados
+
+  const [pdfUri, setPdfUri] = useState(null);
 
   useEffect(() => {
     if (token) {
@@ -153,6 +157,49 @@ export default function MedicamentosScreen({ navigation }) {
     }
   }
 
+  const formatFecha = () => {
+    const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+    const fecha = new Date();
+    //para la fecha en el documento
+    return `Fecha de creación: ${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
+  };
+
+  
+  //GENERACION DE PDF
+  const generarPDF = async () => {
+    try {
+      // Generar tabla de medicamentos dinámicamente
+      const tablaMedicamentos = medicamentos.map((med) => `
+        <tr>
+          <td style="border: 1px solid #000; padding: 8px;">${med.nombre}</td>
+          <td style="border: 1px solid #000; padding: 8px;">${med.description}</td>
+        </tr>
+      `).join("");
+  
+      const html = `
+      <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h1 style="text-align: center;">Medicamentos disponibles</h1>
+        <p style="text-align: right; font-size: 12px; color: #555;">${formatFecha()}</p>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <tr>
+            <th style="border: 1px solid #000; padding: 10px; background-color: #4CAF89; color: white; font-size: 15px;">Nombre</th>
+            <th style="border: 1px solid #000; padding: 10px; background-color: #4CAF89; color: white; font-size: 15px;">Descripción</th>
+          </tr>
+          ${tablaMedicamentos}
+        </table>
+      </div>
+    `;
+      const file = await printToFileAsync({ html, base64: false });
+      setPdfUri(file.uri);
+      await shareAsync(file.uri);
+    } catch (error) {
+      console.error("Error generando PDF:", error);
+      Alert.alert("Error", "Hubo un problema al generar el PDF");
+    }
+  };
+  
+
   return (
     <>
       <Background />
@@ -229,7 +276,7 @@ export default function MedicamentosScreen({ navigation }) {
                   ))}
                 </ScrollView>
               </View>
-              <TouchableOpacity style={styles.button}>
+              <TouchableOpacity style={styles.button} onPress={generarPDF}>
                 <Text style={styles.buttonText}>Descargar PDF</Text>
               </TouchableOpacity>
             </View>
