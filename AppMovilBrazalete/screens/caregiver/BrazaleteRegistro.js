@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useContext, useEffect, } from "react";
 import {
   View,
   Text,
@@ -8,64 +8,62 @@ import {
   Switch,
   Image,
 } from "react-native";
+import { AuthContext } from "../../context/AuthContext";
+import axios from "axios";
+import { Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import brazalete from "../../assets/Images/brazalete.png";
-import { Ionicons } from "react-native-vector-icons";
 import Background from "../../components/Background";
-import theme from "../../themes/theme";
 import StylesGen from "../../themes/stylesGen";
 import { FontAwesome } from "@expo/vector-icons";
+import { API_BASE_URL } from "@env";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 
 export default function BrazaleteRegistro({ navigation }) {
+  const { token, user } = useContext(AuthContext); // Obtener el token del contexto
+
   const [isEnabled, setEnable] = useState(false);
   const conectado = isEnabled;
+  const [brazaletes, setBrazaletes]=useState([])
 
   // Altura de cada elemento (ajusta según tu diseño)
-  const itemHeight = 100; // Altura aproximada de cada elemento
+  const itemHeight = 90; // Altura aproximada de cada elemento
   const maxHeight = itemHeight * 5; // Altura máxima para 5 elementos
 
-  const contacts = [
-    {
-      name: "Juan Perez",
-      topico: "juan",
-      estado: "Activo",
-    },
-    {
-      name: "Pulido Cereth",
-      topico: "pulido",
-      estado: "Activo",
-    },
-    {
-      name: "Freddy Julian",
-      topico: "freddy",
-      estado: "Activo",
-    },
-    {
-      name: "Juan Perez",
-      topico: "juanp",
-      estado: "Activo",
-    },
-    {
-      name: "Pulido Cereth",
-      topico: "cerect",
-      estado: "Desactivado",
-    },
-    {
-      name: "Pulido Cereth",
-      topico: "pulidocereth",
-      estado: "Desactivado",
-    },
-    {
-      name: "Pulido Cereth",
-      topico: "pcereth",
-      estado: "Desactivado",
-    },
-    {
-      name: "Pulido Cereth",
-      topico: "cerpulido",
-      estado: "Desactivado",
-    },
-  ];
+
+  const getBrazaletes = async () => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/api/brazalet/user/${user.payload.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Enviar el token en los headers
+          },
+        }
+      );
+
+      setBrazaletes(response.data); // Guardar la respuesta en el estado
+    } catch (error) {
+      console.error("Error obteniendo cuidadores:", error);
+      setBrazaletes("No hay cuidadores");
+    }
+  };
+
+  
+  useEffect(() => {
+    if (token) {
+     getBrazaletes();
+    }
+  }, []);
+
+  //recargar al regresar de otra pantalla
+  useFocusEffect(
+    useCallback(() => {
+      getBrazaletes();
+    }, [])
+  );
+
+  
 
   return (
     <>
@@ -76,24 +74,25 @@ export default function BrazaleteRegistro({ navigation }) {
           <Text style={StylesGen.descrip}>
             Aquí podrás visualizar los brazaletes registrados.
           </Text>
-          {contacts.length === 0 ? ( // Verifica si no hay contactos
+          { brazaletes.length === 0 ? ( // Verifica si no hay contactos
             <View style={styles.noContactsContainer}>
               <Text style={styles.noContactsText}>
                 No hay brazaletes registrados
               </Text>
             </View>
           ) : (
-            <View style={{ overflow: "hidden", height: maxHeight, marginBottom:15 }}>
+            <View style={{ overflow: "hidden", maxHeight: maxHeight, marginBottom:15 }}>
               <ScrollView
                 style={StylesGen.scroll}
                 showsVerticalScrollIndicator={true}
               >
-                {contacts.map((contact, index) => (
+                {brazaletes.map((contact, index) => (
                   <View key={index} style={styles.contactItem}>
                     <View style={styles.contactInfo}>
                       <View style={styles.edit}>
-                        <Text style={styles.nameCui}>{contact.name}</Text>
-                        {contact.estado === "Desactivado" ? (
+                        <Text style={styles.nameCui}>{contact.nombre}</Text>
+                        {console.log("ESTADO: ", contact.edo)}
+                        {contact.edo === "False" ? (
                           ""
                         ) : (
                           <View>
@@ -101,7 +100,7 @@ export default function BrazaleteRegistro({ navigation }) {
                               onPress={() =>
                                 navigation.navigate("Brazalete Config", {
                                   mode: "edit", // Parámetro "edit"
-                                  contact: contact, // Datos del contacto
+                                  contact: contact._id, // Datos del contacto
                                 })
                               }
                             >
@@ -114,17 +113,16 @@ export default function BrazaleteRegistro({ navigation }) {
                           </View>
                         )}
                       </View>
-                      <Text>Topico: {contact.topico}</Text>
                       <View style={styles.estado}>
                         <Text
                           style={[
                             styles.estado,
-                            contact.estado === "Activo"
+                            contact.edo === true
                               ? styles.estadoFinalizado
                               : styles.estadoPendiente,
                           ]}
                         >
-                          Estado: {contact.estado}
+                          Estado: {contact.edo ? "Activo" : "Desactivado"}
                         </Text>
                       </View>
                     </View>
