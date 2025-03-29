@@ -32,13 +32,8 @@ import { useCallback } from "react";
 
 export default function BrazaleteConfig({ route }) {
   const [isEnabled, setEnable] = useState(false);
-  const [cont, setCont] = useState({
-    nombre: '',
-    topico: '',
-    estado: 'false'
-  });
-
-  const { mode, brazalete, contact } = route.params || {};
+  const conectado = isEnabled;
+  const [cont, setCont] = useState({});
   const toggleSwitch = () => setEnable((previousState) => !previousState);
   const { token, user } = useContext(AuthContext); //Obtenemos el token
   const [nombre, setNombre] = useState("");
@@ -158,16 +153,14 @@ export default function BrazaleteConfig({ route }) {
   return (
     <>
       <Background />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={StylesGen.container}
-      >
       <SafeAreaView style={StylesGen.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View>
-            <Text style={StylesGen.title}>{title}</Text>
-            <Text style={StylesGen.descrip}>{desc}</Text>
-          </View>
+          {mode === "edit" ? (
+            <View>
+              <View>
+                <Text style={StylesGen.title}>{title}</Text>
+                <Text style={StylesGen.descrip}>{desc}</Text>
+              </View>
 
               <View style={styles.formu}>
                 <View style={StylesGen.inputContainer}>
@@ -273,7 +266,6 @@ export default function BrazaleteConfig({ route }) {
           )}
         </ScrollView>
       </SafeAreaView>
-      </KeyboardAvoidingView>
     </>
   );
 }
