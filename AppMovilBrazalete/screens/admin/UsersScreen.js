@@ -134,7 +134,8 @@ export default function UsersScreen({ navigation }) {
     <>
       <Background />
       <SafeAreaView style={StylesGen.container}>
-        <ScrollView showsVerticalScrollIndicator={false}>
+         <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled={true} // Importante para Android 
+                >
           <View style={styles.content}>
             <View style={styles.textContainer}>
               <Text style={StylesGen.title}>Cuidadores</Text>

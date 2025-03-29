@@ -11,7 +11,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
-  FlatList
 } from "react-native";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import Background from "../../components/Background";
@@ -205,10 +204,7 @@ export default function MedicamentosScreen({ navigation }) {
     <>
       <Background />
       <SafeAreaView style={StylesGen.container}>
-        <ScrollView 
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          nestedScrollEnabled={true}  // Importante para Android
+        <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled={true} // Importante para Android 
         >
           <View style={styles.content}>
             <View style={styles.textContainer}>
@@ -228,22 +224,27 @@ export default function MedicamentosScreen({ navigation }) {
             </View>
           </View>
 
-          {/* Lista de Medicamentos Activos */}
           {!Array.isArray(medicamentos) || medicamentos.length === 0 ? (
-            <View style={{ marginBottom: 20 }}>
+            <View>
               <Text style={StylesGen.descrip}>
                 No hay medicamentos registrados.
               </Text>
             </View>
           ) : (
-            <View style={{ marginBottom: 20 }}>
-              <View style={{ height: maxHeight }}>
-                <FlatList
-                  data={medicamentos}
-                  
-                  keyExtractor={(item, index) => item._id || index.toString()}
-                  renderItem={({ item: medicamento }) => (
-                    <View style={styles.contactItem}>
+            <View>
+              <View
+                style={{
+                  overflow: "hidden",
+                  maxHeight: maxHeight,
+                  marginBottom: 15,
+                }}
+              >
+                <ScrollView
+                  style={StylesGen.scroll}
+                  showsVerticalScrollIndicator={true}
+                >
+                  {medicamentos.map((medicamento, index) => (
+                    <View key={index} style={styles.contactItem}>
                       <View style={styles.contactInfo}>
                         <Text style={styles.contactName}>
                           {medicamento.nombre}
@@ -253,16 +254,19 @@ export default function MedicamentosScreen({ navigation }) {
                         </Text>
                       </View>
                       <View style={styles.buttonContainer}>
+                        {/* Botón de Aceptar con ícono de palomita (check) */}
                         <TouchableOpacity
                           onPress={() =>
                             navigation.navigate("ActualizarMed", {
                               id: medicamento._id,
                             })
-                          }
+                          } //envio de id
                           style={{ marginRight: 18 }}
                         >
                           <FontAwesome name="edit" size={30} color="black" />
                         </TouchableOpacity>
+
+                        {/* Botón de Rechazar con ícono de equis (times) */}
                         <TouchableOpacity
                           onPress={() => handleDelete(medicamento._id)}
                         >
@@ -270,64 +274,56 @@ export default function MedicamentosScreen({ navigation }) {
                         </TouchableOpacity>
                       </View>
                     </View>
-                  )}
-                  ListEmptyComponent={
-                    <Text style={StylesGen.descrip}>
-                      No hay medicamentos registrados.
-                    </Text>
-                  }
-
-                  showsVerticalScrollIndicator={true}
-                  nestedScrollEnabled={true}  // Permite scroll anidado
-                />
+                  ))}
+                </ScrollView>
               </View>
               <TouchableOpacity style={styles.button} onPress={generarPDF}>
                 <Text style={styles.buttonText}>Descargar PDF</Text>
               </TouchableOpacity>
             </View>
           )}
-
-          {/* Lista de Medicamentos Desactivados */}
           <View style={styles.textContainer2}>
             <Text style={StylesGen.title}>Medicamentos desactivados</Text>
             <Text style={StylesGen.descrip}>
               Aquí se muestran todos los medicamentos desactivados.
             </Text>
           </View>
-          
           {!Array.isArray(medicamentosDesac) || medicamentosDesac.length === 0 ? (
-            <View style={{ marginBottom: 20 }}>
+            <View>
               <Text style={StylesGen.descrip}>
                 No hay medicamentos desactivados.
               </Text>
             </View>
           ) : (
-            <View style={{ height: maxHeight, marginBottom: 20 }}>
-              <FlatList
-                data={medicamentos}
-                keyExtractor={(item, index) => item._id || index.toString()}
-                renderItem={({ item: medicamento }) => (
-                  <View style={styles.contactItem}>
-                    <View style={styles.contactInfo}>
-                      <Text style={styles.contactName}>
-                        {medicamento.nombre}
-                      </Text>
-                      <Text style={styles.contactEmail}>
-                        {medicamento.description}
-                      </Text>
-                    </View>
-                    <View style={styles.buttonContainer}>
-                      <TouchableOpacity onPress={() => handleActivar(medicamento._id)}>
-                        <Text style={{color: 'green', fontWeight: "500", marginLeft: 10}}>
-                          Activar
+            <View>
+              <View
+                style={{
+                  overflow: "hidden",
+                  maxHeight: maxHeight,
+                  marginBottom: 15,
+                }}
+              >
+                <ScrollView
+                  style={StylesGen.scroll}
+                  showsVerticalScrollIndicator={true}
+                >
+                  {medicamentosDesac.map((medicamento, index) => (
+                    <View key={index} style={styles.contactItem}>
+                      <View style={styles.contactInfo}>
+                        <Text style={styles.contactName}>
+                          {medicamento.nombre}
                         </Text>
-                      </TouchableOpacity>
+                        <Text style={styles.contactEmail}>
+                          {medicamento.description}
+                        </Text>
+                      </View>
+                      <View style={styles.buttonContainer}>
+                        <Text style={{color:'green', fontWeight: "500", marginLeft:10}}onPress={() => handleActivar(medicamento._id) }>Activar</Text>
+                      </View>
                     </View>
-                  </View>
-                )}
-                showsVerticalScrollIndicator={true}
-                nestedScrollEnabled={true}  // Permite scroll anidado
-              />
+                  ))}
+                </ScrollView>
+              </View>
             </View>
           )}
         </ScrollView>
@@ -350,7 +346,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#4CAF89",
-    marginHorizontal:10
   },
   contactInfo: {
     flex: 1,
