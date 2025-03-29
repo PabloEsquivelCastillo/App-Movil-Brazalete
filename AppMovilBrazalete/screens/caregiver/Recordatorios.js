@@ -2,81 +2,68 @@ import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  KeyboardAvoidingView,
-  Platform,
+  ActivityIndicator,
+  Alert
 } from "react-native";
 import Background from "../../components/Background";
 import StylesGen from "../../themes/stylesGen";
 import { API_BASE_URL } from "@env";
 import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
-import { useFocusEffect } from "@react-navigation/native";//Renderizado extra
-import { useCallback } from "react"; //Renderizado extra
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 import { shareAsync } from "expo-sharing";
 import { printToFileAsync } from "expo-print";
 
-
-export default function recordatorios({ navigation }) {
-  const { user, token } = useContext(AuthContext); // Obtener el token del contexto
-  const [recordatorios, setRecordatorios] = useState([]); // Estado para los cuidadores
-
+export default function Recordatorios({ navigation }) {
+  const { user, token } = useContext(AuthContext);
+  const [recordatorios, setRecordatorios] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [pdfUri, setPdfUri] = useState(null);
 
-
   const cuidadorId = user?.payload?.id;
-  console.log("User ID:", cuidadorId);
 
   useEffect(() => {
     if (token) {
-
       getRecordatorios(cuidadorId);
     }
   }, [token]);
 
-  //recargar al regresar de otra pantalla
   useFocusEffect(
     useCallback(() => {
       getRecordatorios(cuidadorId);
     }, [])
   );
 
-
   const getRecordatorios = async (userId) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/reminders/user/${userId}`, {
+      setLoading(true);
+      const response = await axios.get(`${API_BASE_URL}/api/reminders/timeout/${userId}`, {
         headers: {
-          Authorization: `Bearer ${token}`, // Enviar el token en los headers
+          Authorization: `Bearer ${token}`,
         },
       });
-
-      setRecordatorios(response.data); // Guardar la respuesta en el estado
+      setRecordatorios(response.data);
     } catch (error) {
-      console.error("Error obteniendo cuidadores:", error);
-      setRecordatorios("No hay solicitudes");
+      console.error("Error obteniendo recordatorios:", error);
+      Alert.alert("Error", "No se pudieron cargar los recordatorios");
+    } finally {
+      setLoading(false);
     }
   };
-
-  // Altura de cada elemento (ajusta según tu diseño)
-  const itemHeight = 90; // Altura aproximada de cada elemento
-  const maxHeight = itemHeight * 5; // Altura máxima para 5 elementos
-
 
   const formatFecha = () => {
     const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
     const fecha = new Date();
-    //para la fecha en el documento
     return `Fecha de creación: ${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
   };
 
-
   const generarPDF = async () => {
     try {
-      // Generar tabla de recordatorios dinámicamente
       const tablarecordatorios = recordatorios.map((rec) => `
           <tr>
             <td style="border: 1px solid #000; padding: 8px;">${rec.usuario.name}</td>
@@ -89,7 +76,7 @@ export default function recordatorios({ navigation }) {
 
       const html = `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h1 style="text-align: center;">recordatorios disponibles</h1>
+          <h1 style="text-align: center;">Recordatorios disponibles</h1>
           <p style="text-align: right; font-size: 12px; color: #555;">${formatFecha()}</p>
           
           <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
@@ -113,7 +100,6 @@ export default function recordatorios({ navigation }) {
     }
   };
 
-  // Función para formatear la fecha
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleString('es-ES', {
@@ -125,190 +111,224 @@ export default function recordatorios({ navigation }) {
     });
   };
 
-
-
-
+  if (loading) {
+    return (
+      <Background>
+        <SafeAreaView style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#4CAF89" />
+        </SafeAreaView>
+      </Background>
+    );
+  }
 
   return (
     <>
       <Background />
-      <SafeAreaView style={StylesGen.container}>
-        <View style={styles.textContainer}>
-          <Text style={StylesGen.title}>Historial de recordatorios</Text>
-          <Text style={styles.descrip}>
-            Aquí puedes consultar los recordatorios ya completados. Para ver su historial haz clic en un registro.
-          </Text>
-
-        </View>
-        {!Array.isArray(recordatorios) || recordatorios.length === 0 ? (
-          <View>
-            <Text style={[StylesGen.descrip]}>
-              No hay recordatorios registrados.
+      <SafeAreaView style={styles.container}>
+        
+          <View style={styles.header}>
+            <Text style={styles.title}>Historial de recordatorios</Text>
+            <Text style={styles.description}>
+              Aquí puedes consultar los recordatorios ya completados. Para ver su historial haz clic en un registro.
             </Text>
           </View>
-        ) : (
-          <View style={{flex: 1}}>
-            <Text style={styles.descrip}>
-              Aquí puedes consultar los recordatorios ya completados. Para ver
-              su recordatorios haz clic en un registro.
-            </Text>
-            <View
-              style={{
-                height: maxHeight,
-                marginBottom: -10,
-              }}
-            >
-              <ScrollView
-                style={[StylesGen.scroll, { marginTop: 40}]}
-                showsVerticalScrollIndicator={true}
-                
-              >
-                {recordatorios.map((recordatorio, index) => (
+
+          <ScrollView style={styles.scrollContainer}>
+            {!Array.isArray(recordatorios) || recordatorios.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>
+                  No hay recordatorios registrados.
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.listContainer}>
+                {recordatorios.map((recordatorio) => (
                   <TouchableOpacity
                     key={recordatorio._id}
-                    onPress={() => navigation.navigate("Historial" , {
+                    onPress={() => navigation.navigate("Historial", {
                       id: recordatorio._id
                     })}
+                    style={styles.card}
                   >
-                    <View key={index} style={styles.recordatorioItem}>
-                      <View style={styles.recordatorioInfo}>
-                        <Text style={styles.nameCui}>{recordatorio.usuario.name}</Text>
-                        <Text style={styles.nameMed}>{recordatorio.medicamentos.nombre}</Text>
-                        <Text style={styles.namePac}>
-                          Paciente: {recordatorio.nombre_paciente}
+                    <View style={styles.recordatorioContent}>
+                      <Text style={styles.cuidadorName}>{recordatorio.usuario.name}</Text>
+                      <Text style={styles.medicamentoName}>{recordatorio.medicamentos.nombre}</Text>
+                      <Text style={styles.pacienteName}>
+                        Paciente: {recordatorio.nombre_paciente}
+                      </Text>
+                      {recordatorio.cronico && (
+                        <Text style={styles.cronicoBadge}>Crónico</Text>
+                      )}
+                      <View style={styles.datesContainer}>
+                        <Text style={styles.dateText}>
+                          Inicio: {formatDate(recordatorio.inicio)}
                         </Text>
-                        {recordatorio.cronico && <Text>Cronico</Text>}
-                        <View style={styles.fechas}>
-                          <Text style={styles.recordatorioEmail}>
-                            Inicio: {formatDate(recordatorio.inicio)}
-                          </Text>
-                          <Text style={styles.recordatorioEmail}>
-                            Fin:     {formatDate(recordatorio.fin)}
-                          </Text>
-                        </View>
-                        <View style={styles.estado}>
-                          <Text
-                            style={[
-                              styles.estado,
-                              recordatorio.estado === "Finalizado"
-                                ? styles.estadoFinalizado
-                                : styles.estadoPendiente,
-                            ]}
-                          >
-                            Estado: {recordatorio.edo  ? "Finalizado" : ""}
-                          </Text>
-                        </View>
+                        <Text style={styles.dateText}>
+                          Fin: {formatDate(recordatorio.fin)}
+                        </Text>
+                      </View>
+                      <View style={styles.statusContainer}>
+                        <Text style={[
+                          styles.statusText,
+                          recordatorio.edo ? styles.statusCompleted : styles.statusPending
+                        ]}>
+                          {recordatorio.edo ? "Finalizado" : "Pendiente"}
+                        </Text>
                       </View>
                     </View>
                   </TouchableOpacity>
                 ))}
-              </ScrollView>
-            </View>
-            <View style={[ styles.buttonContainer]}>
-              <TouchableOpacity style={styles.button} onPress={generarPDF}>
-                <Text style={styles.buttonText}>Descargar PDF</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText} onPress={() => navigation.navigate("Registro")}>Nuevo recordatorio</Text>
-              </TouchableOpacity>
-            </View>
+              </View>
+            )}
+          </ScrollView>
+
+          <View style={styles.buttonsContainer}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={generarPDF}
+              disabled={!Array.isArray(recordatorios) || recordatorios.length === 0}
+            >
+              <Text style={styles.buttonText}>Descargar PDF</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.navigate("Registro")}
+            >
+              <Text style={styles.buttonText}>Nuevo recordatorio</Text>
+            </TouchableOpacity>
           </View>
-        )}
+        
       </SafeAreaView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  descrip: {
+  container: {
+    flex: 1,
+    padding: 10
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    padding: 20,
+    paddingBottom: 40,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  header: {
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  description: {
+    fontSize: 16,
+    color: '#555',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 50,
+  },
+  emptyText: {
     fontSize: 18,
+    color: '#666',
+  },
+  listContainer: {
+    marginBottom: 20,
+  },
+  card: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 15,
     marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
   },
-  recordatorioItem: {
-    flexDirection: "row-reverse",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-    padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#4CAF89",
-    width: "100%",
-  },
-  recordatorioInfo: {
+  recordatorioContent: {
     flex: 1,
   },
-  nameCui: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#000",
-  },
-  nameMed: {
+  cuidadorName: {
     fontSize: 18,
-    fontWeight: "1000",
-    color: "#000",
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 5,
   },
-  namePac: {
-    fontSize: 15,
-    fontWeight: "bold",
-    color: "#4CAF89", // Verde para destacar
+  medicamentoName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 5,
   },
-  fechas: {
-    marginTop: 15,
+  pacienteName: {
     fontSize: 14,
+    color: '#4CAF89',
+    marginBottom: 5,
   },
-  estado: {
-    alignItems: "flex-end",
+  cronicoBadge: {
+    color: 'red',
+    fontWeight: 'bold',
+    fontSize: 12,
+    marginBottom: 10,
+  },
+  datesContainer: {
+    marginTop: 10,
+  },
+  dateText: {
+    fontSize: 13,
+    color: '#555',
+    marginBottom: 3,
+  },
+  statusContainer: {
+    marginTop: 10,
+    alignItems: 'flex-end',
+  },
+  statusText: {
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: 'bold',
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 15,
   },
-  estadoFinalizado: {
-    color: "#4CAF89", // Verde
+  statusCompleted: {
+    backgroundColor: '#E8F5E9',
+    color: '#2E7D32',
   },
-  estadoPendiente: {
-    color: "red", // Rojo
+  statusPending: {
+    backgroundColor: '#FFEBEE',
+    color: '#C62828',
   },
-  
-  buttonContainer: {
-    marginTop: 'auto', // Empuja los botones hacia abajo
-    paddingBottom: 0, // Espacio adicional en la parte inferior
-
+  buttonsContainer: {
+    marginTop: 20,
   },
-  
   button: {
     backgroundColor: "#4CAF89",
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: "center",
+    marginBottom: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
-    marginBottom: 5, // Espacio entre botones
   },
-  
   buttonText: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
-    marginLeft: 10,
-    marginRight: 10,
   },
-
-  textContainer: {
-    flex: 1,
-    marginTop:35
-  },
-  card:{
-    backgroundColor: "white",
-    borderRadius: 8,
-    shadowColor: "#66CC99", // Color de la sombra
-    shadowOffset: { width: 2, height: 2 }, // Dirección de la sombra
-    shadowOpacity: 0.6, // Opacidad de la sombra
-    shadowRadius: 5, // Radio de difuminado
-    elevation: 5, // Sombra en Android
-    marginTop:5
-  }
-
 });

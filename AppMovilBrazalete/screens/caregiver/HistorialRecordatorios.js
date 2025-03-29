@@ -4,39 +4,43 @@ import {
   Text,
   View,
   Alert,
-  StyleSheet
+  StyleSheet,
+  ActivityIndicator
 } from 'react-native'
 import Background from '../../components/Background'
 import { useRoute } from '@react-navigation/native'
 import { AuthContext } from '../../context/AuthContext'
 import { API_BASE_URL } from "@env";
 import axios from 'axios'
-import StylesGen from '../../themes/stylesGen'
 import theme from '../../themes/theme'
 
-export default function HistorialRecordatorios() {
-  const [recordatorio, setRecordatorio] = useState({})
+export default function Historialrecordatorioss() {
+  const [recordatorios, setRecordatorios] = useState([])
+  const [loading, setLoading] = useState(true)
   const route = useRoute();
   const { id } = route.params;
   const { token } = useContext(AuthContext);
 
   useEffect(() => {
     if (token) {
-      getRecordatorio(id);
+      getrecordatorios(id);
     }
   }, [token]);
 
-  const getRecordatorio = async (id) => {
+  const getrecordatorios = async (id) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/reminder/${id}`, {
+      setLoading(true);
+      const response = await axios.get(`${API_BASE_URL}/api/reminders/hystory/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-      setRecordatorio(response.data)
+      setRecordatorios(response.data);
     } catch (error) {
-      console.error("Error al carga los datos:", error);
+      console.error("Error al cargar los datos:", error);
       Alert.alert("Error", "No se pudo cargar los datos");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -52,46 +56,63 @@ export default function HistorialRecordatorios() {
     });
   };
 
+  if (loading) {
+    return (
+      <Background>
+        <SafeAreaView style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+        </SafeAreaView>
+      </Background>
+    );
+  }
+
   return (
     <>
       <Background />
       <SafeAreaView style={styles.container}>
-        <Text style={styles.headerTitle}>Historial de Recordatorio</Text>
+        <Text style={styles.headerTitle}>Historial de recordatorios</Text>
 
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.sectionTitle}>Paciente</Text>
-            {recordatorio.cronico &&
-              <Text style={styles.chronicBadge}>Crónico</Text>
-            }
-          </View>
-          <Text style={styles.patientName}>{recordatorio.nombre_paciente || 'N/A'}</Text>
-
-          <View style={styles.divider} />
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Período</Text>
-            <View style={styles.dateRow}>
-              <Text style={styles.dateLabel}>Inicio:</Text>
-              <Text style={styles.dateValue}>{formatDate(recordatorio.inicio)}</Text>
-            </View>
-            <View style={styles.dateRow}>
-              <Text style={styles.dateLabel}>Fin:</Text>
-              <Text style={styles.dateValue}>{formatDate(recordatorio.fin)}</Text>
-            </View>
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.statusContainer}>
-            <Text style={[
-              styles.statusText,
-              recordatorio.edo === "true" ? styles.statusPending : styles.statusCompleted
-            ]}>
-              {recordatorio.edo === "true" ? 'Pendiente' : 'Completado'}
+        {recordatorios.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>
+              No hay registro de que el cuidador haya desactivado el recordatorio
             </Text>
           </View>
-        </View>
+        ) : (
+          recordatorios.map((recordatorio, index) => (
+            <View key={index} style={styles.card}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.sectionTitle}>Paciente</Text>
+                {recordatorio.cronico &&
+                  <Text style={styles.chronicBadge}>Crónico</Text>
+                }
+              </View>
+              <Text style={styles.patientName}>{recordatorio.nombre_paciente}</Text>
+
+              <View style={styles.divider} />
+
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Período</Text>
+                <View style={styles.dateRow}>
+                  <Text style={styles.dateLabel}>Inicio:</Text>
+                  <Text style={styles.dateValue}>{formatDate(recordatorio.inicio)}</Text>
+                </View>
+                <View style={styles.dateRow}>
+                  <Text style={styles.dateLabel}>Fin:</Text>
+                  <Text style={styles.dateValue}>{formatDate(recordatorio.fin)}</Text>
+                </View>
+              </View>
+
+              <View style={styles.divider} />
+
+              <View style={styles.statusContainer}>
+                <Text style={[styles.statusText, styles.statusCompleted]}>
+                  Tiempo: {recordatorio.timeout} segundos
+                </Text>
+              </View>
+            </View>
+          ))
+        )}
       </SafeAreaView>
     </>
   )
@@ -101,6 +122,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    fontSize: 18,
+    color: '#666',
+    textAlign: 'center',
   },
   headerTitle: {
     fontSize: 24,
@@ -118,6 +155,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 3,
+    marginBottom: 16,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -175,10 +213,6 @@ const styles = StyleSheet.create({
   },
   statusCompleted: {
     backgroundColor: theme.colors.secondary,
-    color: '#2e7d32',
-  },
-  statusPending: {
-    backgroundColor: '#ffebee',
-    color: '#c62828',
+    color: '#fff',
   },
 });
