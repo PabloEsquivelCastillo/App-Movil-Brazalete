@@ -50,10 +50,6 @@ export default function RegistarRecordatorio({navigation}) {
                     {/* Contenido principal */}
                     <View style={styles.content}>
 
-                        {/**Botono para volver */}
-                        <TouchableOpacity onPress={() => navigation.goBack()}>
-                            <Ionicons name="arrow-back-circle-outline" size={30} color="green" style={styles.buttonBack} />
-                        </TouchableOpacity>
 
                         <Text style={[styles.title, { marginTop: 50 }]}>Recordatorio</Text>
                         <Text style={styles.text}>Este es el menú, aquí podrás crear recordatorios.</Text>

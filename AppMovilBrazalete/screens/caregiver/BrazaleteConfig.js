@@ -32,8 +32,13 @@ import { useCallback } from "react";
 
 export default function BrazaleteConfig({ route }) {
   const [isEnabled, setEnable] = useState(false);
-  const conectado = isEnabled;
-  const [cont, setCont] = useState({});
+  const [cont, setCont] = useState({
+    nombre: '',
+    topico: '',
+    estado: 'false'
+  });
+
+  const { mode, brazalete, contact } = route.params || {};
   const toggleSwitch = () => setEnable((previousState) => !previousState);
   const { token, user } = useContext(AuthContext); //Obtenemos el token
   const [nombre, setNombre] = useState("");
@@ -159,12 +164,10 @@ export default function BrazaleteConfig({ route }) {
       >
       <SafeAreaView style={StylesGen.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          {mode === "edit" ? (
-            <View>
-              <View>
-                <Text style={StylesGen.title}>{title}</Text>
-                <Text style={StylesGen.descrip}>{desc}</Text>
-              </View>
+          <View>
+            <Text style={StylesGen.title}>{title}</Text>
+            <Text style={StylesGen.descrip}>{desc}</Text>
+          </View>
 
               <View style={styles.formu}>
                 <View style={StylesGen.inputContainer}>

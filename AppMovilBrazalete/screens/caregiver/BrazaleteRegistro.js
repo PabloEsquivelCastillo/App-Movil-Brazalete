@@ -144,7 +144,7 @@ export default function BrazaleteRegistro({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  contactItem: {
+  brazaleteItem: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     borderColor: "#4CAF89",
     width: "100%",
   },
-  contactInfo: {
+  brazaleteInfo: {
     flex: 1,
   },
   nameCui: {
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
-    marginBottom: 10,
+    marginBottom: 20,
   },
   buttonText: {
     color: "#fff",
@@ -203,12 +203,12 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
   },
-  noContactsContainer: {
+  nobrazaletesContainer: {
     justifyContent: "center",
     alignItems: "center",
     height: 100, // Altura del contenedor del mensaje
   },
-  noContactsText: {
+  nobrazaletesText: {
     fontSize: 18,
     color: "gray",
     textAlign: "center",

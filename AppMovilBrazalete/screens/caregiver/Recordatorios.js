@@ -22,19 +22,17 @@ import { printToFileAsync } from "expo-print";
 
 
 export default function recordatorios({ navigation }) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const { user,  token } = useContext(AuthContext); // Obtener el token del contexto
+  const { user, token } = useContext(AuthContext); // Obtener el token del contexto
   const [recordatorios, setRecordatorios] = useState([]); // Estado para los cuidadores
 
   const [pdfUri, setPdfUri] = useState(null);
 
 
-  const cuidadorId =  user?.payload?.id ;
+  const cuidadorId = user?.payload?.id;
   console.log("User ID:", cuidadorId);
 
   useEffect(() => {
     if (token) {
-    
 
       getRecordatorios(cuidadorId);
     }
@@ -144,30 +142,33 @@ export default function recordatorios({ navigation }) {
         </View>
         {!Array.isArray(recordatorios) || recordatorios.length === 0 ? (
           <View>
-            <Text style={StylesGen.descrip}>
+            <Text style={[StylesGen.descrip]}>
               No hay recordatorios registrados.
             </Text>
           </View>
         ) : (
-          <View>
+          <View style={{flex: 1}}>
             <Text style={styles.descrip}>
               Aquí puedes consultar los recordatorios ya completados. Para ver
               su recordatorios haz clic en un registro.
             </Text>
             <View
               style={{
-                overflow: "hidden",
                 height: maxHeight,
-                marginBottom: 15,
+                marginBottom: -10,
               }}
             >
               <ScrollView
-                style={[StylesGen.scroll,]}
+                style={[StylesGen.scroll, { marginTop: 40}]}
                 showsVerticalScrollIndicator={true}
+                
               >
                 {recordatorios.map((recordatorio, index) => (
                   <TouchableOpacity
                     key={recordatorio._id}
+                    onPress={() => navigation.navigate("Historial" , {
+                      id: recordatorio._id
+                    })}
                   >
                     <View key={index} style={styles.recordatorioItem}>
                       <View style={styles.recordatorioInfo}>
@@ -194,7 +195,7 @@ export default function recordatorios({ navigation }) {
                                 : styles.estadoPendiente,
                             ]}
                           >
-                            Estado: {recordatorio.estado}
+                            Estado: {recordatorio.edo  ? "Finalizado" : ""}
                           </Text>
                         </View>
                       </View>
@@ -203,12 +204,14 @@ export default function recordatorios({ navigation }) {
                 ))}
               </ScrollView>
             </View>
-            <TouchableOpacity style={styles.button} onPress={generarPDF}>
-              <Text style={styles.buttonText}>Descargar PDF</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>Nuevo recordatorio</Text>
-            </TouchableOpacity>
+            <View style={[ styles.buttonContainer]}>
+              <TouchableOpacity style={styles.button} onPress={generarPDF}>
+                <Text style={styles.buttonText}>Descargar PDF</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button}>
+                <Text style={styles.buttonText} onPress={() => navigation.navigate("Registro")}>Nuevo recordatorio</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </SafeAreaView>
@@ -222,7 +225,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   recordatorioItem: {
-    flexDirection: "row",
+    flexDirection: "row-reverse",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
@@ -265,6 +268,13 @@ const styles = StyleSheet.create({
   estadoPendiente: {
     color: "red", // Rojo
   },
+  
+  buttonContainer: {
+    marginTop: 'auto', // Empuja los botones hacia abajo
+    paddingBottom: 0, // Espacio adicional en la parte inferior
+
+  },
+  
   button: {
     backgroundColor: "#4CAF89",
     paddingVertical: 15,
@@ -275,8 +285,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
-    marginBottom: 10,
+    marginBottom: 5, // Espacio entre botones
   },
+  
   buttonText: {
     color: "#fff",
     fontSize: 18,
