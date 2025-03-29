@@ -166,6 +166,9 @@ export default function recordatorios({ navigation }) {
                 {recordatorios.map((recordatorio, index) => (
                   <TouchableOpacity
                     key={recordatorio._id}
+                    onPress={() => navigation.navigate("Historial" , {
+                      id: recordatorio._id
+                    })}
                   >
                     <View key={index} style={styles.recordatorioItem}>
                       <View style={styles.recordatorioInfo}>
@@ -192,7 +195,7 @@ export default function recordatorios({ navigation }) {
                                 : styles.estadoPendiente,
                             ]}
                           >
-                            Estado: {recordatorio.estado}
+                            Estado: {recordatorio.edo  ? "Finalizado" : ""}
                           </Text>
                         </View>
                       </View>
