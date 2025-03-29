@@ -75,8 +75,8 @@ export default function BrazaleteRegistro({ navigation }) {
             Aquí podrás visualizar los brazaletes registrados.
           </Text>
           { brazaletes.length === 0 ? ( // Verifica si no hay contactos
-            <View style={styles.noContactsContainer}>
-              <Text style={styles.noContactsText}>
+            <View style={styles.nobrazaletesContainer}>
+              <Text style={styles.nobrazaletesText}>
                 No hay brazaletes registrados
               </Text>
             </View>
@@ -87,8 +87,8 @@ export default function BrazaleteRegistro({ navigation }) {
                 showsVerticalScrollIndicator={true}
               >
                 {brazaletes.map((contact, index) => (
-                  <View key={index} style={styles.contactItem}>
-                    <View style={styles.contactInfo}>
+                  <View key={index} style={styles.brazaleteItem}>
+                    <View style={styles.brazaleteInfo}>
                       <View style={styles.edit}>
                         <Text style={styles.nameCui}>{contact.nombre}</Text>
                         {console.log("ESTADO: ", contact.edo)}
@@ -207,10 +207,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     height: 100, // Altura del contenedor del mensaje
+    
   },
   nobrazaletesText: {
     fontSize: 18,
     color: "gray",
     textAlign: "center",
+    
   },
 });

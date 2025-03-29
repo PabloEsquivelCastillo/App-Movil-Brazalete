@@ -199,7 +199,7 @@ export default function MedicamentosDisponibles({ navigation }) {
   return (
     <>
       <Background />
-      <SafeAreaView style={StylesGen.container}>
+      <SafeAreaView style={StylesGen.container} nestedScrollEnabled={true}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.content}>
             <View style={styles.textContainer}>

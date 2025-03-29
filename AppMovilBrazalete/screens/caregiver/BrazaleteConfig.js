@@ -54,7 +54,7 @@ export default function BrazaleteConfig({ route }) {
         setNombre(response.data.nombre); 
       } catch (error) {
         console.error("Error al cargar usuario:", error);
-        Alert.alert("Error", "No se pudo cargar el usuario");
+        Alert.alert("Error", "No se pudo cargar el brazalete");
       } finally {
         setLoadingData(false);
       }
@@ -83,7 +83,7 @@ export default function BrazaleteConfig({ route }) {
       });
       setNombre("");
 
-      Alert.alert("Éxito", "Medicamento registrado", [
+      Alert.alert("Éxito", "Brazalete registrado", [
         { 
           text: "OK", 
           onPress: () => navigation.goBack()// Opción recomendada para flujo simple
@@ -121,7 +121,7 @@ export default function BrazaleteConfig({ route }) {
           Authorization: `Bearer ${token}`
         }
       });
-      Alert.alert("Éxito", "Medicamento actualizado", [
+      Alert.alert("Éxito", "Brazalete actualizado", [
         { 
           text: "OK", 
           onPress: () => navigation.goBack()// Opción recomendada para flujo simple
@@ -153,7 +153,11 @@ export default function BrazaleteConfig({ route }) {
   return (
     <>
       <Background />
-      <SafeAreaView style={StylesGen.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={StylesGen.container}
+      > 
+      <SafeAreaView >
         <ScrollView showsVerticalScrollIndicator={false}>
           {mode === "edit" ? (
             <View>
@@ -266,6 +270,7 @@ export default function BrazaleteConfig({ route }) {
           )}
         </ScrollView>
       </SafeAreaView>
+      </KeyboardAvoidingView>
     </>
   );
 }
