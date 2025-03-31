@@ -42,7 +42,7 @@ export default function Recordatorios({ navigation }) {
   const getRecordatorios = async (userId) => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/api/reminders/timeout/${userId}`, {
+      const response = await axios.get(`${API_BASE_URL}/api/reminders/user/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
