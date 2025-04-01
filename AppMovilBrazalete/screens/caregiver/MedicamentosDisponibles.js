@@ -25,24 +25,24 @@ import { printToFileAsync } from "expo-print";
 
 export default function MedicamentosDisponibles({ navigation }) {
   const { token } = useContext(AuthContext); // Obtener el token del contexto
-    const [medicamentos, setMedicamentos] = useState([]); // Estado para lista de medicamentos
-    const [medicamentosDesac, setMedicamentosDesac] = useState([]); //estado para lita de medicamentos desactivados
-  
-    const [pdfUri, setPdfUri] = useState(null);
+  const [medicamentos, setMedicamentos] = useState([]); // Estado para lista de medicamentos
+  const [medicamentosDesac, setMedicamentosDesac] = useState([]); //estado para lita de medicamentos desactivados
+
+  const [pdfUri, setPdfUri] = useState(null);
 
   useEffect(() => {
-      if (token) {
-        getMedicamentos();
-        getMedicamentosDesactivados();
-      }
-    }, []);
-    //recargar al regresar de otra pantalla
-    useFocusEffect(
-      useCallback(() => {
-        getMedicamentos();
-        getMedicamentosDesactivados();
-      }, [])
-    );
+    if (token) {
+      getMedicamentos();
+      getMedicamentosDesactivados();
+    }
+  }, []);
+  //recargar al regresar de otra pantalla
+  useFocusEffect(
+    useCallback(() => {
+      getMedicamentos();
+      getMedicamentosDesactivados();
+    }, [])
+  );
 
   const getMedicamentos = async () => {
     try {
@@ -76,7 +76,7 @@ export default function MedicamentosDisponibles({ navigation }) {
 
   // Altura de cada elemento (ajusta según tu diseño)
   const itemHeight = 95; // Altura aproximada de cada elemento
-  const maxHeight = itemHeight * 4; // Altura máxima para 5 elementos
+  const maxHeight = itemHeight * 3; // Altura máxima para 5 elementos
 
 
   //ELiminar medicamento
@@ -125,14 +125,14 @@ export default function MedicamentosDisponibles({ navigation }) {
     );
   };
 
-  const  handleActivar = async (id) => {
+  const handleActivar = async (id) => {
     try {
       // Verificar token
       if (!token) {
         Alert.alert("Error", "No hay token de autenticación");
         return;
       }
-     
+
       const response = await axios.get(
         `${API_BASE_URL}/api/medication/activate/${id}`,
         {
@@ -155,25 +155,25 @@ export default function MedicamentosDisponibles({ navigation }) {
   }
 
   const formatFecha = () => {
-      const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
-      const fecha = new Date();
-      //para la fecha en el documento
-      return `Fecha de creación: ${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
-    };
-  
-    
-    //GENERACION DE PDF
-    const generarPDF = async () => {
-      try {
-        // Generar tabla de medicamentos dinámicamente
-        const tablaMedicamentos = medicamentos.map((med) => `
+    const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+    const fecha = new Date();
+    //para la fecha en el documento
+    return `Fecha de creación: ${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
+  };
+
+
+  //GENERACION DE PDF
+  const generarPDF = async () => {
+    try {
+      // Generar tabla de medicamentos dinámicamente
+      const tablaMedicamentos = medicamentos.map((med) => `
           <tr>
             <td style="border: 1px solid #000; padding: 8px;">${med.nombre}</td>
             <td style="border: 1px solid #000; padding: 8px;">${med.description}</td>
           </tr>
         `).join("");
-    
-        const html = `
+
+      const html = `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
           <h1 style="text-align: center;">Medicamentos disponibles</h1>
           <p style="text-align: right; font-size: 12px; color: #555;">${formatFecha()}</p>
@@ -187,20 +187,19 @@ export default function MedicamentosDisponibles({ navigation }) {
           </table>
         </div>
       `;
-        const file = await printToFileAsync({ html, base64: false });
-        setPdfUri(file.uri);
-        await shareAsync(file.uri);
-      } catch (error) {
-        console.error("Error generando PDF:", error);
-        Alert.alert("Error", "Hubo un problema al generar el PDF");
-      }
-    };
+      const file = await printToFileAsync({ html, base64: false });
+      setPdfUri(file.uri);
+      await shareAsync(file.uri);
+    } catch (error) {
+      console.error("Error generando PDF:", error);
+      Alert.alert("Error", "Hubo un problema al generar el PDF");
+    }
+  };
 
   return (
     <>
       <Background />
-      <SafeAreaView style={StylesGen.container} nestedScrollEnabled={true}>
-        <ScrollView showsVerticalScrollIndicator={false}>
+      <SafeAreaView style={StylesGen.container} nestedScrollEnabled={false}>
           <View style={styles.content}>
             <View style={styles.textContainer}>
               <Text style={StylesGen.title}>Medicamentos</Text>
@@ -235,11 +234,13 @@ export default function MedicamentosDisponibles({ navigation }) {
                 }}
               >
                 <ScrollView
-                  style={StylesGen.scroll}
-                  showsVerticalScrollIndicator={true}
+                  style={styles.scrollContainer}
+                  showsVerticalScrollIndicator={false}
                 >
                   {medicamentos.map((medicamento, index) => (
-                    <View key={index} style={styles.contactItem}>
+                    <View key={index} style={[styles.contactItem, {
+                      marginBottom: 15, // Reducido de 15 a 10
+                    }]}>
                       <View style={styles.contactInfo}>
                         <Text style={styles.contactName}>
                           {medicamento.nombre}
@@ -272,56 +273,16 @@ export default function MedicamentosDisponibles({ navigation }) {
                   ))}
                 </ScrollView>
               </View>
+              <View style={styles.buttonsContainer}></View>
               <TouchableOpacity style={styles.button} onPress={generarPDF}>
                 <Text style={styles.buttonText}>Descargar PDF</Text>
               </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Desactivados")}>
+                <Text style={styles.buttonText}>Medicamentos Desactivados</Text>
+              </TouchableOpacity>
             </View>
           )}
-          <View style={styles.textContainer2}>
-            <Text style={StylesGen.title}>Medicamentos desactivados</Text>
-            <Text style={StylesGen.descrip}>
-              Aquí se muestran todos los medicamentos desactivados.
-            </Text>
-          </View>
-          {!Array.isArray(medicamentosDesac) || medicamentosDesac.length === 0 ? (
-            <View>
-              <Text style={StylesGen.descrip}>
-                No hay medicamentos desactivados.
-              </Text>
-            </View>
-          ) : (
-            <View>
-              <View
-                style={{
-                  overflow: "hidden",
-                  maxHeight: maxHeight,
-                  marginBottom: 15,
-                }}
-              >
-                <ScrollView
-                  style={StylesGen.scroll}
-                  showsVerticalScrollIndicator={true}
-                >
-                  {medicamentosDesac.map((medicamento, index) => (
-                    <View key={index} style={styles.contactItem}>
-                      <View style={styles.contactInfo}>
-                        <Text style={styles.contactName}>
-                          {medicamento.nombre}
-                        </Text>
-                        <Text style={styles.contactEmail}>
-                          {medicamento.description}
-                        </Text>
-                      </View>
-                      <View style={styles.buttonContainer}>
-                        <Text style={{color:'green', fontWeight: "500", marginLeft:10}}onPress={() => handleActivar(medicamento._id) }>Activar</Text>
-                      </View>
-                    </View>
-                  ))}
-                </ScrollView>
-              </View>
-            </View>
-          )}
-        </ScrollView>
+ 
       </SafeAreaView>
     </>
   );
@@ -340,7 +301,16 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#4CAF89",
+    backgroundColor: "white",
+    borderColor: "white",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  scrollContainer: {
+    paddingHorizontal: 10,
   },
   contactInfo: {
     flex: 1,
@@ -366,6 +336,9 @@ const styles = StyleSheet.create({
     elevation: 3,
     marginBottom: 10,
   },
+  buttonsContainer: {
+    marginBottom: 20,
+  },
   buttonText: {
     color: "#fff",
     fontSize: 18,
@@ -385,7 +358,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
-    marginTop:35
+    marginTop: 35
   },
   textContainer2: {
     flex: 1,
