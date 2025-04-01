@@ -4,6 +4,7 @@ import Recordatorios from "../../screens/caregiver/Recordatorios";
 import HistorialRecordatorios from "../../screens/caregiver/HistorialRecordatorios";
 import RegistarRecordatorio from "../../screens/caregiver/RegistrarRecordatorio";
 import { View } from 'react-native';
+import RecordatoriosDesactivados from "../../screens/caregiver/RecordatoriosDesactivados";
 
  const Stack = createNativeStackNavigator();
 
@@ -30,6 +31,7 @@ import { View } from 'react-native';
             <Stack.Screen options={{ headerShown: false }}  name="Recordatorios" component={Recordatorios}/>
             <Stack.Screen name="Historial" component={HistorialRecordatorios}/>
             <Stack.Screen name="Registro" component={RegistarRecordatorio}/>
+            <Stack.Screen name="Desactivados" component={RecordatoriosDesactivados}/>
         </Stack.Navigator>
     );
 };
