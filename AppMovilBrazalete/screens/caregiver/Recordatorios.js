@@ -18,6 +18,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 import { shareAsync } from "expo-sharing";
 import { printToFileAsync } from "expo-print";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
+
 
 export default function Recordatorios({ navigation }) {
   const { user, token } = useContext(AuthContext);
@@ -39,6 +41,8 @@ export default function Recordatorios({ navigation }) {
     }, [])
   );
 
+
+  //Obtener recordatorios
   const getRecordatorios = async (userId) => {
     try {
       setLoading(true);
@@ -47,6 +51,7 @@ export default function Recordatorios({ navigation }) {
           Authorization: `Bearer ${token}`,
         },
       });
+
       setRecordatorios(response.data);
     } catch (error) {
       console.error("Error obteniendo recordatorios:", error);
@@ -56,12 +61,16 @@ export default function Recordatorios({ navigation }) {
     }
   };
 
+  //Formater fecha
   const formatFecha = () => {
     const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
     const fecha = new Date();
     return `Fecha de creación: ${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
   };
 
+
+
+  //Generar PDF
   const generarPDF = async () => {
     try {
       const tablarecordatorios = recordatorios.map((rec) => `
@@ -100,6 +109,56 @@ export default function Recordatorios({ navigation }) {
     }
   };
 
+
+  //Desactivar Recordatorio
+  const handleDelete = (recordatorio_id) => {
+    console.log(recordatorio_id)
+    Alert.alert(
+      "Eliminar recordatorio",
+      "¿Estás seguro de eliminar el recordatorio?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Si, desactivar",
+          onPress: async () => {
+            try {
+              if (!token) {
+                Alert.alert("Error", "No hay token de autenticación");
+                return;
+              }
+
+              const response = await axios.put(`${API_BASE_URL}/api/reminder/${recordatorio_id}/deactivate  `,
+                {},
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                  },
+                }
+              );
+
+
+              getRecordatorios(cuidadorId);
+              Alert.alert(
+                "Exito",
+                "El medicamento ha sido eliminado correctament"
+              );
+            } catch (error) {
+              console.error("Error:", error);
+              Alert.alert(
+                "Error",
+                "Error al desactivar el medicamento"
+              )
+
+            }
+          }
+        }
+      ]
+    )
+
+
+  }
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleString('es-ES', {
@@ -125,79 +184,97 @@ export default function Recordatorios({ navigation }) {
     <>
       <Background />
       <SafeAreaView style={styles.container}>
-        
-          <View style={styles.header}>
-            <Text style={styles.title}>Historial de recordatorios</Text>
-            <Text style={styles.description}>
-              Aquí puedes consultar los recordatorios ya completados. Para ver su historial haz clic en un registro.
-            </Text>
-          </View>
 
-          <ScrollView style={styles.scrollContainer}>
-            {!Array.isArray(recordatorios) || recordatorios.length === 0 ? (
-              <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>
-                  No hay recordatorios registrados.
-                </Text>
-              </View>
-            ) : (
-              <View style={styles.listContainer}>
-                {recordatorios.map((recordatorio) => (
-                  <TouchableOpacity
-                    key={recordatorio._id}
-                    onPress={() => navigation.navigate("Historial", {
-                      id: recordatorio._id
-                    })}
-                    style={styles.card}
-                  >
-                    <View style={styles.recordatorioContent}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Historial de recordatorios</Text>
+          <Text style={styles.description}>
+            Aquí puedes consultar los recordatorios. Para ver su historial haz clic en un registro.
+          </Text>
+        </View>
+
+        <ScrollView style={styles.scrollContainer}>
+          {!Array.isArray(recordatorios) || recordatorios.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>
+                No hay recordatorios registrados.
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.listContainer}>
+              {recordatorios.map((recordatorio) => (
+                <TouchableOpacity
+                  key={recordatorio._id}
+                  onPress={() => navigation.navigate("Historial", {
+                    id: recordatorio._id
+                  })}
+                  style={styles.card}
+                >
+                  <View style={styles.recordatorioContent}>
+
+
+
+                    <View style={[styles, {flexDirection:"row",}]}>
                       <Text style={styles.cuidadorName}>{recordatorio.usuario.name}</Text>
-                      <Text style={styles.medicamentoName}>{recordatorio.medicamentos.nombre}</Text>
-                      <Text style={styles.pacienteName}>
-                        Paciente: {recordatorio.nombre_paciente}
-                      </Text>
-                      {recordatorio.cronico && (
-                        <Text style={styles.cronicoBadge}>Crónico</Text>
-                      )}
-                      <View style={styles.datesContainer}>
-                        <Text style={styles.dateText}>
-                          Inicio: {formatDate(recordatorio.inicio)}
-                        </Text>
-                        <Text style={styles.dateText}>
-                          Fin: {formatDate(recordatorio.fin)}
-                        </Text>
-                      </View>
-                      <View style={styles.statusContainer}>
-                        <Text style={[
-                          styles.statusText,
-                          recordatorio.edo ? styles.statusCompleted : styles.statusPending
-                        ]}>
-                          {recordatorio.edo ? "Finalizado" : "Pendiente"}
-                        </Text>
-                      </View>
+                      <TouchableOpacity
+                        onPress={() => handleDelete(recordatorio._id)}
+                        style={[styles, { alignSelf: "flex-end",  marginHorizontal: 60}]}
+                      >
+                        <Ionicons name="trash" size={30} color="red" />
+                      </TouchableOpacity>
                     </View>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-          </ScrollView>
+                    <Text style={styles.medicamentoName}>{recordatorio.medicamentos.nombre}</Text>
+                    <Text style={styles.pacienteName}>
+                      Paciente: {recordatorio.nombre_paciente}
+                    </Text>
+                    {recordatorio.cronico && (
+                      <Text style={styles.cronicoBadge}>Crónico</Text>
+                    )}
+                    <View style={styles.datesContainer}>
+                      <Text style={styles.dateText}>
+                        Inicio: {formatDate(recordatorio.inicio)}
+                      </Text>
+                      <Text style={styles.dateText}>
+                        Fin: {formatDate(recordatorio.fin)}
+                      </Text>
+                    </View>
+                    <View style={styles.statusContainer}>
+                      <Text style={[
+                        styles.statusText,
+                        recordatorio.edo ? styles.statusCompleted : styles.statusPending
+                      ]}>
+                        {recordatorio.edo ? "Finalizado" : "Pendiente"}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </ScrollView>
 
-          <View style={styles.buttonsContainer}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={generarPDF}
-              disabled={!Array.isArray(recordatorios) || recordatorios.length === 0}
-            >
-              <Text style={styles.buttonText}>Descargar PDF</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => navigation.navigate("Registro")}
-            >
-              <Text style={styles.buttonText}>Nuevo recordatorio</Text>
-            </TouchableOpacity>
-          </View>
-        
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={generarPDF}
+            disabled={!Array.isArray(recordatorios) || recordatorios.length === 0}
+          >
+            <Text style={styles.buttonText}>Descargar PDF</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate("Registro")}
+          >
+            <Text style={styles.buttonText}>Nuevo recordatorio</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate("Desactivados")}
+          >
+            <Text style={styles.buttonText}>Recordatorios desactivados</Text>
+          </TouchableOpacity>
+        </View>
+
       </SafeAreaView>
     </>
   );
