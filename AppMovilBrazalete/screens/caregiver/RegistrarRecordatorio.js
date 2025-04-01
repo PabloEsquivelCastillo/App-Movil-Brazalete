@@ -68,7 +68,7 @@ export default function RegistarRecordatorio({ navigation }) {
             getMedicamentos()
         }
     }, [])
-    //Obtenerr medicamentos
+    //Obtener medicamentos
     const getMedicamentos = async () => {
         try {
 
@@ -152,7 +152,6 @@ export default function RegistarRecordatorio({ navigation }) {
 
         } catch (error) {
             console.error("Error completo:", error);
-
             Alert.alert("Error", mensaje);
         }
     };
