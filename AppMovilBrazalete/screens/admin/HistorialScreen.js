@@ -9,6 +9,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import Background from "../../components/Background";
 import StylesGen from "../../themes/stylesGen";
@@ -17,6 +18,7 @@ import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
 import { shareAsync } from "expo-sharing";
 import { printToFileAsync } from "expo-print";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 
 
 export default function HistorialScreen({ navigation }) {
@@ -111,7 +113,54 @@ export default function HistorialScreen({ navigation }) {
       }
     };
 
-  
+  //Desactivar Recordatorio
+  const handleDelete = (recordatorio_id) => {
+    console.log(recordatorio_id)
+    Alert.alert(
+      "Eliminar recordatorio",
+      "¿Estás seguro de eliminar el recordatorio?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Si, desactivar",
+          onPress: async () => {
+            try {
+              if (!token) {
+                Alert.alert("Error", "No hay token de autenticación");
+                return;
+              }
+
+              const response = await axios.put(`${API_BASE_URL}/api/reminder/${recordatorio_id}/deactivate`,
+                {},
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                  },
+                }
+              );
+
+
+              getSolicitudes()
+              Alert.alert(
+                "Exito",
+                "El medicamento ha sido eliminado correctament"
+              );
+            } catch (error) {
+              console.error("Error:", error);
+              Alert.alert(
+                "Error",
+                "Error al desactivar el medicamento"
+              )
+
+            }
+          }
+        }
+      ]
+    )
+
+
+  }
 
 
   return (
@@ -121,67 +170,61 @@ export default function HistorialScreen({ navigation }) {
         <View>
           <Text style={StylesGen.title}>Historial de recordatorios</Text>
         </View>
-        {!Array.isArray(historial) || historial.length === 0 ? (
-          <View>
-            <Text style={StylesGen.descrip}>
-              No hay recordatorios registrados.
-            </Text>
-          </View>
-        ) : (
-          <View>
-            <Text style={styles.descrip}>
-              Aquí puedes consultar los recordatorios ya completados. Para ver
-              su historial haz clic en un registro.
-            </Text>
-            <View
-              style={{
-                overflow: "hidden",
-                height: maxHeight,
-                marginBottom: 15,
-              }}
-            >
-              <ScrollView
-                style={StylesGen.scroll}
-                showsVerticalScrollIndicator={true}
-              >
-                {historial.map((contact, index) => (
-                  <TouchableOpacity
-                    key={contact._id}
-                    onPress={() => navigation.navigate("Historico",  {
-                      id: contact._id,
-                    })}
-                  >
-                    <View key={index} style={styles.contactItem}>
-                      <View style={styles.contactInfo}>
-                        <Text style={styles.nameCui}>{contact.usuario.name}</Text>
-                        <Text style={styles.nameMed}>{contact.medicamentos.nombre}</Text>
-                        <Text style={styles.namePac}>
-                          Paciente: {contact.nombre_paciente}
-                        </Text>
-                        {contact.cronico && <Text style={{color:'blue'}}>Cronico</Text>}
-                        
-                        <View style={styles.estado}>
-                        <View style={styles.fechas}>
-                          <Text style={styles.contactEmail}>
-                            Inicio: {formatDate(contact.inicio)}
-                          </Text>
-                          <Text style={styles.contactEmail}>
-                            Fin:     {formatDate(contact.fin)}
-                          </Text>
-                        </View>
-                          
-                        </View>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+        <ScrollView style={styles.scrollContainer}>
+          {!Array.isArray(historial) || historial.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>
+                No hay recordatorios registrados.
+              </Text>
             </View>
-            <TouchableOpacity style={styles.button} onPress={generarPDF}>
-              <Text style={styles.buttonText}>Descargar PDF</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+          ) : (
+            <View style={styles.listContainer}>
+              {historial.map((recordatorio) => (
+                <TouchableOpacity
+                  key={recordatorio._id}
+                  onPress={() => navigation.navigate("Historico", {
+                    id: recordatorio._id
+                  })}
+                  style={styles.card}
+                >
+                  <View style={styles.recordatorioContent}>
+
+
+
+                    <View style={[styles, {flexDirection:"row", justifyContent:'space-between' }]}>
+                      <Text style={styles.cuidadorName}>{recordatorio.usuario.name}</Text>
+      
+                    </View>
+                    <Text style={styles.medicamentoName}>{recordatorio.medicamentos.nombre}</Text>
+                    <Text style={styles.pacienteName}>
+                      Paciente: {recordatorio.nombre_paciente}
+                    </Text>
+                    {recordatorio.cronico && (
+                      <Text style={styles.cronicoBadge}>Crónico</Text>
+                    )}
+                    <View style={styles.datesContainer}>
+                      <Text style={styles.dateText}>
+                        Inicio: {formatDate(recordatorio.inicio)}
+                      </Text>
+                      <Text style={styles.dateText}>
+                        Fin: {formatDate(recordatorio.fin)}
+                      </Text>
+                    </View>
+                    <View style={styles.statusContainer}>
+                      <Text style={[
+                        styles.statusText,
+                        recordatorio.edo ? styles.statusCompleted : styles.statusPending
+                      ]}>
+                        {recordatorio.edo ? "Finalizado" : "Pendiente"}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </ScrollView>
+          
       </SafeAreaView>
     </>
   );
@@ -203,56 +246,101 @@ const styles = StyleSheet.create({
     borderColor: "#4CAF89",
     width: "100%",
   },
-  contactInfo: {
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 50,
+  },
+  emptyText: {
+    fontSize: 18,
+    color: '#666',
+  },
+  listContainer: {
+    marginBottom: 20,
+  },
+  card: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  recordatorioContent: {
     flex: 1,
   },
-  nameCui: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#000",
+  cuidadorName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 5,
   },
-  nameMed: {
-    fontSize: 18,
-    fontWeight: "1000",
-    color: "#000",
+  medicamentoName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 5,
   },
-  namePac: {
-    fontSize: 15,
-    fontWeight: "bold",
-    color: "#4CAF89", // Verde para destacar
-  },
-  fechas: {
-    marginTop: 15,
+  pacienteName: {
     fontSize: 14,
+    color: '#4CAF89',
+    marginBottom: 5,
   },
-  estado: {
-    alignItems: "flex-end",
+  cronicoBadge: {
+    color: 'red',
+    fontWeight: 'bold',
+    fontSize: 12,
+    marginBottom: 10,
+  },
+  datesContainer: {
+    marginTop: 10,
+  },
+  dateText: {
+    fontSize: 13,
+    color: '#555',
+    marginBottom: 3,
+  },
+  statusContainer: {
+    marginTop: 10,
+    alignItems: 'flex-end',
+  },
+  statusText: {
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: 'bold',
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 15,
   },
-  estadoFinalizado: {
-    color: "#4CAF89", // Verde
+  statusCompleted: {
+    backgroundColor: '#E8F5E9',
+    color: '#2E7D32',
   },
-  estadoPendiente: {
-    color: "red", // Rojo
+  statusPending: {
+    backgroundColor: '#FFEBEE',
+    color: '#C62828',
+  },
+  buttonsContainer: {
+    marginTop: 20,
   },
   button: {
     backgroundColor: "#4CAF89",
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: "center",
+    marginBottom: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
-    marginBottom: 10,
   },
   buttonText: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
-    marginLeft: 10,
-    marginRight: 10,
   },
 });

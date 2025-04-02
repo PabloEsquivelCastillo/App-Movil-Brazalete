@@ -5,7 +5,8 @@ import {
   View,
   Alert,
   StyleSheet,
-  ActivityIndicator
+  ActivityIndicator,
+  ScrollView
 } from 'react-native'
 import Background from '../../components/Background'
 import { useRoute } from '@react-navigation/native'
@@ -13,6 +14,7 @@ import { AuthContext } from '../../context/AuthContext'
 import { API_BASE_URL } from "@env";
 import axios from 'axios'
 import theme from '../../themes/theme'
+import StylesGen from "../../themes/stylesGen";
 
 export default function Historialrecordatorioss() {
   const [recordatorios, setRecordatorios] = useState([])
@@ -69,9 +71,9 @@ export default function Historialrecordatorioss() {
   return (
     <>
       <Background />
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={StylesGen.container}>
         <Text style={styles.headerTitle}>Historial de recordatorios</Text>
-
+        <ScrollView>
         {recordatorios.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>
@@ -113,6 +115,7 @@ export default function Historialrecordatorioss() {
             </View>
           ))
         )}
+        </ScrollView>
       </SafeAreaView>
     </>
   )

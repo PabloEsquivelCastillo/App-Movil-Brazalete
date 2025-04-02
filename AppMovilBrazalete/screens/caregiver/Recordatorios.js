@@ -183,7 +183,7 @@ export default function Recordatorios({ navigation }) {
   return (
     <>
       <Background />
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={StylesGen.container}>
 
         <View style={styles.header}>
           <Text style={styles.title}>Historial de recordatorios</Text>
@@ -213,11 +213,11 @@ export default function Recordatorios({ navigation }) {
 
 
 
-                    <View style={[styles, {flexDirection:"row",}]}>
+                    <View style={[styles, {flexDirection:"row",justifyContent:'space-between' }]}>
                       <Text style={styles.cuidadorName}>{recordatorio.usuario.name}</Text>
                       <TouchableOpacity
                         onPress={() => handleDelete(recordatorio._id)}
-                        style={[styles, { alignSelf: "flex-end",  marginHorizontal: 60}]}
+                        style={[styles, { alignSelf: "flex-end"}]}
                       >
                         <Ionicons name="trash" size={30} color="red" />
                       </TouchableOpacity>
@@ -297,6 +297,7 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 20,
+    marginTop:20
   },
   title: {
     fontSize: 24,

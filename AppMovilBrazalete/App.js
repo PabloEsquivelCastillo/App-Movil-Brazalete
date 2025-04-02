@@ -4,7 +4,7 @@ import LoginScreen from './screens/LoginScreen';
 import { Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AuthProvider } from './context/AuthContext';
 import AppNavigator from './navigation/AppNavigator';
-
+import Background from './components/Background';
 export default function App() {
   return (
         <GestureHandlerRootView style={ {flex : 1}}>
