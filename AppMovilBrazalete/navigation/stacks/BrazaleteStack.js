@@ -4,6 +4,8 @@ import BrazaleteConfig from "../../screens/caregiver/BrazaleteConfig";
 import BrazaleteRegistro from "../../screens/caregiver/BrazaleteRegistro";
 import { View } from 'react-native';
 import DispostivosScreen from "../../screens/caregiver/DispostivosScreen";
+import Scanner from "../../screens/caregiver/ScannerQR";
+import RegisterBrazalete from "../../screens/caregiver/RegisterBrazalete";
 const Stack = createNativeStackNavigator();
 
 const BrazaletesStack = () => {
@@ -27,8 +29,9 @@ const BrazaletesStack = () => {
           }}>
       <Stack.Screen  options={{ headerShown: false }}  name="Brazalete Registro" component={BrazaleteRegistro} />
       <Stack.Screen name="Brazalete Config" component={BrazaleteConfig} />
-      <Stack.Screen name="Dispositivos" component={DispostivosScreen}/>
-      {/* Agregar otras pantallas de brazaletes aquí */}
+      <Stack.Screen name="Scanner" component={Scanner}/>
+      <Stack.Screen name="Registro" component={RegisterBrazalete}/>
+{/* Agregar otras pantallas de brazaletes aquí */}
     </Stack.Navigator>
   );
 };

@@ -34,3 +34,10 @@ GENERACION DE PDF
 npm install react-native-pdf react-native-html-to-pdf
 npx expo install expo-sharing
 npx expo install expo-print
+
+
+
+# PARA QR
+npx expo install expo-camera
+npm install react-native-qrcode-svg
+npx expo install react-navigation react-native-screens react-native-safe-area-context react-native-gesture-handler react-native-reanimated react-native-vector-icons @react-navigation/native @react-navigation/stack
