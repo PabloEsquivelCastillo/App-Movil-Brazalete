@@ -29,7 +29,6 @@ export default function Scanner() {
 
   function handleBarCodeScanned({ type, data }) {
     if (scanned) return; // Evita escaneos múltiples
-    console.log("ESCANEANDOO: ", data)
     setScanned(true);
 
     Alert.alert("Código Escaneado", `Tipo: ${type}\nDato: ${data}`, [

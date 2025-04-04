@@ -44,7 +44,7 @@ export default function RegisterBrazalete({ route }) {
 
   const { scannedData } = route.params || {};
 
-  console.log("ESCANEADO: ", scannedData);
+  const id = scannedData.substring(2);
 
   const handleRegister = async () => {
     if (!nombre) {
@@ -56,6 +56,7 @@ export default function RegisterBrazalete({ route }) {
       const response = await axios.post(
         `${API_BASE_URL}/api/brazalet`,
         {
+          _id: parseInt(id),
           nombre: nombre,
           id_user: user.payload.id,
           edo: true,
@@ -75,7 +76,7 @@ export default function RegisterBrazalete({ route }) {
         },
       ]);
     } catch (error) {
-      console.error("Error en el registro:", error);
+      console.error("Error en el registro:", error.message);
       Alert.alert("Error", "Algo fallo en el registro del brazalete");
     } finally {
       setLoading(false); // Finaliza el estado de carga
