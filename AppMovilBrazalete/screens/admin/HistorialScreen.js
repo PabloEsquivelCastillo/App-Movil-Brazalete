@@ -189,7 +189,7 @@ export default function HistorialScreen({ navigation }) {
       <SafeAreaView style={StylesGen.container}>
         <View style={styles.headerContainer}>
           <Text style={StylesGen.title}>Historial de recordatorios</Text>
-         <TouchableOpacity style={{ alignItems: "center" }}>
+         <TouchableOpacity style={{ alignItems: "center" }} onPress={generarPDF}>
          <FontAwesome
             name="file-pdf-o"
             size={50}

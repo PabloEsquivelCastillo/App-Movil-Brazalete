@@ -94,8 +94,8 @@ export default function Recordatorios({ navigation }) {
             <td style="border: 1px solid #000; padding: 8px;">${rec.usuario.name}</td>
             <td style="border: 1px solid #000; padding: 8px;">${rec.medicamentos.nombre}</td>
             <td style="border: 1px solid #000; padding: 8px;">${rec.nombre_paciente}</td>
-            <td style="border: 1px solid #000; padding: 8px;">${rec.inicio}</td>
-            <td style="border: 1px solid #000; padding: 8px;">${rec.fin}</td>
+            <td style="border: 1px solid #000; padding: 8px;">${formatDate(rec.inicio)}</td>
+            <td style="border: 1px solid #000; padding: 8px;">${formatDate(rec.fin)}</td>
           </tr>
         `
         )
@@ -203,7 +203,7 @@ export default function Recordatorios({ navigation }) {
           </Text>
         </View>
 
-        <ScrollView style={StylesGen.scroll}>
+        <ScrollView style={styles.scrollContainer}>
           {!Array.isArray(recordatorios) || recordatorios.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
@@ -310,23 +310,20 @@ export default function Recordatorios({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 10,
+  descrip: {
+    fontSize: 18,
+    marginBottom: 15,
   },
-  scrollContainer: {
-    flexGrow: 1,
-    padding: 20,
-    paddingBottom: 40,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
+  contactItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-  },
-  header: {
-    marginBottom: 20,
-    marginTop: 20,
+    marginBottom: 16,
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#4CAF89",
+    width: "100%",
   },
   emptyContainer: {
     flex: 1,
@@ -339,7 +336,7 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   listContainer: {
-    marginBottom: 5,
+    marginBottom: 20,
   },
   card: {
     backgroundColor: "white",
@@ -425,13 +422,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center', // Alinea verticalmente
+    justifyContent: 'space-between', // Espacio entre título e icono
+    marginBottom: 10, // Ajusta según necesites
+  },
+  pdfIcon: {
+    marginRight:20
+  },
   iconContainer: {
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop:15,
     marginHorizontal: 15,
     flexDirection: "row",
-    marginBottom:30
+    marginBottom:40
   },
   iconText: {
     fontSize: 16,

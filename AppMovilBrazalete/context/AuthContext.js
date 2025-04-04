@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
       if (error.response) {
         // Si la API devuelve un error (por ejemplo, credenciales incorrectas)
         if (error.response.status === 401) {
-          alert("Credenciales incorrectas");
+          alert("Correo y/o Contraseña incorrecta.");
         } else {
           alert("Error en el servidor");
         }
