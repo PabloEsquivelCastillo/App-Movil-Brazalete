@@ -422,11 +422,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-  headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center', // Alinea verticalmente
-    justifyContent: 'space-between', // Espacio entre título e icono
-    marginBottom: 10, // Ajusta según necesites
+  header: {
+    marginTop:15,
+    marginBottom:10
   },
   pdfIcon: {
     marginRight:20
