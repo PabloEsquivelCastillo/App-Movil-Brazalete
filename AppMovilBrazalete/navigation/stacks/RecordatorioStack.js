@@ -26,6 +26,7 @@ import RecordatoriosDesactivados from "../../screens/caregiver/RecordatoriosDesa
                   fontSize: 20, // Tamaño del texto
                   fontWeight: "bold",
                 },
+                headerBackTitle: "Volver",
                 headerShadowVisible: false, // 🔹 **Elimina sombras adicionales en versiones recientes**
               }}>
             <Stack.Screen options={{ headerShown: false }}  name="Recordatorios" component={Recordatorios}/>

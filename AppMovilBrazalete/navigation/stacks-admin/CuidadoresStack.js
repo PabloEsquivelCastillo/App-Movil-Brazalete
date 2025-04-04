@@ -4,6 +4,7 @@ import UsersScreen from "../../screens/admin/UsersScreen";
 import UpdateCarer from "../../screens/admin/UpdateCarer";
 import RequestsScreen from "../../screens/admin/RequestsScreen";
 import { View } from 'react-native';
+import UsuariosDesactivados from "../../screens/admin/UsuariosDesactivados";
 const Stack = createNativeStackNavigator();
 
 const CuidadoresStack = () => {
@@ -29,6 +30,7 @@ const CuidadoresStack = () => {
       <Stack.Screen name="Lista" options={{ headerShown: false }} component={UsersScreen} />
       <Stack.Screen name="Cuidador update" component={UpdateCarer} />
       <Stack.Screen name="Solicitudes" component={RequestsScreen} />
+      <Stack.Screen name="Desac" component={UsuariosDesactivados} />
       {/* Agregar otras pantallas de brazaletes aquí */}
     </Stack.Navigator>
   );

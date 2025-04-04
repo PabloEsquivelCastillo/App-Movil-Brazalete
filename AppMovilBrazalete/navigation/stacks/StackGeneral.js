@@ -26,6 +26,7 @@ const StackGeneral = () => {
                   fontSize: 20, // Tamaño del texto
                   fontWeight: "bold",
                 },
+                headerBackTitle: "Volver",
                 headerShadowVisible: false, // 🔹 **Elimina sombras adicionales en versiones recientes**
               }}>
             <Stack.Screen name="Inicio Sesion" component={LoginScreen} />

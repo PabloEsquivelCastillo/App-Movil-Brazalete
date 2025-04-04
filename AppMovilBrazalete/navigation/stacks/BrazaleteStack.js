@@ -25,6 +25,7 @@ const BrazaletesStack = () => {
               fontSize: 20, // Tamaño del texto
               fontWeight: "bold",
             },
+            headerBackTitle: "Volver",
             headerShadowVisible: false, // 🔹 **Elimina sombras adicionales en versiones recientes**
           }}>
       <Stack.Screen  options={{ headerShown: false }}  name="Brazalete Registro" component={BrazaleteRegistro} />
