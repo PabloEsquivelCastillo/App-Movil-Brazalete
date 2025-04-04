@@ -7,7 +7,7 @@ import {
   SafeAreaView,
   ScrollView,
   ActivityIndicator,
-  Alert
+  Alert,
 } from "react-native";
 import Background from "../../components/Background";
 import StylesGen from "../../themes/stylesGen";
@@ -19,7 +19,6 @@ import { useCallback } from "react";
 import { shareAsync } from "expo-sharing";
 import { printToFileAsync } from "expo-print";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
-
 
 export default function Recordatorios({ navigation }) {
   const { user, token } = useContext(AuthContext);
@@ -33,7 +32,7 @@ export default function Recordatorios({ navigation }) {
     if (token) {
       getRecordatorios(cuidadorId);
     }
-  }, [token]);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -41,16 +40,18 @@ export default function Recordatorios({ navigation }) {
     }, [])
   );
 
-
   //Obtener recordatorios
   const getRecordatorios = async (userId) => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/api/reminders/user/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        `${API_BASE_URL}/api/reminders/user/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       setRecordatorios(response.data);
     } catch (error) {
@@ -63,17 +64,32 @@ export default function Recordatorios({ navigation }) {
 
   //Formater fecha
   const formatFecha = () => {
-    const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+    const meses = [
+      "enero",
+      "febrero",
+      "marzo",
+      "abril",
+      "mayo",
+      "junio",
+      "julio",
+      "agosto",
+      "septiembre",
+      "octubre",
+      "noviembre",
+      "diciembre",
+    ];
     const fecha = new Date();
-    return `Fecha de creación: ${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
+    return `Fecha de creación: ${fecha.getDate()} de ${
+      meses[fecha.getMonth()]
+    } de ${fecha.getFullYear()}`;
   };
-
-
 
   //Generar PDF
   const generarPDF = async () => {
     try {
-      const tablarecordatorios = recordatorios.map((rec) => `
+      const tablarecordatorios = recordatorios
+        .map(
+          (rec) => `
           <tr>
             <td style="border: 1px solid #000; padding: 8px;">${rec.usuario.name}</td>
             <td style="border: 1px solid #000; padding: 8px;">${rec.medicamentos.nombre}</td>
@@ -81,7 +97,9 @@ export default function Recordatorios({ navigation }) {
             <td style="border: 1px solid #000; padding: 8px;">${rec.inicio}</td>
             <td style="border: 1px solid #000; padding: 8px;">${rec.fin}</td>
           </tr>
-        `).join("");
+        `
+        )
+        .join("");
 
       const html = `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
@@ -109,10 +127,9 @@ export default function Recordatorios({ navigation }) {
     }
   };
 
-
   //Desactivar Recordatorio
   const handleDelete = (recordatorio_id) => {
-    console.log(recordatorio_id)
+    console.log(recordatorio_id);
     Alert.alert(
       "Eliminar recordatorio",
       "¿Estás seguro de eliminar el recordatorio?",
@@ -127,7 +144,8 @@ export default function Recordatorios({ navigation }) {
                 return;
               }
 
-              const response = await axios.put(`${API_BASE_URL}/api/reminder/${recordatorio_id}/deactivate  `,
+              const response = await axios.put(
+                `${API_BASE_URL}/api/reminder/${recordatorio_id}/deactivate  `,
                 {},
                 {
                   headers: {
@@ -137,7 +155,6 @@ export default function Recordatorios({ navigation }) {
                 }
               );
 
-
               getRecordatorios(cuidadorId);
               Alert.alert(
                 "Exito",
@@ -145,28 +162,22 @@ export default function Recordatorios({ navigation }) {
               );
             } catch (error) {
               console.error("Error:", error);
-              Alert.alert(
-                "Error",
-                "Error al desactivar el medicamento"
-              )
-
+              Alert.alert("Error", "Error al desactivar el medicamento");
             }
-          }
-        }
+          },
+        },
       ]
-    )
-
-
-  }
+    );
+  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleString("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -184,15 +195,15 @@ export default function Recordatorios({ navigation }) {
     <>
       <Background />
       <SafeAreaView style={StylesGen.container}>
-
         <View style={styles.header}>
-          <Text style={styles.title}>Historial de recordatorios</Text>
-          <Text style={styles.description}>
-            Aquí puedes consultar los recordatorios. Para ver su historial haz clic en un registro.
+          <Text style={StylesGen.title}>Historial de recordatorios</Text>
+          <Text style={StylesGen.descrip}>
+            Para ver su historial haz
+            clic en un registro.
           </Text>
         </View>
 
-        <ScrollView style={styles.scrollContainer}>
+        <ScrollView style={StylesGen.scroll}>
           {!Array.isArray(recordatorios) || recordatorios.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
@@ -204,25 +215,36 @@ export default function Recordatorios({ navigation }) {
               {recordatorios.map((recordatorio) => (
                 <TouchableOpacity
                   key={recordatorio._id}
-                  onPress={() => navigation.navigate("Historial", {
-                    id: recordatorio._id
-                  })}
+                  onPress={() =>
+                    navigation.navigate("Historial", {
+                      id: recordatorio._id,
+                    })
+                  }
                   style={styles.card}
                 >
-                  <View style={styles.recordatorioContent}>
-
-
-
-                    <View style={[styles, {flexDirection:"row",justifyContent:'space-between' }]}>
-                      <Text style={styles.cuidadorName}>{recordatorio.usuario.name}</Text>
+                  <View>
+                    <View
+                      style={[
+                        styles,
+                        {
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                        },
+                      ]}
+                    >
+                      <Text style={styles.cuidadorName}>
+                        {recordatorio.usuario.name}
+                      </Text>
                       <TouchableOpacity
                         onPress={() => handleDelete(recordatorio._id)}
-                        style={[styles, { alignSelf: "flex-end"}]}
+                        style={[styles, { alignSelf: "flex-end" }]}
                       >
                         <Ionicons name="trash" size={30} color="red" />
                       </TouchableOpacity>
                     </View>
-                    <Text style={styles.medicamentoName}>{recordatorio.medicamentos.nombre}</Text>
+                    <Text style={styles.medicamentoName}>
+                      {recordatorio.medicamentos.nombre}
+                    </Text>
                     <Text style={styles.pacienteName}>
                       Paciente: {recordatorio.nombre_paciente}
                     </Text>
@@ -238,10 +260,14 @@ export default function Recordatorios({ navigation }) {
                       </Text>
                     </View>
                     <View style={styles.statusContainer}>
-                      <Text style={[
-                        styles.statusText,
-                        recordatorio.edo ? styles.statusCompleted : styles.statusPending
-                      ]}>
+                      <Text
+                        style={[
+                          styles.statusText,
+                          recordatorio.edo
+                            ? styles.statusCompleted
+                            : styles.statusPending,
+                        ]}
+                      >
                         {recordatorio.edo ? "Finalizado" : "Pendiente"}
                       </Text>
                     </View>
@@ -252,29 +278,32 @@ export default function Recordatorios({ navigation }) {
           )}
         </ScrollView>
 
-        <View style={styles.buttonsContainer}>
+        <View style={styles.iconContainer}>
+          {/*PARA REGISTRAR */}
           <TouchableOpacity
-            style={styles.button}
-            onPress={generarPDF}
-            disabled={!Array.isArray(recordatorios) || recordatorios.length === 0}
-          >
-            <Text style={styles.buttonText}>Descargar PDF</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
             onPress={() => navigation.navigate("Registro")}
+            style={{ alignItems: "center" }}
           >
-            <Text style={styles.buttonText}>Nuevo recordatorio</Text>
+            <Ionicons name="watch-outline" size={40} color="green" />
+            <Text style={styles.iconText}>Agregar</Text>
           </TouchableOpacity>
-
+          {/*PARA VER DESACTIVADOS */}
           <TouchableOpacity
-            style={styles.button}
             onPress={() => navigation.navigate("Desactivados")}
+            style={{ alignItems: "center" }}
           >
-            <Text style={styles.buttonText}>Recordatorios desactivados</Text>
+            <FontAwesome name="times-circle" size={38} color="#e74c3c" />
+            <Text style={styles.iconText}>Desactivados</Text>
+          </TouchableOpacity>
+          {/*PARA DESCARGAR PDF */}
+          <TouchableOpacity
+            onPress={generarPDF}
+            style={{ alignItems: "center" }}
+          >
+            <FontAwesome name="file-pdf-o" size={38} color="#e74c3c" />
+            <Text style={styles.iconText}>Descargar</Text>
           </TouchableOpacity>
         </View>
-
       </SafeAreaView>
     </>
   );
@@ -283,7 +312,7 @@ export default function Recordatorios({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10
+    padding: 10,
   },
   scrollContainer: {
     flexGrow: 1,
@@ -292,38 +321,25 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   header: {
     marginBottom: 20,
-    marginTop:20
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  description: {
-    fontSize: 16,
-    color: '#555',
-    textAlign: 'center',
-    marginBottom: 20,
+    marginTop: 20,
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 50,
   },
   emptyText: {
     fontSize: 18,
-    color: '#666',
+    color: "#666",
   },
   listContainer: {
-    marginBottom: 20,
+    marginBottom: 5,
   },
   card: {
     backgroundColor: "white",
@@ -332,7 +348,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 3,
   },
@@ -340,25 +356,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cuidadorName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#000",
     marginBottom: 5,
   },
   medicamentoName: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000',
+    fontWeight: "bold",
+    color: "#000",
     marginBottom: 5,
   },
   pacienteName: {
     fontSize: 14,
-    color: '#4CAF89',
+    color: "#4CAF89",
     marginBottom: 5,
   },
   cronicoBadge: {
-    color: 'red',
-    fontWeight: 'bold',
+    color: "red",
+    fontWeight: "bold",
     fontSize: 12,
     marginBottom: 10,
   },
@@ -367,27 +383,27 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 13,
-    color: '#555',
+    color: "#555",
     marginBottom: 3,
   },
   statusContainer: {
     marginTop: 10,
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   statusText: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     paddingVertical: 4,
     paddingHorizontal: 12,
     borderRadius: 15,
   },
   statusCompleted: {
-    backgroundColor: '#E8F5E9',
-    color: '#2E7D32',
+    backgroundColor: "#E8F5E9",
+    color: "#2E7D32",
   },
   statusPending: {
-    backgroundColor: '#FFEBEE',
-    color: '#C62828',
+    backgroundColor: "#FFEBEE",
+    color: "#C62828",
   },
   buttonsContainer: {
     marginTop: 20,
@@ -408,5 +424,18 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  iconContainer: {
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop:15,
+    marginHorizontal: 15,
+    flexDirection: "row",
+    marginBottom:30
+  },
+  iconText: {
+    fontSize: 16,
+    color: "black",
+    fontWeight: "300",
   },
 });

@@ -20,7 +20,6 @@ import { shareAsync } from "expo-sharing";
 import { printToFileAsync } from "expo-print";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 
-
 export default function HistorialScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
   const { token } = useContext(AuthContext); // Obtener el token del contexto
@@ -57,37 +56,65 @@ export default function HistorialScreen({ navigation }) {
   // Función para formatear la fecha
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleString("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
   const [pdfUri, setPdfUri] = useState(null);
   const formatFecha = () => {
-      const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
-      const fecha = new Date();
-      //para la fecha en el documento
-      return `Fecha de creación: ${fecha.getDate()} de ${meses[fecha.getMonth()]} de ${fecha.getFullYear()}`;
-    };
-  
-  
-    const generarPDF = async () => {
-      try {
-        // Generar tabla de recordatorios dinámicamente
-        const tablarecordatorios = historial.map((rec) => `
+    const meses = [
+      "enero",
+      "febrero",
+      "marzo",
+      "abril",
+      "mayo",
+      "junio",
+      "julio",
+      "agosto",
+      "septiembre",
+      "octubre",
+      "noviembre",
+      "diciembre",
+    ];
+    const fecha = new Date();
+    //para la fecha en el documento
+    return `Fecha de creación: ${fecha.getDate()} de ${
+      meses[fecha.getMonth()]
+    } de ${fecha.getFullYear()}`;
+  };
+
+  const generarPDF = async () => {
+    try {
+      // Generar tabla de recordatorios dinámicamente
+      const tablarecordatorios = historial
+        .map(
+          (rec) => `
             <tr style="page-break-inside: avoid; break-inside: avoid;">
-              <td style="border: 1px solid #000; padding: 8px;">${rec.usuario.name}</td>
-              <td style="border: 1px solid #000; padding: 8px;">${rec.medicamentos.nombre}</td>
-              <td style="border: 1px solid #000; padding: 8px;">${rec.nombre_paciente}</td>
-              <td style="border: 1px solid #000; padding: 8px;">${formatDate(rec.inicio)}</td>
-              <td style="border: 1px solid #000; padding: 8px;">${formatDate(rec.fin)}</td>
+              <td style="border: 1px solid #000; padding: 8px;">${
+                rec.usuario.name
+              }</td>
+              <td style="border: 1px solid #000; padding: 8px;">${
+                rec.medicamentos.nombre
+              }</td>
+              <td style="border: 1px solid #000; padding: 8px;">${
+                rec.nombre_paciente
+              }</td>
+              <td style="border: 1px solid #000; padding: 8px;">${formatDate(
+                rec.inicio
+              )}</td>
+              <td style="border: 1px solid #000; padding: 8px;">${formatDate(
+                rec.fin
+              )}</td>
             </tr>
-          `).join("");
-  
-        const html = `
+          `
+        )
+        .join("");
+
+      const html = `
           <div style="font-family: Arial, sans-serif; padding: 20px;">
             <h1 style="text-align: center;">Recordatorios activos</h1>
             <p style="text-align: right; font-size: 14px; color: #555;">${formatFecha()}</p>
@@ -104,18 +131,18 @@ export default function HistorialScreen({ navigation }) {
             </table>
           </div>
         `;
-        const file = await printToFileAsync({ html, base64: false });
-        setPdfUri(file.uri);
-        await shareAsync(file.uri);
-      } catch (error) {
-        console.error("Error generando PDF:", error);
-        Alert.alert("Error", "Hubo un problema al generar el PDF");
-      }
-    };
+      const file = await printToFileAsync({ html, base64: false });
+      setPdfUri(file.uri);
+      await shareAsync(file.uri);
+    } catch (error) {
+      console.error("Error generando PDF:", error);
+      Alert.alert("Error", "Hubo un problema al generar el PDF");
+    }
+  };
 
   //Desactivar Recordatorio
   const handleDelete = (recordatorio_id) => {
-    console.log(recordatorio_id)
+    console.log(recordatorio_id);
     Alert.alert(
       "Eliminar recordatorio",
       "¿Estás seguro de eliminar el recordatorio?",
@@ -130,7 +157,8 @@ export default function HistorialScreen({ navigation }) {
                 return;
               }
 
-              const response = await axios.put(`${API_BASE_URL}/api/reminder/${recordatorio_id}/deactivate`,
+              const response = await axios.put(
+                `${API_BASE_URL}/api/reminder/${recordatorio_id}/deactivate`,
                 {},
                 {
                   headers: {
@@ -140,35 +168,36 @@ export default function HistorialScreen({ navigation }) {
                 }
               );
 
-
-              getSolicitudes()
+              getSolicitudes();
               Alert.alert(
                 "Exito",
                 "El medicamento ha sido eliminado correctament"
               );
             } catch (error) {
               console.error("Error:", error);
-              Alert.alert(
-                "Error",
-                "Error al desactivar el medicamento"
-              )
-
+              Alert.alert("Error", "Error al desactivar el medicamento");
             }
-          }
-        }
+          },
+        },
       ]
-    )
-
-
-  }
-
+    );
+  };
 
   return (
     <>
       <Background />
       <SafeAreaView style={StylesGen.container}>
-        <View>
+        <View style={styles.headerContainer}>
           <Text style={StylesGen.title}>Historial de recordatorios</Text>
+         <TouchableOpacity style={{ alignItems: "center" }}>
+         <FontAwesome
+            name="file-pdf-o"
+            size={50}
+            color="#e74c3c"
+            style={styles.pdfIcon}
+          />
+          <Text style={styles.iconText}>Descargar</Text>
+         </TouchableOpacity>
         </View>
         <ScrollView style={styles.scrollContainer}>
           {!Array.isArray(historial) || historial.length === 0 ? (
@@ -182,20 +211,30 @@ export default function HistorialScreen({ navigation }) {
               {historial.map((recordatorio) => (
                 <TouchableOpacity
                   key={recordatorio._id}
-                  onPress={() => navigation.navigate("Historico", {
-                    id: recordatorio._id
-                  })}
+                  onPress={() =>
+                    navigation.navigate("Historico", {
+                      id: recordatorio._id,
+                    })
+                  }
                   style={styles.card}
                 >
                   <View style={styles.recordatorioContent}>
-
-
-
-                    <View style={[styles, {flexDirection:"row", justifyContent:'space-between' }]}>
-                      <Text style={styles.cuidadorName}>{recordatorio.usuario.name}</Text>
-      
+                    <View
+                      style={[
+                        styles,
+                        {
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                        },
+                      ]}
+                    >
+                      <Text style={styles.cuidadorName}>
+                        {recordatorio.usuario.name}
+                      </Text>
                     </View>
-                    <Text style={styles.medicamentoName}>{recordatorio.medicamentos.nombre}</Text>
+                    <Text style={styles.medicamentoName}>
+                      {recordatorio.medicamentos.nombre}
+                    </Text>
                     <Text style={styles.pacienteName}>
                       Paciente: {recordatorio.nombre_paciente}
                     </Text>
@@ -211,10 +250,14 @@ export default function HistorialScreen({ navigation }) {
                       </Text>
                     </View>
                     <View style={styles.statusContainer}>
-                      <Text style={[
-                        styles.statusText,
-                        recordatorio.edo ? styles.statusCompleted : styles.statusPending
-                      ]}>
+                      <Text
+                        style={[
+                          styles.statusText,
+                          recordatorio.edo
+                            ? styles.statusCompleted
+                            : styles.statusPending,
+                        ]}
+                      >
                         {recordatorio.edo ? "Finalizado" : "Pendiente"}
                       </Text>
                     </View>
@@ -224,7 +267,6 @@ export default function HistorialScreen({ navigation }) {
             </View>
           )}
         </ScrollView>
-          
       </SafeAreaView>
     </>
   );
@@ -248,13 +290,13 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 50,
   },
   emptyText: {
     fontSize: 18,
-    color: '#666',
+    color: "#666",
   },
   listContainer: {
     marginBottom: 20,
@@ -275,24 +317,24 @@ const styles = StyleSheet.create({
   },
   cuidadorName: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
+    fontWeight: "bold",
+    color: "#000",
     marginBottom: 5,
   },
   medicamentoName: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000',
+    fontWeight: "bold",
+    color: "#000",
     marginBottom: 5,
   },
   pacienteName: {
     fontSize: 14,
-    color: '#4CAF89',
+    color: "#4CAF89",
     marginBottom: 5,
   },
   cronicoBadge: {
-    color: 'red',
-    fontWeight: 'bold',
+    color: "red",
+    fontWeight: "bold",
     fontSize: 12,
     marginBottom: 10,
   },
@@ -301,27 +343,27 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 13,
-    color: '#555',
+    color: "#555",
     marginBottom: 3,
   },
   statusContainer: {
     marginTop: 10,
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   statusText: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     paddingVertical: 4,
     paddingHorizontal: 12,
     borderRadius: 15,
   },
   statusCompleted: {
-    backgroundColor: '#E8F5E9',
-    color: '#2E7D32',
+    backgroundColor: "#E8F5E9",
+    color: "#2E7D32",
   },
   statusPending: {
-    backgroundColor: '#FFEBEE',
-    color: '#C62828',
+    backgroundColor: "#FFEBEE",
+    color: "#C62828",
   },
   buttonsContainer: {
     marginTop: 20,
@@ -342,5 +384,20 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center', // Alinea verticalmente
+    justifyContent: 'space-between', // Espacio entre título e icono
+    marginBottom: 10, // Ajusta según necesites
+  },
+  pdfIcon: {
+    marginRight:20
+  },
+  iconText: {
+    fontSize: 16,
+    color: "black",
+    fontWeight: "300",
+    marginRight:10
   },
 });

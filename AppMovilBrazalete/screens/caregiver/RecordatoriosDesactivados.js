@@ -146,11 +146,11 @@ export default function RecordatoriosDesactivados({navigation}) {
     return (
         <>
             <Background />
-            <SafeAreaView style={styles.container}>
+            <SafeAreaView style={StylesGen.container}>
 
                 <View style={styles.header}>
-                    <Text style={styles.title}>Recordatorios Desactivados</Text>
-                    <Text style={styles.description}>
+                    <Text style={StylesGen.title}>Recordatorios Desactivados</Text>
+                    <Text style={StylesGen.descrip}>
                         Aquí puedes consultar los recordatorios desactivados. Para ver su historial haz clic en un registro.
                     </Text>
                 </View>
@@ -196,16 +196,6 @@ export default function RecordatoriosDesactivados({navigation}) {
                         </View>
                     )}
                 </ScrollView>
-
-                <View style={styles.buttonsContainer}>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => navigation.navigate("Recordatorios")}
-                    >
-                        <Text style={styles.buttonText}>Recordatorios Activados</Text>
-                    </TouchableOpacity>
-                </View>
-
             </SafeAreaView>
         </>
     );
