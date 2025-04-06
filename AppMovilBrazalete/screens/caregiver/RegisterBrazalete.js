@@ -46,13 +46,71 @@ export default function RegisterBrazalete({ route }) {
 
   const id = scannedData.substring(2);
 
+  const checkBraceletExists = async () => {
+    try {
+      // Removemos el ':' del ID
+      const cleanId = id.replace(':', '');
+      console.log("Verificando brazalete con ID:", cleanId);
+      
+      const response = await axios.get(
+        `${API_BASE_URL}/brazalet/shareId/${cleanId}`
+      );
+      
+      console.log("Respuesta completa del servidor:", response);
+      console.log("Datos de la respuesta:", response.data);
+      
+      // Si la respuesta es exitosa, significa que el brazalete existe
+      return response.data._id ? true : false;
+    } catch (error) {
+      console.log("Error al verificar brazalete:", error.response);
+      if (error.response?.status === 404) {
+        return false; // El brazalete no existe
+      }
+      throw error;
+    }
+  };
+
+  // Verificar si el brazalete existe al cargar la pantalla
+  useEffect(() => {
+    const verifyBracelet = async () => {
+      try {
+        const exists = await checkBraceletExists();
+        if (exists) {
+          Alert.alert(
+            "Brazalete ya registrado",
+            "Este brazalete ya ha sido registrado anteriormente",
+            [
+              {
+                text: "OK",
+                onPress: () => navigation.navigate("Brazalete Registro"),
+              },
+            ]
+          );
+        }
+      } catch (error) {
+        console.error("Error al verificar brazalete:", error);
+      }
+    };
+
+    verifyBracelet();
+  }, []);
+
   const handleRegister = async () => {
     if (!nombre) {
       Alert.alert("Error", "Todos los campos son obligatorios");
       return;
     }
-    setLoading(true); // Inicia el estado de carga
+    setLoading(true);
     try {
+      // Primero verificamos si el brazalete ya existe
+      const braceletExists = await checkBraceletExists();
+      console.log("¿El brazalete existe?:", braceletExists);
+      if (braceletExists) {
+        Alert.alert("Error", "Esta pulsera ya ha sido registrada");
+        setLoading(false);
+        return;
+      }
+
       const response = await axios.post(
         `${API_BASE_URL}/api/brazalet`,
         {
@@ -72,14 +130,14 @@ export default function RegisterBrazalete({ route }) {
       Alert.alert("Éxito", "Brazalete registrado", [
         {
           text: "OK",
-          onPress: () => navigation.navigate("Brazalete Registro"), // Opción recomendada para flujo simple
+          onPress: () => navigation.navigate("Brazalete Registro"),
         },
       ]);
     } catch (error) {
       console.error("Error en el registro:", error.message);
       Alert.alert("Error", "Algo fallo en el registro del brazalete");
     } finally {
-      setLoading(false); // Finaliza el estado de carga
+      setLoading(false);
     }
   };
   return (
