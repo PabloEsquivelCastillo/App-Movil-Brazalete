@@ -43,13 +43,30 @@ export default function ActualizarMedicamento() {
     }
   }, [id, token]);
 
-  
- //Actualizar medicamento
+  // Función para verificar si la entrada contiene solo letras y espacios
+  const isValidInput = (input) => {
+    return /^[a-zA-Z\s]*$/.test(input); // Solo acepta letras y espacios
+  };
+
+  //Actualizar medicamento
   const handleRegister = async () => {
+    // Validar si los campos contienen solo letras y espacios
+    if (!isValidInput(nombre)) {
+      Alert.alert("Error", "El nombre solo puede contener letras y espacios.");
+      return; // Detiene el envío si el nombre no es válido
+    }
+
+    if (!isValidInput(descripcion)) {
+      Alert.alert("Error", "La descripción solo puede contener letras y espacios.");
+      return; // Detiene el envío si la descripción no es válida
+    }
+
+    // Verificar si los campos están vacíos
     if (!nombre || !descripcion) {
       Alert.alert("Error", "Completa todos los campos");
       return;
     }
+
     setLoading(true);
 
     try {
@@ -72,8 +89,7 @@ export default function ActualizarMedicamento() {
     }
   };
 
-
-  //Estado de deep
+  // Estado de carga
   if (loadingData) {
     return (
       <Background>

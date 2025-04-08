@@ -26,38 +26,61 @@ export default function RegistrarMedicamento({}) {
   const [description, setDescripcion] = useState("");
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
-  
+
+  // Función para eliminar caracteres no alfabéticos
+  const cleanInput = (input) => {
+    return input.replace(/[^a-zA-Z\s]/g, ""); // Elimina todo lo que no sea letra o espacio
+  };
+
   const handleRegister = async () => {
-    if (!nombre || !description) {
+    // Limpiar los campos antes de validarlos
+    const nombreLimpio = cleanInput(nombre);
+    const descripcionLimpia = cleanInput(description);
+
+    // Validación de campos vacíos
+    if (!nombreLimpio || !descripcionLimpia) {
       Alert.alert("Error", "Todos los campos son obligatorios");
       return;
     }
+
+    // Validación de longitud de la descripción
+    if (descripcionLimpia.length < 5) {
+      Alert.alert("Error", "La descripción debe tener al menos 5 caracteres");
+      return;
+    }
+
     setLoading(true); // Inicia el estado de carga
+
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/medication`, {
-        nombre: nombre,
-        description: description,
-      },  {
-        headers: {
-          Authorization: `Bearer ${token}`
+      const response = await axios.post(
+        `${API_BASE_URL}/api/medication`,
+        {
+          nombre: nombreLimpio,
+          description: descripcionLimpia,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
-      setNombre("");
-      setDescripcion("");
+      );
+      setNombre(""); // Limpiar campo nombre
+      setDescripcion(""); // Limpiar campo descripción
 
       Alert.alert("Éxito", "Medicamento registrado", [
-        { 
-          text: "OK", 
-          onPress: () => navigation.goBack() // Opción recomendada para flujo simple
-        }
-      ])
+        {
+          text: "OK",
+          onPress: () => navigation.goBack(), // Opción recomendada para flujo simple
+        },
+      ]);
     } catch (error) {
       console.error("Error en el registro:", error);
-      Alert.alert("Error", "Algo fallo en el registro del medicamento");
+      Alert.alert("Error", "Algo falló en el registro del medicamento");
     } finally {
       setLoading(false); // Finaliza el estado de carga
     }
   };
+
   return (
     <>
       <Background />
@@ -70,11 +93,16 @@ export default function RegistrarMedicamento({}) {
             <View>
               <Text style={StylesGen.title}>Registrar medicamento</Text>
               <Text style={styles.descrip}>
-                Aqui puedes registrar medicamentos.
+                Aquí puedes registrar medicamentos.
               </Text>
             </View>
             <View style={StylesGen.inputContainer}>
-              <TextInput placeholder="Nombre" style={StylesGen.input} value={nombre} onChangeText={setNombre}/>
+              <TextInput
+                placeholder="Nombre"
+                style={StylesGen.input}
+                value={nombre}
+                onChangeText={setNombre}
+              />
               <MaterialCommunityIcons
                 name="pill"
                 size={30}
@@ -83,7 +111,12 @@ export default function RegistrarMedicamento({}) {
               />
             </View>
             <View style={StylesGen.inputContainer}>
-              <TextInput placeholder="Descripcion" style={StylesGen.input} value={description} onChangeText={setDescripcion} />
+              <TextInput
+                placeholder="Descripción"
+                style={StylesGen.input}
+                value={description}
+                onChangeText={setDescripcion}
+              />
               <MaterialCommunityIcons
                 name="pill"
                 size={30}
@@ -92,14 +125,15 @@ export default function RegistrarMedicamento({}) {
               />
             </View>
             <View style={{ alignItems: "center" }}>
-                <TouchableOpacity
-                  style={[ StylesGen.button,]}
-                  onPress={handleRegister}
-                >
-                  <Text style={StylesGen.buttonText}>
-                    {loading ? "Guardando..." : "Guardar"}
-                  </Text>
-                </TouchableOpacity>
+              <TouchableOpacity
+                style={[StylesGen.button]}
+                onPress={handleRegister}
+                disabled={loading}
+              >
+                <Text style={StylesGen.buttonText}>
+                  {loading ? "Guardando..." : "Guardar"}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </SafeAreaView>
