@@ -8,12 +8,13 @@ import {
   SafeAreaView,
   ScrollView,
   KeyboardAvoidingView,
-  Platform, Alert, ActivityIndicator
+  Platform, 
+  Alert, 
+  ActivityIndicator
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import Background from "../../components/Background";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import StylesGen from "../../themes/stylesGen";
 import { AuthContext } from "../../context/AuthContext";
 import { API_BASE_URL } from "@env";
@@ -24,7 +25,9 @@ export default function UpdateProfileScreen() {
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loadingData, setLoadingData] = useState(true); // Nuevo estado para carga inicial
+  const [loadingData, setLoadingData] = useState(true); // Estado para carga inicial
+  const [isValidNombre, setIsValidNombre] = useState(true);
+  const [isValidTelefono, setIsValidTelefono] = useState(true);
   const navigation = useNavigation();
   const route = useRoute();
   const { id } = route.params; //Pasamos el id
@@ -53,12 +56,18 @@ export default function UpdateProfileScreen() {
     }
   }, [id, token]);
 
-  //Actualizar usuario
+  //Validaciones
   const handleRegister = async () => {
     if (!nombre || !telefono) {
       Alert.alert("Error", "Completa todos los campos");
       return;
     }
+
+    if (!isValidNombre || !isValidTelefono) {
+      Alert.alert("Error", "Asegúrate de que los campos sean válidos");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -74,18 +83,39 @@ export default function UpdateProfileScreen() {
           },
         }
       );
-      Alert.alert("Éxito", "Medicamento actualizado", [
+      Alert.alert("Éxito", "Usuario actualizado", [
         { text: "OK", onPress: () => navigation.goBack() },
       ]);
     } catch (error) {
       console.error("Error al actualizar:", error);
-      Alert.alert("Error", "Algo falló al actualizar el medicamento");
+      Alert.alert("Error", "Algo falló al actualizar el usuario");
     } finally {
       setLoading(false);
     }
   };
 
-  //Estado de deep
+  //Validar nombre
+  const handleNombreChange = (text) => {
+    setNombre(text);
+    if (text.trim().length > 0) {
+      setIsValidNombre(true);
+    } else {
+      setIsValidNombre(false);
+    }
+  };
+
+  //Validar teléfono
+  const handleTelefonoChange = (text) => {
+    setTelefono(text);
+    const telefonoRegex = /^[0-9]{10}$/; // Formato de teléfono en México (10 dígitos)
+    if (telefonoRegex.test(text)) {
+      setIsValidTelefono(true);
+    } else {
+      setIsValidTelefono(false);
+    }
+  };
+
+  //Estado de carga
   if (loadingData) {
     return (
       <Background>
@@ -96,7 +126,7 @@ export default function UpdateProfileScreen() {
           ]}
         >
           <ActivityIndicator size="large" color="#4CAF89" />
-          <Text style={{ marginTop: 10 }}>Cargando cuidador...</Text>
+          <Text style={{ marginTop: 10 }}>Cargando usuario...</Text>
         </SafeAreaView>
       </Background>
     );
@@ -116,12 +146,9 @@ export default function UpdateProfileScreen() {
           >
             <View style={{ marginBottom: 30 }}>
               <View>
-                <Text style={styles.title}>
-                  Actualiza el perfil del cuidador
-                </Text>
+                <Text style={styles.title}>Actualiza el perfil del cuidador</Text>
                 <Text style={styles.descrip}>
-                  Aqui puedes actualizar la informacion personal del cuidador
-                  seleccionado.
+                  Aquí puedes actualizar la información personal del cuidador seleccionado.
                 </Text>
               </View>
               <View style={styles.inputContainer}>
@@ -129,35 +156,33 @@ export default function UpdateProfileScreen() {
                   placeholder="Nombre(s)"
                   style={styles.input}
                   value={nombre}
-                  onChangeText={setNombre}
+                  onChangeText={handleNombreChange}
                 />
-                <FontAwesome
-                  name="user"
-                  size={30}
-                  color="gray"
-                  style={styles.icon}
-                />
+                <FontAwesome name="user" size={30} color="gray" style={styles.icon} />
               </View>
+              {!isValidNombre && (
+                <Text style={styles.errorText}>El nombre es obligatorio.</Text>
+              )}
+
               <View style={StylesGen.inputContainer}>
                 <TextInput
                   placeholder="Teléfono"
                   style={StylesGen.input}
                   value={telefono}
-                  onChangeText={setTelefono}
+                  onChangeText={handleTelefonoChange}
                   keyboardType="phone-pad"
                 />
-                <FontAwesome
-                  name="phone"
-                  size={25}
-                  color="gray"
-                  style={StylesGen.icon}
-                />
+                <FontAwesome name="phone" size={25} color="gray" style={StylesGen.icon} />
               </View>
+              {!isValidTelefono && (
+                <Text style={styles.errorText}>Ingresa un teléfono válido de 10 dígitos.</Text>
+              )}
+
               <View style={{ alignItems: "center" }}>
                 <TouchableOpacity
-                  style={styles.button}
+                  style={[styles.button, (!isValidNombre || !isValidTelefono) && styles.buttonDisabled]}
                   onPress={handleRegister}
-                  disabled={loading}
+                  disabled={loading || !isValidNombre || !isValidTelefono}
                 >
                   {loading ? (
                     <ActivityIndicator color="#fff" />
@@ -166,7 +191,6 @@ export default function UpdateProfileScreen() {
                   )}
                 </TouchableOpacity>
               </View>
-              {/* FALTA REDIGIR AL LoginScreen*/}
             </View>
           </ScrollView>
         </SafeAreaView>
@@ -207,17 +231,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: "#fff",
   },
-  inputContainer2: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "red",
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    height: 60,
-    marginBottom: 5,
-    backgroundColor: "#fff",
-  },
   input: {
     flex: 1,
     fontSize: 16,
@@ -245,24 +258,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
   },
-  createAccount: {
-    marginTop: 20,
-    color: "#666",
-  },
-  createLink: {
-    color: "#4CAF89",
-    fontWeight: "bold",
-    marginTop: 25,
-    textDecorationLine: "underline",
+  buttonDisabled: {
+    backgroundColor: "#ccc",
   },
   errorText: {
     color: "red",
     fontSize: 14,
     marginBottom: 10,
-    textAlign: "left", // Alinea el texto a la izquierda
-    alignSelf: "flex-start", // Asegura que el texto no esté centrado en el contenedor
-  },
-  buttonDisabled: {
-    backgroundColor: "#ccc",
+    textAlign: "left", 
+    alignSelf: "flex-start", 
   },
 });
