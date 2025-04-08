@@ -13,6 +13,8 @@ import {
   Image,
   ScrollView,
   ActivityIndicator,
+  Modal,
+  Pressable
 } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import brazalete from "../../assets/Images/brazalete.png";
@@ -21,7 +23,6 @@ import theme from "../../themes/theme";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import StylesGen from "../../themes/stylesGen";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
@@ -29,26 +30,31 @@ import { API_BASE_URL } from "@env";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 import BackgroundDos from "../../components/BackgroundDos";
+
 export default function RegisterBrazalete({ route }) {
   const [isEnabled, setEnable] = useState(false);
   const conectado = isEnabled;
   const [cont, setCont] = useState({});
   const toggleSwitch = () => setEnable((previousState) => !previousState);
-  const { token, user } = useContext(AuthContext); //Obtenemos el token
+  const { token, user } = useContext(AuthContext);
   const [nombre, setNombre] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loadingData, setLoadingData] = useState(true); // Nuevo estado para carga inicial
-  const { mode, contact } = route.params || {}; // 'mode' puede ser 'edit' o 'register'
-  const [desactivar, setDesactivar] = useState(false); // null, true o false
+  const [loadingData, setLoadingData] = useState(true);
+  const { mode, contact } = route.params || {};
+  const [desactivar, setDesactivar] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const navigation = useNavigation();
-
   const { scannedData } = route.params || {};
-
   const id = scannedData.substring(2);
+
+  const showCustomAlert = (title, message) => {
+    setAlertMessage({ title, message });
+    setShowAlert(true);
+  };
 
   const checkBraceletExists = async () => {
     try {
-      // Removemos el ':' del ID
       const cleanId = id.replace(':', '');
       console.log("Verificando brazalete con ID:", cleanId);
       
@@ -59,32 +65,24 @@ export default function RegisterBrazalete({ route }) {
       console.log("Respuesta completa del servidor:", response);
       console.log("Datos de la respuesta:", response.data);
       
-      // Si la respuesta es exitosa, significa que el brazalete existe
       return response.data._id ? true : false;
     } catch (error) {
       console.log("Error al verificar brazalete:", error.response);
       if (error.response?.status === 404) {
-        return false; // El brazalete no existe
+        return false;
       }
       throw error;
     }
   };
 
-  // Verificar si el brazalete existe al cargar la pantalla
   useEffect(() => {
     const verifyBracelet = async () => {
       try {
         const exists = await checkBraceletExists();
         if (exists) {
-          Alert.alert(
+          showCustomAlert(
             "Brazalete ya registrado",
-            "Este brazalete ya ha sido registrado anteriormente",
-            [
-              {
-                text: "OK",
-                onPress: () => navigation.navigate("Brazalete Registro"),
-              },
-            ]
+            "Este brazalete ya ha sido registrado anteriormente"
           );
         }
       } catch (error) {
@@ -97,16 +95,21 @@ export default function RegisterBrazalete({ route }) {
 
   const handleRegister = async () => {
     if (!nombre) {
-      Alert.alert("Error", "Todos los campos son obligatorios");
+      showCustomAlert("Error", "Por favor ingresa un nombre para el brazalete");
       return;
     }
+    
+    if (nombre.length < 3) {
+      showCustomAlert("Error", "El nombre debe tener al menos 3 letras");
+      return;
+    }
+
     setLoading(true);
     try {
-      // Primero verificamos si el brazalete ya existe
       const braceletExists = await checkBraceletExists();
       console.log("¿El brazalete existe?:", braceletExists);
       if (braceletExists) {
-        Alert.alert("Error", "Esta pulsera ya ha sido registrada");
+        showCustomAlert("Error", "Esta pulsera ya ha sido registrada");
         setLoading(false);
         return;
       }
@@ -127,19 +130,22 @@ export default function RegisterBrazalete({ route }) {
       );
       setNombre("");
 
-      Alert.alert("Éxito", "Brazalete registrado", [
-        {
-          text: "OK",
-          onPress: () => navigation.navigate("Brazalete Registro"),
-        },
-      ]);
+      showCustomAlert(
+        "Éxito", 
+        "Brazalete registrado correctamente"
+      );
+      navigation.navigate("Brazalete Registro");
     } catch (error) {
       console.error("Error en el registro:", error.message);
-      Alert.alert("Error", "Algo fallo en el registro del brazalete");
+      showCustomAlert(
+        "Error", 
+        "Algo falló en el registro del brazalete"
+      );
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <>
       <BackgroundDos />
@@ -163,6 +169,7 @@ export default function RegisterBrazalete({ route }) {
                 style={StylesGen.input}
                 value={nombre}
                 onChangeText={setNombre}
+                maxLength={30}
               />
               <MaterialCommunityIcons
                 name="watch"
@@ -172,13 +179,47 @@ export default function RegisterBrazalete({ route }) {
               />
             </View>
             <View style={{ alignItems: "center" }}>
-              <TouchableOpacity style={styles.button} onPress={handleRegister}>
-                <Text style={styles.buttonText}>Guardar</Text>
+              <TouchableOpacity 
+                style={[styles.button, (!nombre || nombre.length < 3) && styles.buttonDisabled]} 
+                onPress={handleRegister}
+                disabled={!nombre || nombre.length < 3 || loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.buttonText}>Guardar</Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>
         </SafeAreaView>
       </KeyboardAvoidingView>
+
+      {/* Alert Personalizado */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showAlert}
+        onRequestClose={() => setShowAlert(false)}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalTitle}>{alertMessage.title}</Text>
+            <Text style={styles.modalText}>{alertMessage.message}</Text>
+            <Pressable
+              style={[styles.button, styles.modalButton]}
+              onPress={() => {
+                setShowAlert(false);
+                if (alertMessage.title === "Éxito") {
+                  navigation.navigate("Brazalete Registro");
+                }
+              }}
+            >
+              <Text style={styles.buttonText}>Aceptar</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </>
   );
 }
@@ -229,11 +270,11 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "white",
     borderRadius: 8,
-    shadowColor: "#66CC99", // Color de la sombra
-    shadowOffset: { width: 2, height: 2 }, // Dirección de la sombra
-    shadowOpacity: 0.8, // Opacidad de la sombra
-    shadowRadius: 10, // Radio de difuminado
-    elevation: 5, // Sombra en Android
+    shadowColor: "#66CC99",
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 5,
     marginTop: "25",
     marginHorizontal: 10,
     marginBottom: 10,
@@ -269,35 +310,52 @@ const styles = StyleSheet.create({
     elevation: 3,
     width: 300,
   },
+  buttonDisabled: {
+    backgroundColor: "#cccccc",
+  },
   buttonText: {
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
   },
-  selectorLabel: {
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: 'rgba(0,0,0,0.5)'
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 25,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    width: '80%'
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#4CAF89',
+    textAlign: 'center'
+  },
+  modalText: {
+    marginBottom: 20,
+    textAlign: "center",
     fontSize: 16,
-    marginBottom: 8,
-    color: "#333",
+    color: '#333'
   },
-  selectorOptions: {
-    flexDirection: "row",
-    marginVertical: 10,
-  },
-  selectorButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    marginHorizontal: 5,
-    borderWidth: 1,
-    borderColor: "#4CAF89",
-    borderRadius: 5,
-  },
-  selectorButtonSelected: {
-    backgroundColor: "#4CAF89",
-  },
-  selectorText: {
-    color: "#4CAF89",
-  },
-  selectorTextSelected: {
-    color: "white",
-  },
+  modalButton: {
+    width: 120,
+    paddingVertical: 12,
+    marginTop: 10
+  }
 });
