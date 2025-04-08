@@ -65,8 +65,14 @@ export default function ActualizarMedicamento() {
       Alert.alert("Error", "Completa todos los campos");
       return;
     }
+  
+    if (descripcion.length < 5) {
+      Alert.alert("Error", "La descripción debe tener al menos 5 caracteres");
+      return;
+    }
+  
     setLoading(true);
-
+  
     try {
       const response = await axios.put(
         `${API_BASE_URL}/api/medication/${id}`,
@@ -80,19 +86,20 @@ export default function ActualizarMedicamento() {
           },
         }
       );
-      Alert.alert("Éxito", "Medicamento registrado", [
+      Alert.alert("Éxito", "Medicamento actualizado", [
         {
           text: "OK",
-          onPress: () => navigation.goBack(), // Opción recomendada para flujo simple
+          onPress: () => navigation.goBack(),
         },
       ]);
     } catch (error) {
-      console.error("Error al actualizar:", error);
+      console.error("Error al actualizar:", error.response?.data || error.message);
       Alert.alert("Error", "Algo falló al actualizar el medicamento");
     } finally {
       setLoading(false);
     }
   };
+  
 
   //Estado de deep
   if (loadingData) {

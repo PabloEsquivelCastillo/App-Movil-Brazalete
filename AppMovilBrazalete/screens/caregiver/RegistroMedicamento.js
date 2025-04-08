@@ -29,20 +29,37 @@ export default function RegistroMedicamento() {
   const navigation = useNavigation();
 
   const handleRegister = async () => {
-    if (!nombre || !descripcion) {
-      //Validamos lo campos
-      Alert.alert("Error", "Completa todos los campos");
+    const nombreTrim = nombre.trim();
+    const descripcionTrim = descripcion.trim();
+  
+    // Validar nombre
+    if (!nombreTrim) {
+      Alert.alert("Error", "El nombre no puede estar vacío");
       return;
     }
+    if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]+$/.test(nombreTrim)) {
+      Alert.alert("Error", "El nombre solo puede contener letras y espacios");
+      return;
+    }
+  
+    // Validar descripción
+    if (!descripcionTrim) {
+      Alert.alert("Error", "La descripción no puede estar vacía");
+      return;
+    }
+    if (descripcionTrim.length < 5) {
+      Alert.alert("Error", "La descripción debe tener al menos 5 caracteres");
+      return;
+    }
+  
     setLoading(true); //Inicia el estado de carga
-
+  
     try {
       const response = await axios.post(
         `${API_BASE_URL}/api/medication`,
         {
-          //aqui debe ir el nombnre de mis campos o como los espera la api?
-          nombre: nombre,
-          description: descripcion,
+          nombre: nombreTrim,
+          description: descripcionTrim,
         },
         {
           headers: {
@@ -52,22 +69,23 @@ export default function RegistroMedicamento() {
       );
       setNombre("");
       setDescripcion("");
-
+  
       Alert.alert("Éxito", "Medicamento registrado", [
         {
           text: "OK",
-          onPress: () => navigation.goBack(), // Opción recomendada para flujo simple
+          onPress: () => navigation.goBack(),
         },
       ]);
     } catch (error) {
       console.error("Error al registrar:", error);
-      Alert.alert("Error", "Algo fallo en el registro del medicamento", [
+      Alert.alert("Error", "Algo falló en el registro del medicamento", [
         { text: "OK" },
       ]);
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <>
