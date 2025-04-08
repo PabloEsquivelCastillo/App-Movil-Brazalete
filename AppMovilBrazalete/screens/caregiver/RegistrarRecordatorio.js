@@ -209,7 +209,9 @@ export default function RegistarRecordatorio({ navigation }) {
         return date.toLocaleDateString('es-ES', {
             day: '2-digit',
             month: '2-digit',
-            year: 'numeric'
+            year: 'numeric',
+                    hour: '2-digit',
+        minute: '2-digit',
         });
     };
 
@@ -242,6 +244,7 @@ export default function RegistarRecordatorio({ navigation }) {
                             placeholderStyle={styles.placeholderText}
                             zIndex={3000}
                             zIndexInverse={1000}
+                            listEmptyLabel="No hay brazaletes disponibles"
                         />
 
 
@@ -269,6 +272,7 @@ export default function RegistarRecordatorio({ navigation }) {
                             placeholderStyle={styles.placeholderText}
                             zIndex={2000}
                             zIndexInverse={2000}
+                            
                         />
 
                         {/* Contenedor para inputs de fecha */}
@@ -284,7 +288,7 @@ export default function RegistarRecordatorio({ navigation }) {
                                 {showFechaInicioPicker && (
                                     <DateTimePicker
                                         value={fechaInicio}
-                                        mode="date"
+                                        mode="datetime"
                                         display="default"
                                         minimumDate={new Date()}
                                         onChange={onChangeFechaInicio}
@@ -304,7 +308,7 @@ export default function RegistarRecordatorio({ navigation }) {
                                     {showFechaFinPicker && (
                                         <DateTimePicker
                                             value={fechaFin}
-                                            mode="date"
+                                            mode="datetime"
                                             display="default"
                                             minimumDate={fechaInicio}
                                             onChange={onChangeFechaFin}

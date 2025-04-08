@@ -145,7 +145,7 @@ export default function Recordatorios({ navigation }) {
               }
 
               const response = await axios.put(
-                `${API_BASE_URL}/api/reminder/${recordatorio_id}/deactivate  `,
+                `${API_BASE_URL}/api/reminder/${recordatorio_id}/deactivate`,
                 {},
                 {
                   headers: {

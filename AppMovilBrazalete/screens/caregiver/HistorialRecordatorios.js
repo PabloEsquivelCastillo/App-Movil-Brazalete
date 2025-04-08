@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import {
   SafeAreaView,
   Text,
@@ -9,7 +9,7 @@ import {
   ScrollView
 } from 'react-native'
 import Background from '../../components/Background'
-import { useRoute } from '@react-navigation/native'
+import { useFocusEffect, useRoute } from '@react-navigation/native'
 import { AuthContext } from '../../context/AuthContext'
 import { API_BASE_URL } from "@env";
 import axios from 'axios'
@@ -24,10 +24,17 @@ export default function Historialrecordatorioss() {
   const { token } = useContext(AuthContext);
 
   useEffect(() => {
-    if (token) {
+    if (token ) {
       getrecordatorios(id);
+      console.log(recordatorios)
     }
-  }, [token]);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+        getrecordatorios(id);
+    },[])
+  );
 
   const getrecordatorios = async (id) => {
     try {
