@@ -3,6 +3,8 @@ import axios from 'axios'
 import {jwtDecode} from 'jwt-decode';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_BASE_URL } from '@env';
+import { Alert } from 'react-native';
+
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -20,8 +22,24 @@ export const AuthProvider = ({ children }) => {
       const currentTime = Math.floor(Date.now() / 1000);
 
       if (decodedToken.exp > currentTime) {
-        setUser({ token: storedToken, payload: decodedToken });
-        setToken(storedToken);
+        // Verificar el estado de la solicitud (edoReq)
+        if (decodedToken.edoReq === 0) {
+          // Solicitud pendiente
+          await AsyncStorage.removeItem("userToken");
+          setUser(null);
+          setToken(null);
+          return;
+        } else if (decodedToken.edoReq === 2) {
+          // Solicitud rechazada
+          await AsyncStorage.removeItem("userToken");
+          setUser(null);
+          setToken(null);
+          return;
+        } else if (decodedToken.edoReq === 1) {
+          // Solicitud aprobada
+          setUser({ token: storedToken, payload: decodedToken });
+          setToken(storedToken);
+        }
       } else {
         logout(); // Si el token está expirado, cerrar sesión
       }
@@ -40,6 +58,16 @@ export const AuthProvider = ({ children }) => {
       const { token } = response.data;
       // Decodificar el token usando jwt-decode
       const payload = jwtDecode(token);
+
+      // Verificar el estado de la solicitud antes de permitir el login
+      if (payload.edoReq === 0) {
+        Alert.alert("Solicitud pendiente", "Tu solicitud está siendo revisada. Por favor, espera la aprobación.");
+        return;
+      } else if (payload.edoReq === 2) {
+        Alert.alert("Solicitud rechazada", "Tu solicitud ha sido rechazada. Por favor, contacta al administrador.");
+        return;
+      }
+  
       //guardar en asyncStorage
       await AsyncStorage.setItem("userToken", token);
 
@@ -50,18 +78,18 @@ export const AuthProvider = ({ children }) => {
       setUser({ token, payload });
       setToken(token);
       console.log('Login exitoso: ', response.data);
-    }catch (error) {
+    } catch (error) {
       // Manejar errores de la petición
       if (error.response) {
         // Si la API devuelve un error (por ejemplo, credenciales incorrectas)
         if (error.response.status === 401) {
-          alert("Correo y/o Contraseña incorrecta.");
+          Alert.alert("Error", "Correo y/o Contraseña incorrecta.");
         } else {
-          alert("Error en el servidor");
+          Alert.alert("Error", "Error en el servidor");
         }
       } else {
         // Si hay un error de red o otro problema
-        alert("Error de conexión");
+        Alert.alert("Error", "Error de conexión");
       }
       console.error('Error en el login:', error);
     }
