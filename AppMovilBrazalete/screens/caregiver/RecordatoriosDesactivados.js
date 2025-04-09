@@ -211,8 +211,7 @@ const styles = StyleSheet.create({
     },
     scrollContainer: {
       flexGrow: 1,
-      padding: 20,
-      paddingBottom: 40,
+      padding: 2,
     },
     loadingContainer: {
       flex: 1,
@@ -258,19 +257,20 @@ const styles = StyleSheet.create({
       shadowOpacity: 0.1,
       shadowRadius: 5,
       elevation: 3,
+      
     },
     recordatorioContent: {
       flex: 1,
     },
     cuidadorName: {
-      fontSize: 18,
-      fontWeight: 'bold',
+      fontSize: 22,
+      fontWeight: '700',
       color: '#000',
       marginBottom: 5,
     },
     medicamentoName: {
       fontSize: 16,
-      fontWeight: 'bold',
+      fontWeight: '500',
       color: '#000',
       marginBottom: 5,
     },

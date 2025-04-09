@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   listContainer: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   card: {
     backgroundColor: "white",
@@ -434,6 +434,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginHorizontal: 15,
     flexDirection: "row",
+    marginTop: 20,
     marginBottom:40
   },
   iconText: {
