@@ -52,7 +52,6 @@ export default function MedicamentosScreen({ navigation }) {
 
       setMedicamentos(response.data); // Guardar la respuesta en el estado
     } catch (error) {
-      console.error("Error obteniendo medicamentos:", error);
       setMedicamentos("No hay solicitudes");
     }
   };
@@ -93,7 +92,6 @@ export default function MedicamentosScreen({ navigation }) {
                 "El medicamento ha sido eliminado correctamente"
               );
             } catch (error) {
-              console.error("Error completo:", error);
               Alert.alert("Error", "Error al desactivar el medicamento");
             }
           },
@@ -165,7 +163,6 @@ export default function MedicamentosScreen({ navigation }) {
       setPdfUri(file.uri);
       await shareAsync(file.uri);
     } catch (error) {
-      console.error("Error generando PDF:", error);
       Alert.alert("Error", "Hubo un problema al generar el PDF");
     }
   };
@@ -327,7 +324,6 @@ const styles = StyleSheet.create({
   iconContainer: {
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop:15,
     marginHorizontal: 15,
     flexDirection: "row",
   },

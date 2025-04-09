@@ -55,7 +55,6 @@ export default function MedicamentosDesactivados() {
 
       setMedicamentosDesac(response.data); // Guardar la respuesta en el estado
     } catch (error) {
-      console.error("Error obteniendo medicamentos:", error);
       setMedicamentosDesac("No hay solicitudes");
     }
   };
@@ -67,7 +66,9 @@ export default function MedicamentosDesactivados() {
         Alert.alert("Error", "No hay token de autenticación");
         return;
       }
-
+      Alert.alert("Éxito", "El medicamento ha sido activado correctamente");
+      //Ocultar medicamento para evitar renderizar
+      setMedicamentosDesac((prev) => prev.filter((med) => med._id !== id))
       const response = await axios.get(
         `${API_BASE_URL}/api/medication/activate/${id}`,
         {
@@ -77,9 +78,8 @@ export default function MedicamentosDesactivados() {
           },
         }
       );
-      Alert.alert("Éxito", "El medicamento ha sido activado correctamente");
+      getMedicamentosDesactivados();
     } catch (error) {
-      console.error("Error completo:", error);
       Alert.alert("Error", "Error al activar el medicamento");
     }
   };
