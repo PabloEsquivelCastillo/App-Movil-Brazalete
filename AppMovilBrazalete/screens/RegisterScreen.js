@@ -65,8 +65,7 @@ export default function RegisterScreen({ navigation }) {
         "Tu solicitud ha sido enviada."
       );
     } catch (error) {
-      console.error("Error en el registro:", error);
-      Alert.alert("Error", "No se pudo crear la cuenta");
+      Alert.alert("Error", "Datos incorrectos, posiblemente el correo ya este en uso");
     } finally {
       setLoading(false); // Finaliza el estado de carga
     }
