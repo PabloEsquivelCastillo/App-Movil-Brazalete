@@ -7,7 +7,7 @@ import theme from "../themes/theme";
 import StylesGen from "../themes/stylesGen";
 
 export default function LoginScreen({ navigation }) {
-  const { login, user } = useContext(AuthContext);
+  const { login, user, authStatus } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isValidEmail, setIsValidEmail] = useState(true);
@@ -18,9 +18,16 @@ export default function LoginScreen({ navigation }) {
 
   React.useEffect(() => {
     if (user) {
-      navigation.replace(user.role === "admin" ? "AdminStack" : "CaregiverStack");
+      navigation.replace(user.payload.role === "admin" ? "AdminStack" : "CaregiverStack");
     }
-  }, [user]);
+
+    // Mostrar mensajes según el estado de la solicitud
+    if (authStatus === 'pending') {
+      showCustomAlert('Su solicitud está en espera de aprobación');
+    } else if (authStatus === 'rejected') {
+      showCustomAlert('Su solicitud ha sido rechazada');
+    }
+  }, [user, authStatus]);
 
   const showCustomAlert = (message) => {
     setAlertMessage(message);
@@ -65,7 +72,7 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <>
-      <BackgroundDos/>
+      <BackgroundDos />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={StylesGen.container2}
@@ -117,7 +124,7 @@ export default function LoginScreen({ navigation }) {
             )}
           </TouchableOpacity>
 
-          <View style={{alignItems:'center'}}>
+          <View style={{ alignItems: 'center' }}>
             {/* Link para crear cuenta */}
             <Text style={styles.createAccount}>
               ¿No tienes cuenta? <Text style={styles.createLink} onPress={() => navigation.navigate("Registro")}>Crear ahora</Text>
@@ -126,7 +133,25 @@ export default function LoginScreen({ navigation }) {
         </View>
       </KeyboardAvoidingView>
 
-
+      {/* Modal para alertas */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showAlert}
+        onRequestClose={() => setShowAlert(false)}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>{alertMessage}</Text>
+            <Pressable
+              style={[styles.button, styles.modalButton]}
+              onPress={() => setShowAlert(false)}
+            >
+              <Text style={styles.buttonText}>Aceptar</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </>
   );
 }
@@ -198,7 +223,8 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5
+    elevation: 5,
+    width: '80%'
   },
   modalText: {
     marginBottom: 20,
@@ -208,6 +234,8 @@ const styles = StyleSheet.create({
   modalButton: {
     width: 120,
     paddingVertical: 12,
-    marginTop: 10
+    marginTop: 10,
+    backgroundColor: theme.colors.secondary,
+    borderRadius: 10
   }
 });
