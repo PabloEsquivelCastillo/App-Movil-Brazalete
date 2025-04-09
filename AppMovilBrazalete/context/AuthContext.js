@@ -8,6 +8,7 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [authStatus, setAuthStatus] = useState(null); 
   useEffect(() => {
     checkLoginStatus(); // Verificar si hay sesión activa al iniciar la app
   }, []);
@@ -20,50 +21,60 @@ export const AuthProvider = ({ children }) => {
       const currentTime = Math.floor(Date.now() / 1000);
 
       if (decodedToken.exp > currentTime) {
-        setUser({ token: storedToken, payload: decodedToken });
-        setToken(storedToken);
+        // Verificar el estado de la solicitud
+        if (decodedToken.edoReq === 0) {
+          setAuthStatus('pending');
+        } else if (decodedToken.edoReq === 1) {
+          setAuthStatus('approved');
+          setUser({ token: storedToken, payload: decodedToken });
+          setToken(storedToken);
+        } else if (decodedToken.edoReq === 2) {
+          setAuthStatus('rejected');
+          await AsyncStorage.removeItem("userToken");
+        }
       } else {
-        logout(); // Si el token está expirado, cerrar sesión
+        logout();
       }
     }
   };
 
   const login = async (username, password) => {
     try {
-      // Realizar la petición POST a la API
       const response = await axios.post(`${API_BASE_URL}/login`, {
         email: username,
         password: password,
       });
-  
-      // Asumiendo que la API devuelve un token y un rol en la respuesta
-      const { token } = response.data;
-      // Decodificar el token usando jwt-decode
-      const payload = jwtDecode(token);
-      //guardar en asyncStorage
-      await AsyncStorage.setItem("userToken", token);
 
-      // Mostrar el payload decodificado
-      console.log('Payload del token: ', payload);
-  
-      // Actualizar el estado del usuario con el rol recibido
+      const { token } = response.data;
+      const payload = jwtDecode(token);
+      
+      // Verificar el estado de la solicitud antes de permitir el acceso
+      if (payload.edoReq === 0) {
+        setAuthStatus('pending');
+        await AsyncStorage.setItem("userToken", token);
+        return;
+      } else if (payload.edoReq === 2) {
+        setAuthStatus('rejected');
+        await AsyncStorage.removeItem("userToken");
+        return;
+      }
+
+      // Si está aprobado (edoReq === 1)
+      await AsyncStorage.setItem("userToken", token);
       setUser({ token, payload });
       setToken(token);
-      console.log('Login exitoso: ', response.data);
-    }catch (error) {
-      // Manejar errores de la petición
+      setAuthStatus('approved');
+      
+    } catch (error) {
       if (error.response) {
-        // Si la API devuelve un error (por ejemplo, credenciales incorrectas)
         if (error.response.status === 401) {
-          alert("Correo y/o Contraseña incorrecta.");
+          throw new Error("Correo y/o Contraseña incorrecta.");
         } else {
-          alert("Error en el servidor");
+          throw new Error("Error en el servidor");
         }
       } else {
-        // Si hay un error de red o otro problema
-        alert("Error de conexión");
+        throw new Error("Error de conexión");
       }
-      console.error('Error en el login:', error);
     }
   };
 
@@ -74,7 +85,7 @@ export const AuthProvider = ({ children }) => {
 };
 
   return (
-    <AuthContext.Provider value={{ user,token, login, logout }}>
+    <AuthContext.Provider value={{ user,token, authStatus, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
