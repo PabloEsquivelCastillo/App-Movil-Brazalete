@@ -25,14 +25,24 @@ export default function UpdateProfileScreen() {
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loadingData, setLoadingData] = useState(true); // Estado para carga inicial
-  const [isValidNombre, setIsValidNombre] = useState(true);
-  const [isValidTelefono, setIsValidTelefono] = useState(true);
+  const [loadingData, setLoadingData] = useState(true);
+  const [nombreError, setNombreError] = useState(null);
+  const [telefonoError, setTelefonoError] = useState(null);
   const navigation = useNavigation();
   const route = useRoute();
-  const { id } = route.params; //Pasamos el id
+  const { id } = route.params;
 
-  //Cargamos datos del usuario a actualizar
+  // Función para limpiar y validar el nombre
+  const cleanNombreInput = (text) => {
+    return text.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "");
+  };
+
+  // Función para validar espacios en blanco
+  const isWhitespaceOnly = (str) => {
+    return !str || !str.trim();
+  };
+
+  // Cargar datos del usuario
   useEffect(() => {
     const fetchCuidador = async () => {
       try {
@@ -41,10 +51,9 @@ export default function UpdateProfileScreen() {
             Authorization: `Bearer ${token}`,
           },
         });
-        setNombre(response.data.name); //Set al nombre y descripcion
+        setNombre(response.data.name);
         setTelefono(response.data.phone);
       } catch (error) {
-        console.error("Error al cargar usuario:", error);
         Alert.alert("Error", "No se pudo cargar el usuario");
       } finally {
         setLoadingData(false);
@@ -56,26 +65,57 @@ export default function UpdateProfileScreen() {
     }
   }, [id, token]);
 
-  //Validaciones
+  // Validar nombre
+  const handleNombreChange = (text) => {
+    const cleaned = cleanNombreInput(text);
+    setNombre(cleaned);
+    
+    if (isWhitespaceOnly(cleaned)) {
+      setNombreError("El nombre no puede estar vacío");
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(cleaned)) {
+      setNombreError("Solo letras y espacios permitidos");
+    } else {
+      setNombreError(null);
+    }
+  };
+
+  // Validar teléfono
+  const handleTelefonoChange = (text) => {
+    // Solo permitir números
+    const cleaned = text.replace(/[^0-9]/g, '');
+    setTelefono(cleaned);
+    
+    if (isWhitespaceOnly(cleaned)) {
+      setTelefonoError("El teléfono no puede estar vacío");
+    } else if (!/^[0-9]{10}$/.test(cleaned)) {
+      setTelefonoError("Debe tener 10 dígitos");
+    } else {
+      setTelefonoError(null);
+    }
+  };
+
+  // Actualizar perfil
   const handleRegister = async () => {
-    if (!nombre || !telefono) {
-      Alert.alert("Error", "Completa todos los campos");
+    // Verificar errores
+    if (nombreError || telefonoError) {
+      Alert.alert("Error", "Por favor corrige los errores en el formulario");
       return;
     }
 
-    if (!isValidNombre || !isValidTelefono) {
-      Alert.alert("Error", "Asegúrate de que los campos sean válidos");
+    // Validación final
+    if (isWhitespaceOnly(nombre) || isWhitespaceOnly(telefono)) {
+      Alert.alert("Error", "Todos los campos son obligatorios");
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await axios.put(
+      await axios.put(
         `${API_BASE_URL}/api/users/${id}`,
         {
-          name: nombre,
-          phone: telefono,
+          name: nombre.trim(),
+          phone: telefono.trim(),
         },
         {
           headers: {
@@ -83,48 +123,21 @@ export default function UpdateProfileScreen() {
           },
         }
       );
-      Alert.alert("Éxito", "Usuario actualizado", [
+      Alert.alert("Éxito", "Perfil actualizado", [
         { text: "OK", onPress: () => navigation.goBack() },
       ]);
     } catch (error) {
-      console.error("Error al actualizar:", error);
-      Alert.alert("Error", "Algo falló al actualizar el usuario");
+      Alert.alert("Error", "No se pudo actualizar el perfil");
     } finally {
       setLoading(false);
     }
   };
 
-  //Validar nombre
-  const handleNombreChange = (text) => {
-    setNombre(text);
-    if (text.trim().length > 0) {
-      setIsValidNombre(true);
-    } else {
-      setIsValidNombre(false);
-    }
-  };
-
-  //Validar teléfono
-  const handleTelefonoChange = (text) => {
-    setTelefono(text);
-    const telefonoRegex = /^[0-9]{10}$/; // Formato de teléfono en México (10 dígitos)
-    if (telefonoRegex.test(text)) {
-      setIsValidTelefono(true);
-    } else {
-      setIsValidTelefono(false);
-    }
-  };
-
-  //Estado de carga
+  // Estado de carga
   if (loadingData) {
     return (
       <Background>
-        <SafeAreaView
-          style={[
-            StylesGen.container,
-            { justifyContent: "center", alignItems: "center" },
-          ]}
-        >
+        <SafeAreaView style={[StylesGen.container, { justifyContent: "center", alignItems: "center" }]}>
           <ActivityIndicator size="large" color="#4CAF89" />
           <Text style={{ marginTop: 10 }}>Cargando usuario...</Text>
         </SafeAreaView>
@@ -151,38 +164,59 @@ export default function UpdateProfileScreen() {
                   Aquí puedes actualizar la información personal del cuidador seleccionado.
                 </Text>
               </View>
-              <View style={styles.inputContainer}>
+              
+              {/* Campo Nombre */}
+              <View style={[
+                styles.inputContainer,
+                nombreError ? styles.inputError : null
+              ]}>
                 <TextInput
                   placeholder="Nombre(s)"
                   style={styles.input}
                   value={nombre}
                   onChangeText={handleNombreChange}
+                  maxLength={50}
                 />
-                <FontAwesome name="user" size={30} color="gray" style={styles.icon} />
+                <FontAwesome 
+                  name="user" 
+                  size={30} 
+                  color={nombreError ? "red" : "gray"} 
+                  style={styles.icon} 
+                />
               </View>
-              {!isValidNombre && (
-                <Text style={styles.errorText}>El nombre es obligatorio.</Text>
-              )}
+              {nombreError && <Text style={styles.errorText}>{nombreError}</Text>}
 
-              <View style={StylesGen.inputContainer}>
+              {/* Campo Teléfono */}
+              <View style={[
+                StylesGen.inputContainer,
+                telefonoError ? styles.inputError : null
+              ]}>
                 <TextInput
-                  placeholder="Teléfono"
+                  placeholder="Teléfono (10 dígitos)"
                   style={StylesGen.input}
                   value={telefono}
                   onChangeText={handleTelefonoChange}
                   keyboardType="phone-pad"
+                  maxLength={10}
                 />
-                <FontAwesome name="phone" size={25} color="gray" style={StylesGen.icon} />
+                <FontAwesome 
+                  name="phone" 
+                  size={25} 
+                  color={telefonoError ? "red" : "gray"} 
+                  style={StylesGen.icon} 
+                />
               </View>
-              {!isValidTelefono && (
-                <Text style={styles.errorText}>Ingresa un teléfono válido de 10 dígitos.</Text>
-              )}
+              {telefonoError && <Text style={styles.errorText}>{telefonoError}</Text>}
 
+              {/* Botón de Guardar */}
               <View style={{ alignItems: "center" }}>
                 <TouchableOpacity
-                  style={[styles.button, (!isValidNombre || !isValidTelefono) && styles.buttonDisabled]}
+                  style={[
+                    styles.button, 
+                    (nombreError || telefonoError) ? styles.buttonDisabled : null
+                  ]}
                   onPress={handleRegister}
-                  disabled={loading || !isValidNombre || !isValidTelefono}
+                  disabled={loading || Boolean(nombreError) || Boolean(telefonoError)}
                 >
                   {loading ? (
                     <ActivityIndicator color="#fff" />
@@ -207,9 +241,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     justifyContent: "center",
-    flex: 1,
   },
-
   title: {
     fontSize: 30,
     fontWeight: "bold",
@@ -228,8 +260,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 10,
     height: 60,
-    marginBottom: 20,
+    marginBottom: 5,
     backgroundColor: "#fff",
+  },
+  inputError: {
+    borderColor: "red",
+    borderWidth: 1,
   },
   input: {
     flex: 1,
@@ -264,8 +300,8 @@ const styles = StyleSheet.create({
   errorText: {
     color: "red",
     fontSize: 14,
-    marginBottom: 10,
-    textAlign: "left", 
-    alignSelf: "flex-start", 
+    marginBottom: 15,
+    marginLeft: 10,
+    alignSelf: "flex-start",
   },
 });
