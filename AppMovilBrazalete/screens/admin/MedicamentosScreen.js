@@ -57,7 +57,7 @@ export default function MedicamentosScreen({ navigation }) {
   };
 
   const itemHeight = 90; // Altura aproximada de cada elemento
-  const maxHeight = itemHeight * 5; // Altura máxima para 5 elementos
+  const maxHeight = itemHeight * 4; // Altura máxima para 5 elementos
 
   const handleDelete = (id) => {
     Alert.alert(
@@ -324,6 +324,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     alignItems: "center",
     justifyContent: "space-between",
+    marginTop:  20,
     marginHorizontal: 15,
     flexDirection: "row",
   },
