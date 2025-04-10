@@ -40,14 +40,12 @@ export default function HistorialScreen({ navigation }) {
 
       setHistorial(response.data); // Guardar la respuesta en el estado
     } catch (error) {
-      console.error("Error obteniendo cuidadores:", error);
       setHistorial("No hay solicitudes");
     }
   };
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    console.log("Buscando:", query);
   };
   // Altura de cada elemento (ajusta según tu diseño)
   const itemHeight = 90; // Altura aproximada de cada elemento
@@ -135,14 +133,12 @@ export default function HistorialScreen({ navigation }) {
       setPdfUri(file.uri);
       await shareAsync(file.uri);
     } catch (error) {
-      console.error("Error generando PDF:", error);
       Alert.alert("Error", "Hubo un problema al generar el PDF");
     }
   };
 
   //Desactivar Recordatorio
   const handleDelete = (recordatorio_id) => {
-    console.log(recordatorio_id);
     Alert.alert(
       "Eliminar recordatorio",
       "¿Estás seguro de eliminar el recordatorio?",
@@ -174,7 +170,6 @@ export default function HistorialScreen({ navigation }) {
                 "El medicamento ha sido eliminado correctament"
               );
             } catch (error) {
-              console.error("Error:", error);
               Alert.alert("Error", "Error al desactivar el medicamento");
             }
           },

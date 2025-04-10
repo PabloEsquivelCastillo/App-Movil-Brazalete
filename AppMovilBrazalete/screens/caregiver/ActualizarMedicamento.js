@@ -47,7 +47,6 @@ export default function ActualizarMedicamento() {
         setDescripcion(response.data.description);
         
       } catch (error) {
-        console.error("Error al cargar medicamento:", error);
         Alert.alert("Error", "No se pudo cargar el medicamento");
       } finally {
         setLoadingData(false);
@@ -93,7 +92,6 @@ export default function ActualizarMedicamento() {
         },
       ]);
     } catch (error) {
-      console.error("Error al actualizar:", error.response?.data || error.message);
       Alert.alert("Error", "Algo falló al actualizar el medicamento");
     } finally {
       setLoading(false);

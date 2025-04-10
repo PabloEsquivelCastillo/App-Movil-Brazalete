@@ -26,7 +26,6 @@ export default function Historialrecordatorioss() {
   useEffect(() => {
     if (token ) {
       getrecordatorios(id);
-      console.log(recordatorios)
     }
   }, []);
 
@@ -42,7 +41,6 @@ export default function Historialrecordatorioss() {
       });
       setRecordatorios(response.data);
     } catch (error) {
-      console.error("Error al cargar los datos:", error);
       Alert.alert("Error", "No se pudo cargar los datos");
     } finally {
       setLoading(false);

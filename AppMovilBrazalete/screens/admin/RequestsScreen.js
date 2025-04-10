@@ -40,13 +40,11 @@ export default function RequestsScreen() {
       setSolicitudes(response.data); // Guardar la respuesta en el estado
       setLoading(false); // Inicia el estado de carga
     } catch (error) {
-      console.error("Error obteniendo cuidadores:", error);
       setSolicitudes("No hay solicitudes");
     }
   };
   const handleAccept = async (id) => {
     try {
-      console.log("ID A ACEPTAR: ", id);
       // Enviar el id y la acción de aceptar a la API
       const response = await axios.get(
         `${API_BASE_URL}/api/acepKeep/${id}`,
@@ -65,14 +63,12 @@ export default function RequestsScreen() {
         Alert.alert("Error", "No se pudo aceptar la solicitud.");
       }
     } catch (error) {
-      console.error("Error aceptando la solicitud:", error);
       Alert.alert("Error", "Hubo un problema al aceptar la solicitud.");
     }
   };
 
   const handleReject = async (id) => {
     try {
-      console.log("ID A ELIMINAR: ", id);
       // Enviar el id y la acción de rechazar a la API
       const response = await axios.get(
         `${API_BASE_URL}/api/users/deny/${id}`,
@@ -90,7 +86,6 @@ export default function RequestsScreen() {
         Alert.alert("Error", "No se pudo rechazar la solicitud.");
       }
     } catch (error) {
-      console.error("Error rechazando la solicitud:", error);
       Alert.alert("Error", "Hubo un problema al rechazar la solicitud.");
     }
   };

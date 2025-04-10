@@ -44,7 +44,6 @@ export default function BrazaleteConfig({ route }) {
   
   const { scannedData } = route.params || {};
 
-  console.log("ESCANEADO: ", scannedData)
   useEffect(() => {
     const fecthBrazalete = async () => {
       try {
@@ -58,7 +57,6 @@ export default function BrazaleteConfig({ route }) {
         );
         setNombre(response.data.nombre);
       } catch (error) {
-        console.error("Error al cargar usuario:", error);
         Alert.alert("Error", "No se pudo cargar el brazalete");
       } finally {
         setLoadingData(false);
@@ -79,7 +77,6 @@ export default function BrazaleteConfig({ route }) {
     }
     setLoading(true); // Inicia el estado de carga
     if (desactivar === true) {
-      console.log("BRAZ A ELIMINAR: ", contact);
       const response = await axios.get(
         `${API_BASE_URL}/api/brazalet/desativate/${contact}`,
         {
@@ -108,7 +105,6 @@ export default function BrazaleteConfig({ route }) {
         },
       ]);
     } catch (error) {
-      console.error("Error en el registro:", error);
       Alert.alert("Error", "Algo fallo en el registro del brazalete");
     } finally {
       setLoading(false); // Finaliza el estado de carga

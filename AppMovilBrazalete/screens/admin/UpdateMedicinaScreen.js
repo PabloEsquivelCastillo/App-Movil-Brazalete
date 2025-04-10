@@ -117,7 +117,6 @@ export default function ActualizarMedicamento() {
         [{ text: "OK", onPress: () => navigation.goBack() }]
       );
     } catch (error) {
-      console.error("Error al actualizar:", error);
       Alert.alert("Error", "Algo falló al actualizar el medicamento");
     } finally {
       setLoading(false);

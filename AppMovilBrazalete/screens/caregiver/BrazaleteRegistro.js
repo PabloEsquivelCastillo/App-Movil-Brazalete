@@ -44,7 +44,6 @@ export default function BrazaleteRegistro({ navigation }) {
 
       setBrazaletes(response.data); // Guardar la respuesta en el estado
     } catch (error) {
-      console.error("Error obteniendo cuidadores:", error);
       setBrazaletes("No hay cuidadores");
     }
   };

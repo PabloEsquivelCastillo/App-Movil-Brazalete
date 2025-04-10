@@ -39,7 +39,6 @@ export default function HistorialScreen() {
       });
       setRecordatorios(response.data);
     } catch (error) {
-      console.error("Error al cargar los datos:", error);
       Alert.alert("Error", "No se pudo cargar los datos");
     } finally {
       setLoading(false);

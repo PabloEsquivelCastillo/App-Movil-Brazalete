@@ -28,7 +28,6 @@ export default function RegistarRecordatorio({ navigation }) {
 
     useEffect(() => {
         if (token) {
-            console.log("id:", user.payload.id);
             getBrazaletes();
         }
     }, [])
@@ -51,7 +50,6 @@ export default function RegistarRecordatorio({ navigation }) {
             setBrazaletes(brazaletesFormateados);
 
         } catch (error) {
-            console.error("Error obteniendo cuidadores:", error);
             setBrazaletes([]);
         }
     };
@@ -88,7 +86,6 @@ export default function RegistarRecordatorio({ navigation }) {
             setMedicamentos(medicamentoFormato)
 
         } catch (error) {
-            console.error("Error al cargar los medicamentos:", error);
             setMedicamentos([])
 
         }
@@ -123,7 +120,6 @@ export default function RegistarRecordatorio({ navigation }) {
                 id_pulsera: brazaleteValue
             };
 
-            console.log("Enviando datos:", datos);
 
             const response = await axios.post(
                 `${API_BASE_URL}/api/reminder`,
@@ -151,7 +147,6 @@ export default function RegistarRecordatorio({ navigation }) {
             ]);
 
         } catch (error) {
-            console.error("Error completo:", error);
             Alert.alert("Error", mensaje);
         }
     };

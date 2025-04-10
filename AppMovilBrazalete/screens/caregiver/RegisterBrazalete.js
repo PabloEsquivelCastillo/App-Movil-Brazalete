@@ -56,18 +56,14 @@ export default function RegisterBrazalete({ route }) {
   const checkBraceletExists = async () => {
     try {
       const cleanId = id.replace(':', '');
-      console.log("Verificando brazalete con ID:", cleanId);
-      
+
       const response = await axios.get(
         `${API_BASE_URL}/brazalet/shareId/${cleanId}`
       );
-      
-      console.log("Respuesta completa del servidor:", response);
-      console.log("Datos de la respuesta:", response.data);
+
       
       return response.data._id ? true : false;
     } catch (error) {
-      console.log("Error al verificar brazalete:", error.response);
       if (error.response?.status === 404) {
         return false;
       }
@@ -86,7 +82,6 @@ export default function RegisterBrazalete({ route }) {
           );
         }
       } catch (error) {
-        console.error("Error al verificar brazalete:", error);
       }
     };
 
@@ -107,7 +102,6 @@ export default function RegisterBrazalete({ route }) {
     setLoading(true);
     try {
       const braceletExists = await checkBraceletExists();
-      console.log("¿El brazalete existe?:", braceletExists);
       if (braceletExists) {
         showCustomAlert("Error", "Esta pulsera ya ha sido registrada");
         setLoading(false);
@@ -136,7 +130,6 @@ export default function RegisterBrazalete({ route }) {
       );
       navigation.navigate("Brazalete Registro");
     } catch (error) {
-      console.error("Error en el registro:", error.message);
       showCustomAlert(
         "Error", 
         "Algo falló en el registro del brazalete"

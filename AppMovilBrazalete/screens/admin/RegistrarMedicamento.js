@@ -93,7 +93,6 @@ export default function RegistrarMedicamento({}) {
         },
       ]);
     } catch (error) {
-      console.error("Error en el registro:", error);
       Alert.alert("Error", "Algo falló en el registro del medicamento");
     } finally {
       setLoading(false);

@@ -56,7 +56,6 @@ export default function RecordatoriosDesactivados({navigation}) {
 
             setRecordatorios(response.data);
         } catch (error) {
-            console.error("Error obteniendo recordatorios:", error);
             Alert.alert("Error", "No se pudieron cargar los recordatorios");
         } finally {
             setLoading(false);
@@ -75,7 +74,7 @@ export default function RecordatoriosDesactivados({navigation}) {
 
     //Desactivar Recordatorio
     const handleDelete = (recordatorio_id) => {
-        console.log(recordatorio_id)
+
         Alert.alert(
             "Eliminar recordatorio",
             "¿Estás seguro de eliminar el recordatorio?",
@@ -107,7 +106,6 @@ export default function RecordatoriosDesactivados({navigation}) {
                                 "El medicamento ha sido eliminado correctament"
                             );
                         } catch (error) {
-                            console.error("Error:", error);
                             Alert.alert(
                                 "Error",
                                 "Error al desactivar el medicamento"

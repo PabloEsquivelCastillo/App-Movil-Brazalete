@@ -45,14 +45,12 @@ export default function UsersScreen({ navigation }) {
       );
       setContacts(response.data); // Guardar la respuesta en el estado
     } catch (error) {
-      console.error("Error obteniendo cuidadores:", error);
       setContacts("No hay cuidadores");
     }
   };
 
   const handleReject = async (id) => {
     try {
-      console.log("ID A ELIMINAR: ", id);
       // Enviar el id y la acción de rechazar a la API
       const response = await axios.put(
         `${API_BASE_URL}/api/users/deactivate/${id}`,
@@ -70,7 +68,6 @@ export default function UsersScreen({ navigation }) {
         Alert.alert("Error", "No se pudo eliminar.");
       }
     } catch (error) {
-      console.error("Error eliminando al cuidador:", error);
       Alert.alert("Error", "Hubo un problema al eliminar el cuidador.");
     }
   };

@@ -54,7 +54,6 @@ export default function MedicamentosDisponibles({ navigation }) {
 
       setMedicamentos(response.data); // Guardar la respuesta en el estado
     } catch (error) {
-      console.error("Error obteniendo medicamentos:", error);
       setMedicamentos("No hay solicitudes")
     }
   };
@@ -69,7 +68,6 @@ export default function MedicamentosDisponibles({ navigation }) {
 
       setMedicamentosDesac(response.data); // Guardar la respuesta en el estado
     } catch (error) {
-      console.error("Error obteniendo medicamentos:", error);
       setMedicamentosDesac("No hay solicitudes");
     }
   };
@@ -116,7 +114,6 @@ export default function MedicamentosDisponibles({ navigation }) {
                 "El medicamento ha sido eliminado correctamente"
               );
             } catch (error) {
-              console.error("Error completo:", error);
               Alert.alert("Error", "Error al desactivar el medicamento");
             }
           },
@@ -149,7 +146,7 @@ export default function MedicamentosDisponibles({ navigation }) {
         "El medicamento ha sido activado correctamente"
       );
     } catch (error) {
-      console.error("Error completo:", error);
+
       Alert.alert("Error", "Error al activar el medicamento");
     }
   }
@@ -191,7 +188,6 @@ export default function MedicamentosDisponibles({ navigation }) {
       setPdfUri(file.uri);
       await shareAsync(file.uri);
     } catch (error) {
-      console.error("Error generando PDF:", error);
       Alert.alert("Error", "Hubo un problema al generar el PDF");
     }
   };

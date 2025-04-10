@@ -53,7 +53,6 @@ export default function MedicamentosDesactivados({ navigation }) {
 
             setMedicamentosDesac(response.data); // Guardar la respuesta en el estado
         } catch (error) {
-            console.error("Error obteniendo medicamentos:", error);
             setMedicamentosDesac("No hay solicitudes");
         }
     };
@@ -83,7 +82,6 @@ export default function MedicamentosDesactivados({ navigation }) {
                 "El medicamento ha sido activado correctamente"
             );
         } catch (error) {
-            console.error("Error completo:", error);
             Alert.alert("Error", "Error al activar el medicamento");
         }
     }

@@ -53,7 +53,6 @@ export default function UsuariosDesactivados() {
 
       setDesactivados(response.data); // Guardar la respuesta en el estado
     } catch (error) {
-      console.error("Error obteniendo cuidadores:", error);
       setDesactivados("No hay cuidadores");
     }
   };
@@ -78,7 +77,6 @@ export default function UsuariosDesactivados() {
       getCuidadoresDesactivados(); // Recargar la lista
       Alert.alert("Éxito", "El cuidador ha sido activado correctamente");
     } catch (error) {
-      console.error("Error completo:", error);
       Alert.alert("Error", "Error al activar el cuidador");
     }
   };
