@@ -73,7 +73,7 @@ export default function UsersScreen({ navigation }) {
   };
 
   const itemHeight = 90; // Altura aproximada de cada elemento
-  const maxHeight = itemHeight * 6; // Altura máxima para 5 elementos
+  const maxHeight = itemHeight * 5; // Altura máxima para 5 elementos
 
   return (
     <>
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 20,
+    marginTop: 30,
     marginHorizontal: 40,
     flexDirection: "row",
   },
