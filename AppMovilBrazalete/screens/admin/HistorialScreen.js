@@ -387,17 +387,18 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     flexDirection: 'row',
+    paddingHorizontal: 5,
     alignItems: 'center', // Alinea verticalmente
-    justifyContent: 'space-between', // Espacio entre título e icono
+    justifyContent:'center', // Espacio entre título e icono
     marginBottom: 10, // Ajusta según necesites
   },
   pdfIcon: {
-    marginRight:20
+    marginLeft: 100
   },
   iconText: {
     fontSize: 16,
     color: "black",
     fontWeight: "300",
-    marginRight:10
+    marginLeft: 100
   },
 });
