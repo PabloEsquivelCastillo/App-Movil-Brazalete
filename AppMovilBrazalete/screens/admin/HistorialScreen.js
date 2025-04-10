@@ -382,18 +382,18 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 5,
     alignItems: 'center', // Alinea verticalmente
     justifyContent:'center', // Espacio entre título e icono
     marginBottom: 10, // Ajusta según necesites
   },
   pdfIcon: {
-    marginLeft: 100
+    marginLeft: 20
   },
   iconText: {
     fontSize: 16,
     color: "black",
     fontWeight: "300",
-    marginLeft: 100
+    marginLeft: 20,
+    marginBottom: 10
   },
 });
