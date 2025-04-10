@@ -3,6 +3,8 @@ import axios from 'axios'
 import {jwtDecode} from 'jwt-decode';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_BASE_URL } from '@env';
+import { Alert } from 'react-native';
+
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
