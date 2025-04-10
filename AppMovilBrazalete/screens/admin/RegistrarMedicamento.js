@@ -21,42 +21,60 @@ import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
 
 export default function RegistrarMedicamento({}) {
-  const { token } = useContext(AuthContext); //Obtenemos el token
+  const { token } = useContext(AuthContext); // Obtenemos el token
   const [nombre, setNombre] = useState("");
   const [description, setDescripcion] = useState("");
   const [loading, setLoading] = useState(false);
+  const [nombreError, setNombreError] = useState("");
+  const [descripcionError, setDescripcionError] = useState("");
   const navigation = useNavigation();
 
   // Función para eliminar caracteres no alfabéticos
   const cleanInput = (input) => {
-    return input.replace(/[^a-zA-Z\s]/g, ""); // Elimina todo lo que no sea letra o espacio
+    return input.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ""); // Permite letras y espacios
+  };
+
+  // Función para validar si un string contiene solo espacios en blanco
+  const isWhitespaceOnly = (str) => {
+    return !str || !str.trim();
   };
 
   const handleRegister = async () => {
-    // Limpiar los campos antes de validarlos
+    // Limpiar errores previos
+    setNombreError("");
+    setDescripcionError("");
+    
+    // Limpiar los campos
     const nombreLimpio = cleanInput(nombre);
     const descripcionLimpia = cleanInput(description);
 
-    // Validación de campos vacíos
-    if (!nombreLimpio || !descripcionLimpia) {
-      Alert.alert("Error", "Todos los campos son obligatorios");
-      return;
+    let isValid = true;
+
+    // Validación para nombre
+    if (isWhitespaceOnly(nombreLimpio)) {
+      setNombreError("El nombre no puede estar vacío");
+      isValid = false;
     }
 
-    // Validación de longitud de la descripción
-    if (descripcionLimpia.length < 5) {
-      Alert.alert("Error", "La descripción debe tener al menos 5 caracteres");
-      return;
+    // Validación para descripción
+    if (isWhitespaceOnly(descripcionLimpia)) {
+      setDescripcionError("La descripción no puede estar vacía");
+      isValid = false;
+    } else if (descripcionLimpia.trim().length < 5) {
+      setDescripcionError("La descripción debe tener al menos 5 caracteres");
+      isValid = false;
     }
 
-    setLoading(true); // Inicia el estado de carga
+    if (!isValid) return;
+
+    setLoading(true);
 
     try {
       const response = await axios.post(
         `${API_BASE_URL}/api/medication`,
         {
-          nombre: nombreLimpio,
-          description: descripcionLimpia,
+          nombre: nombreLimpio.trim(),
+          description: descripcionLimpia.trim(),
         },
         {
           headers: {
@@ -64,20 +82,21 @@ export default function RegistrarMedicamento({}) {
           },
         }
       );
-      setNombre(""); // Limpiar campo nombre
-      setDescripcion(""); // Limpiar campo descripción
+      
+      setNombre("");
+      setDescripcion("");
 
       Alert.alert("Éxito", "Medicamento registrado", [
         {
           text: "OK",
-          onPress: () => navigation.goBack(), // Opción recomendada para flujo simple
+          onPress: () => navigation.goBack(),
         },
       ]);
     } catch (error) {
       console.error("Error en el registro:", error);
       Alert.alert("Error", "Algo falló en el registro del medicamento");
     } finally {
-      setLoading(false); // Finaliza el estado de carga
+      setLoading(false);
     }
   };
 
@@ -96,37 +115,64 @@ export default function RegistrarMedicamento({}) {
                 Aquí puedes registrar medicamentos.
               </Text>
             </View>
+            
             <View style={StylesGen.inputContainer}>
               <TextInput
                 placeholder="Nombre"
-                style={StylesGen.input}
+                style={[
+                  StylesGen.input,
+                  nombreError ? styles.inputError : null
+                ]}
                 value={nombre}
-                onChangeText={setNombre}
+                onChangeText={(text) => {
+                  const cleaned = cleanInput(text);
+                  setNombre(cleaned);
+                  if (nombreError) setNombreError("");
+                }}
               />
               <MaterialCommunityIcons
                 name="pill"
                 size={30}
-                color="gray"
+                color={nombreError ? "red" : "gray"}
                 style={StylesGen.icon}
               />
             </View>
+            {nombreError ? (
+              <Text style={styles.errorText}>{nombreError}</Text>
+            ) : null}
+
             <View style={StylesGen.inputContainer}>
               <TextInput
                 placeholder="Descripción"
-                style={StylesGen.input}
+                style={[
+                  StylesGen.input,
+                  descripcionError ? styles.inputError : null
+                ]}
                 value={description}
-                onChangeText={setDescripcion}
+                onChangeText={(text) => {
+                  const cleaned = cleanInput(text);
+                  setDescripcion(cleaned);
+                  if (descripcionError) setDescripcionError("");
+                }}
+                multiline
               />
               <MaterialCommunityIcons
                 name="pill"
                 size={30}
-                color="gray"
+                color={descripcionError ? "red" : "gray"}
                 style={StylesGen.icon}
               />
             </View>
+            {descripcionError ? (
+              <Text style={styles.errorText}>{descripcionError}</Text>
+            ) : null}
+
             <View style={{ alignItems: "center" }}>
               <TouchableOpacity
-                style={[StylesGen.button]}
+                style={[
+                  StylesGen.button,
+                  loading ? styles.buttonDisabled : null
+                ]}
                 onPress={handleRegister}
                 disabled={loading}
               >
@@ -147,7 +193,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 20,
   },
-
   button: {
     backgroundColor: "#4CAF89",
     paddingVertical: 15,
@@ -167,23 +212,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
   },
-  createAccount: {
-    marginTop: 20,
-    color: "#666",
-  },
-  createLink: {
-    color: "#4CAF89",
-    fontWeight: "bold",
-    marginTop: 25,
-    textDecorationLine: "underline",
-  },
   errorText: {
     color: "red",
     fontSize: 14,
     marginBottom: 10,
-    textAlign: "left", // Alinea el texto a la izquierda
-    alignSelf: "flex-start", // Asegura que el texto no esté centrado en el contenedor
+    textAlign: "left",
+    alignSelf: "flex-start",
+    marginLeft: 15,
   },
+
   buttonDisabled: {
     backgroundColor: "#ccc",
   },
