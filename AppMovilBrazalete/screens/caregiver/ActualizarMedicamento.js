@@ -30,6 +30,9 @@ export default function ActualizarMedicamento() {
   const navigation = useNavigation();
   const route = useRoute();
   const { id } = route.params; //Pasamos el id
+  const [nombreError, setNombreError] = useState("");
+  const [descripcionError, setDescripcionError] = useState("");
+
 
   // Cargamos  datos del medicamento renderizar
   useEffect(() => {
@@ -45,7 +48,7 @@ export default function ActualizarMedicamento() {
         );
         setNombre(response.data.nombre); //Set al nombre y descripcion
         setDescripcion(response.data.description);
-        
+
       } catch (error) {
         Alert.alert("Error", "No se pudo cargar el medicamento");
       } finally {
@@ -58,26 +61,52 @@ export default function ActualizarMedicamento() {
     }
   }, [id, token]);
 
+
+  const cleanInput = (input) => {
+    return input.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "");
+  };
+
+  const isWhitespaceOnly = (str) => {
+    return !str || !str.trim();
+  };
+
+
   //Actualizar medicamento
   const handleRegister = async () => {
-    if (!nombre || !descripcion) {
-      Alert.alert("Error", "Completa todos los campos");
-      return;
+    setNombreError("");
+    setDescripcionError("");
+
+    const nombreLimpio = cleanInput(nombre);
+    const descripcionLimpia = cleanInput(descripcion);
+
+    let isValid = true;
+
+    if (isWhitespaceOnly(nombreLimpio)) {
+      setNombreError("El nombre no puede estar vacío");
+      isValid = false;
+    } else if (!/^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]+$/.test(nombreLimpio)) {
+      setNombreError("Solo letras y espacios permitidos");
+      isValid = false;
     }
-  
-    if (descripcion.length < 5) {
-      Alert.alert("Error", "La descripción debe tener al menos 5 caracteres");
-      return;
+
+    if (isWhitespaceOnly(descripcionLimpia)) {
+      setDescripcionError("La descripción no puede estar vacía");
+      isValid = false;
+    } else if (descripcionLimpia.trim().length < 5) {
+      setDescripcionError("Mínimo 5 caracteres");
+      isValid = false;
     }
-  
+
+    if (!isValid) return;
+
     setLoading(true);
-  
+
     try {
-      const response = await axios.put(
+      await axios.put(
         `${API_BASE_URL}/api/medication/${id}`,
         {
-          nombre: nombre,
-          description: descripcion,
+          nombre: nombreLimpio.trim(),
+          description: descripcionLimpia.trim(),
         },
         {
           headers: {
@@ -97,7 +126,8 @@ export default function ActualizarMedicamento() {
       setLoading(false);
     }
   };
-  
+
+
 
   //Estado de deep
   if (loadingData) {
@@ -134,33 +164,43 @@ export default function ActualizarMedicamento() {
             <View style={StylesGen.inputContainer}>
               <TextInput
                 placeholder="Nombre"
-                style={StylesGen.input}
+                style={[StylesGen.input, nombreError ? styles.inputError : null]}
                 value={nombre}
-                onChangeText={setNombre}
+                onChangeText={(text) => {
+                  const cleaned = cleanInput(text);
+                  setNombre(cleaned);
+                  if (nombreError) setNombreError("");
+                }}
               />
               <MaterialCommunityIcons
                 name="pill"
                 size={30}
-                color="gray"
+                color={nombreError ? "red" : "gray"}
                 style={StylesGen.icon}
               />
             </View>
+            {nombreError && <Text style={styles.errorText}>{nombreError}</Text>}
+
             <View style={StylesGen.inputContainer}>
-
-              <TextInput 
-                placeholder="Descripción" 
-                style={StylesGen.input} 
-                value={descripcion} 
-                onChangeText={setDescripcion} 
-
+              <TextInput
+                placeholder="Descripción"
+                style={[StylesGen.input, descripcionError ? styles.inputError : null]}
+                value={descripcion}
+                onChangeText={(text) => {
+                  const cleaned = cleanInput(text);
+                  setDescripcion(cleaned);
+                  if (descripcionError) setDescripcionError("");
+                }}
+                multiline
               />
               <MaterialCommunityIcons
                 name="pill"
                 size={30}
-                color="gray"
+                color={descripcionError ? "red" : "gray"}
                 style={StylesGen.icon}
               />
             </View>
+            {descripcionError && <Text style={styles.errorText}>{descripcionError}</Text>}
             <View style={{ alignItems: "center" }}>
               <TouchableOpacity
                 style={styles.button}
@@ -204,5 +244,12 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  errorText: {
+    color: "red",
+    fontSize: 14,
+    marginBottom: 10,
+    marginLeft: 15,
+    alignSelf: 'flex-start',
   },
 });
