@@ -30,11 +30,7 @@ export default function Historialrecordatorioss() {
     }
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-        getrecordatorios(id);
-    },[])
-  );
+
 
   const getrecordatorios = async (id) => {
     try {
