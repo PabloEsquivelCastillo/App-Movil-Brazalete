@@ -156,7 +156,7 @@ export default function Recordatorios({ navigation }) {
               getRecordatorios(cuidadorId);
               Alert.alert(
                 "Exito",
-                "El medicamento ha sido eliminado correctament"
+                "El recordatorio ha sido desactivado"
               );
             } catch (error) {
               Alert.alert("Error", "Error al desactivar el medicamento");
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cuidadorName: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
     color: "#000",
     marginBottom: 5,

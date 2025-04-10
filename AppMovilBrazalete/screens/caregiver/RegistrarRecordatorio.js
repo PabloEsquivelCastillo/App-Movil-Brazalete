@@ -14,93 +14,71 @@ import DropDownPicker from "react-native-dropdown-picker";
 import { SafeAreaView } from "react-native";
 import { useState, useEffect, useContext } from "react";
 import theme from "../../themes/theme";
-import Ionicons from '@expo/vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { API_BASE_URL } from "@env";
 import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
 
 export default function RegistarRecordatorio({ navigation }) {
-    const { token, user } = useContext(AuthContext); //Obtenemos el token
+    const { token, user } = useContext(AuthContext);
     const [openBrazalete, setOpenBrazalete] = useState(false);
     const [brazaleteValue, setBrazaleteValue] = useState(null);
     const [brazaletes, setBrazaletes] = useState([]);
 
+    const [openMedicamento, setOpenMedicamento] = useState(false);
+    const [medicamentoValue, setMedicamentoValue] = useState(null);
+    const [medicamentos, setMedicamentos] = useState([]);
+
+    const [fechaInicio, setFechaInicio] = useState(new Date());
+    const [showFechaInicioPicker, setShowFechaInicioPicker] = useState(false);
+    const [fechaFin, setFechaFin] = useState(new Date());
+    const [showFechaFinPicker, setShowFechaFinPicker] = useState(false);
+
+    const [nombrePaciente, setNombrePaciente] = useState('');
+    const [periodicidad, setPeriodicidad] = useState('');
+    const [isCronico, setIsCronico] = useState(false);
+    const [isFormValid, setIsFormValid] = useState(false);
+
+    // Nuevo estado para manejar el modo del picker en Android
+    const [pickerMode, setPickerMode] = useState('date');
+
     useEffect(() => {
         if (token) {
             getBrazaletes();
+            getMedicamentos();
         }
-    }, [])
+    }, [token]);
 
-    //Obtener brazaletes
     const getBrazaletes = async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/api/brazalet/user/${user.payload.id}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            const brazaletesFormateados = response.data.map(brazalete => ({
-                label: brazalete.nombre,
-                value: brazalete._id
-            }));
-            setBrazaletes(brazaletesFormateados);
-
+            const response = await axios.get(`${API_BASE_URL}/api/brazalet/user/${user.payload.id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setBrazaletes(response.data.map(b => ({ label: b.nombre, value: b._id })));
         } catch (error) {
+            console.error("Error obteniendo brazaletes:", error);
             setBrazaletes([]);
         }
     };
 
-
-    //Estado de medicamentos
-    const [openMedicamento, setOpenMedicamento] = useState(false);
-    const [medicamentoValue, setMedicamentoValue] = useState(null);
-
-    const [medicamentos, setMedicamentos] = useState([]);
-
-    useEffect(() => {
-        if (token) {
-            getMedicamentos()
-        }
-    }, [])
-    //Obtener medicamentos
     const getMedicamentos = async () => {
         try {
-
-            const response = await axios.get(`${API_BASE_URL}/api/medication`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
-
-
-            const medicamentoFormato = response.data.map(medicamento => ({
-                label: medicamento.nombre,
-                value: medicamento._id
-            }))
-            setMedicamentos(medicamentoFormato)
-
+            const response = await axios.get(`${API_BASE_URL}/api/medication`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setMedicamentos(response.data.map(m => ({ label: m.nombre, value: m._id })));
         } catch (error) {
-            setMedicamentos([])
-
+            console.error("Error al cargar los medicamentos:", error);
+            setMedicamentos([]);
         }
-    }
+    };
 
-
-    //Envio del registro
     const handleSubmit = async () => {
-
         if (!brazaleteValue || !medicamentoValue || !periodicidad || !nombrePaciente) {
             Alert.alert("Error", "Por favor complete todos los campos");
             return;
         }
 
-        // Asegurar que periodicidad sea número válido > 0
         const horas = parseInt(periodicidad) || 0;
         if (horas <= 0) {
             Alert.alert("Error", "La periodicidad debe ser mayor a 0");
@@ -108,7 +86,6 @@ export default function RegistarRecordatorio({ navigation }) {
         }
 
         try {
-            // Preparar datos exactamente como los espera el backend
             const datos = {
                 inicio: fechaInicio.toISOString(),
                 fin: isCronico ? "" : fechaFin.toISOString(),
@@ -120,96 +97,114 @@ export default function RegistarRecordatorio({ navigation }) {
                 id_pulsera: brazaleteValue
             };
 
+            console.log("Enviando datos:", datos);
 
-            const response = await axios.post(
-                `${API_BASE_URL}/api/reminder`,
-                datos,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
+            await axios.post(`${API_BASE_URL}/api/reminder`, datos, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
-            );
+            });
 
-            // Reset exitoso
             setBrazaleteValue(null);
             setMedicamentoValue(null);
             setNombrePaciente('');
             setPeriodicidad('');
             setIsCronico(false);
 
-            Alert.alert("Éxito", "Medicamento registrado", [
-                {
-                    text: "OK",
-                    onPress: () => navigation.goBack(), // Opción recomendada para flujo simple
-                },
+            Alert.alert("Éxito", "Recordatorio registrado", [
+                { text: "OK", onPress: () => navigation.goBack() },
             ]);
 
         } catch (error) {
-            Alert.alert("Error", mensaje);
+            console.error("Error completo:", error);
+            Alert.alert("Error", error.response?.data?.message || "Ocurrió un error al registrar");
         }
     };
 
+    // Función mejorada para manejar el cambio de fecha/hora
+    const handleFechaInicioChange = (event, selectedDate) => {
+        if (Platform.OS === 'android') {
+            setShowFechaInicioPicker(false);
+            if (pickerMode === 'date') {
+                // Si estamos en modo fecha y el usuario seleccionó, pasamos a modo hora
+                if (event.type === 'set') {
+                    setFechaInicio(selectedDate);
+                    setPickerMode('time');
+                    setShowFechaInicioPicker(true);
+                    return;
+                }
+            } else {
+                // Si estamos en modo hora, reiniciamos el modo a fecha
+                setPickerMode('date');
+            }
+        }
 
-
-
-
-
-
-
-
-    // Estados para las fechas
-    const [fechaInicio, setFechaInicio] = useState(new Date());
-    const [showFechaInicioPicker, setShowFechaInicioPicker] = useState(false);
-
-    const [fechaFin, setFechaFin] = useState(new Date());
-    const [showFechaFinPicker, setShowFechaFinPicker] = useState(false);
-
-    const [nombrePaciente, setNombrePaciente] = useState('');
-    const [periodicidad, setPeriodicidad] = useState('');
-    const [isCronico, setIsCronico] = useState(false);
-    const [isFormValid, setIsFormValid] = useState(false);
-
-    // Validar formulario
-    useEffect(() => {
-        const valid = brazaleteValue && medicamentoValue && periodicidad && nombrePaciente;
-        setIsFormValid(!!valid);
-    }, [brazaleteValue, medicamentoValue, periodicidad]);
-
-    // Manejar cambio de fecha inicio
-    const onChangeFechaInicio = (event, selectedDate) => {
-        setShowFechaInicioPicker(false);
-        if (selectedDate) {
-            setFechaInicio(selectedDate);
-            // Si la fecha fin es anterior a la nueva fecha inicio, actualizarla
-            if (fechaFin < selectedDate) {
-                setFechaFin(selectedDate);
+        if (event?.type === "set" && selectedDate) {
+            const currentDate = selectedDate || fechaInicio;
+            setFechaInicio(currentDate);
+            if (fechaFin < currentDate) {
+                setFechaFin(currentDate);
             }
         }
     };
 
-    // Manejar cambio de fecha fin
-    const onChangeFechaFin = (event, selectedDate) => {
-        setShowFechaFinPicker(false);
-        if (selectedDate && selectedDate >= fechaInicio) {
-            setFechaFin(selectedDate);
-        } else {
-            Alert.alert("Error", "La fecha fin no puede ser anterior a la fecha inicio");
+    const handleFechaFinChange = (event, selectedDate) => {
+        if (Platform.OS === 'android') {
+            setShowFechaFinPicker(false);
+            if (pickerMode === 'date') {
+                if (event.type === 'set') {
+                    setFechaFin(selectedDate);
+                    setPickerMode('time');
+                    setShowFechaFinPicker(true);
+                    return;
+                }
+            } else {
+                setPickerMode('date');
+            }
+        }
+
+        if (event?.type === "set" && selectedDate) {
+            const currentDate = selectedDate || fechaFin;
+            if (currentDate >= fechaInicio) {
+                setFechaFin(currentDate);
+            } else {
+                Alert.alert("Error", "La fecha fin no puede ser anterior a la fecha inicio");
+            }
         }
     };
 
-    // Formatear fecha para mostrar
+    // Función para mostrar el picker en Android
+    const showPicker = (type) => {
+        if (Platform.OS === 'android') {
+            setPickerMode('date');
+            if (type === 'inicio') {
+                setShowFechaInicioPicker(true);
+            } else {
+                setShowFechaFinPicker(true);
+            }
+        } else {
+            if (type === 'inicio') {
+                setShowFechaInicioPicker(true);
+            } else {
+                setShowFechaFinPicker(true);
+            }
+        }
+    };
+
     const formatDate = (date) => {
         return date.toLocaleDateString('es-ES', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric',
-                    hour: '2-digit',
-        minute: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
         });
     };
 
+    useEffect(() => {
+        setIsFormValid(!!(brazaleteValue && medicamentoValue && periodicidad && nombrePaciente));
+    }, [brazaleteValue, medicamentoValue, periodicidad, nombrePaciente]);
 
     return (
         <>
@@ -219,12 +214,10 @@ export default function RegistarRecordatorio({ navigation }) {
                     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                     style={styles.container}
                 >
-                    {/* Contenido principal */}
                     <View style={styles.content}>
                         <Text style={[styles.title, { marginTop: 10 }]}>Recordatorio</Text>
                         <Text style={styles.text}>Este es el menú, aquí podrás crear recordatorios.</Text>
 
-                        {/* Dropdown para brazaletes */}
                         <DropDownPicker
                             open={openBrazalete}
                             value={brazaleteValue}
@@ -242,7 +235,6 @@ export default function RegistarRecordatorio({ navigation }) {
                             listEmptyLabel="No hay brazaletes disponibles"
                         />
 
-
                         <View style={styles.inputContainer}>
                             <TextInput
                                 placeholder="Nombre del paciente"
@@ -252,7 +244,6 @@ export default function RegistarRecordatorio({ navigation }) {
                             />
                         </View>
 
-                        {/* Dropdown para medicamentos */}
                         <DropDownPicker
                             open={openMedicamento}
                             value={medicamentoValue}
@@ -267,86 +258,60 @@ export default function RegistarRecordatorio({ navigation }) {
                             placeholderStyle={styles.placeholderText}
                             zIndex={2000}
                             zIndexInverse={2000}
-                            
                         />
 
-                        {/* Contenedor para inputs de fecha */}
                         <View style={styles.groupInput}>
-                            {/* Input para fecha inicio */}
                             <TouchableOpacity
                                 style={[styles.inputContainer, { width: '48%' }]}
-                                onPress={() => setShowFechaInicioPicker(true)}
+                                onPress={() => showPicker('inicio')}
                             >
-                                <Text style={styles.input}>
-                                    {formatDate(fechaInicio)}
-                                </Text>
-                                {showFechaInicioPicker && (
-                                    <DateTimePicker
-                                        value={fechaInicio}
-                                        mode="datetime"
-                                        display="default"
-                                        minimumDate={new Date()}
-                                        onChange={onChangeFechaInicio}
-                                    />
-                                )}
+                                <Text style={styles.input}>{formatDate(fechaInicio)}</Text>
                             </TouchableOpacity>
 
-                            {/* Input para fecha fin (solo si no es crónico) */}
                             {!isCronico && (
                                 <TouchableOpacity
                                     style={[styles.inputContainer, { width: '48%' }]}
-                                    onPress={() => setShowFechaFinPicker(true)}
+                                    onPress={() => showPicker('fin')}
                                 >
-                                    <Text style={styles.input}>
-                                        {formatDate(fechaFin)}
-                                    </Text>
-                                    {showFechaFinPicker && (
-                                        <DateTimePicker
-                                            value={fechaFin}
-                                            mode="datetime"
-                                            display="default"
-                                            minimumDate={fechaInicio}
-                                            onChange={onChangeFechaFin}
-                                        />
-                                    )}
+                                    <Text style={styles.input}>{formatDate(fechaFin)}</Text>
                                 </TouchableOpacity>
                             )}
                         </View>
+
+                        {(showFechaInicioPicker || showFechaFinPicker) && (
+                            <DateTimePicker
+                                value={showFechaInicioPicker ? fechaInicio : fechaFin}
+                                mode={Platform.OS === 'android' ? pickerMode : 'datetime'}
+                                display="default"
+                                minimumDate={fechaInicio}
+                                onChange={showFechaInicioPicker ? handleFechaInicioChange : handleFechaFinChange}
+                            />
+                        )}
 
                         <View style={styles.inputContainer}>
                             <TextInput
                                 placeholder="Periodicidad en horas (ej: 8)"
                                 style={styles.input}
                                 value={periodicidad}
-                                onChangeText={(text) => {
-                                    // Filtra solo números y convierte a entero
-                                    const numericValue = text.replace(/[^0-9]/g, '');
-                                    setPeriodicidad(numericValue);
-                                }}
+                                onChangeText={(text) => setPeriodicidad(text.replace(/[^0-9]/g, ''))}
                                 keyboardType="numeric"
                             />
                         </View>
 
-                        {/* Switch para crónico - Versión mejorada */}
                         <View style={styles.switchContainer}>
                             <Text style={styles.label}>Crónico</Text>
                             <Switch
                                 trackColor={{ false: "#ccc", true: theme.colors.secondary }}
                                 thumbColor={isCronico ? theme.colors.primary : "#f4f3f4"}
-                                ios_backgroundColor="#3e3e3e"
+                                value={isCronico}
                                 onValueChange={(newValue) => {
                                     setIsCronico(newValue);
-                                    // Si se activa crónico, establece fecha fin muy futura
-                                    if (newValue) {
-                                        setFechaFin(new Date(9999, 11, 31));
-                                    }
+                                    if (newValue) setFechaFin(new Date(9999, 11, 31));
                                 }}
-                                value={isCronico}
                             />
                         </View>
                     </View>
 
-                    {/* Botón para guardar */}
                     <TouchableOpacity
                         style={[styles.button, !isFormValid && styles.buttonDisabled]}
                         disabled={!isFormValid}
@@ -360,6 +325,7 @@ export default function RegistarRecordatorio({ navigation }) {
     );
 }
 
+// Tus estilos permanecen igual
 // Tus estilos permanecen igual
 const styles = StyleSheet.create({
     container: {
