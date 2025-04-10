@@ -26,6 +26,8 @@ export const AuthProvider = ({ children }) => {
         // Verificar el estado de la solicitud
         if (decodedToken.edoReq === 0) {
           setAuthStatus('pending');
+          await AsyncStorage.setItem("userToken", token);
+          return;
         } else if (decodedToken.edoReq === 1) {
           setAuthStatus('approved');
           setUser({ token: storedToken, payload: decodedToken });
@@ -33,6 +35,7 @@ export const AuthProvider = ({ children }) => {
         } else if (decodedToken.edoReq === 2) {
           setAuthStatus('rejected');
           await AsyncStorage.removeItem("userToken");
+          return;
         }
       } else {
         logout();
@@ -53,14 +56,18 @@ export const AuthProvider = ({ children }) => {
       // Verificar el estado de la solicitud antes de permitir el acceso
       if (payload.edoReq === 0) {
         setAuthStatus('pending');
+        setUser(null);
+        setToken(null);
         await AsyncStorage.setItem("userToken", token);
         return;
       } else if (payload.edoReq === 2) {
         setAuthStatus('rejected');
+        setUser(null);
+        setToken(null);
         await AsyncStorage.removeItem("userToken");
         return;
       }
-
+      
       // Si está aprobado (edoReq === 1)
       await AsyncStorage.setItem("userToken", token);
       setUser({ token, payload });

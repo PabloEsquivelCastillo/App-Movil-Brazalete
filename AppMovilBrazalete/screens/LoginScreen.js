@@ -36,23 +36,25 @@ export default function LoginScreen({ navigation }) {
 
   const validateEmail = (text) => {
     setEmail(text);
+    const trimmedText = text.trim(); 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const isValid = emailRegex.test(text);
+    const isValid = emailRegex.test(trimmedText);
     setIsValidEmail(isValid);
     if (!isValid) setLoginError('Correo electrónico inválido');
     else setLoginError('');
   };
 
   const handleLogin = async () => {
-    if (!email.trim()) {
+
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+  
+    if (!trimmedEmail) {
       showCustomAlert('Por favor ingresa tu email');
       return;
     }
-    if (!isValidEmail) {
-      showCustomAlert('Por favor ingresa un correo electrónico válido');
-      return;
-    }
-    if (!password.trim()) {
+    
+    if (!trimmedPassword) {
       showCustomAlert('Por favor ingresa tu contraseña');
       return;
     }
@@ -60,7 +62,15 @@ export default function LoginScreen({ navigation }) {
     setLoading(true);
     setLoginError('');
     try {
-      await login(email, password);
+      await login(trimmedEmail, trimmedPassword);
+      // Verificar nuevamente el estado después del login
+      if (authStatus === 'pending') {
+        showCustomAlert('Su solicitud está en espera de aprobación');
+        return;
+      } else if (authStatus === 'rejected') {
+        showCustomAlert('Su solicitud ha sido rechazada');
+        return;
+      }
     } catch (error) {
       showCustomAlert('Email o contraseña incorrectos');
     } finally {
